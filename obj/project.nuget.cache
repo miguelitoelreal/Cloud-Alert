@@ -1,11 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "LviVhguTsTI=",
+  "dgSpecHash": "9HcJjNFyT1M=",
   "success": true,
   "projectFilePath": "C:\\Users\\Tottus Electro\\Desktop\\IS2\\Cloud-Alert\\CloudAlertApp.csproj",
-  "expectedPackageFiles": [
-    "C:\\Users\\Tottus Electro\\.nuget\\packages\\microsoft.aspnetcore.openapi\\9.0.3\\microsoft.aspnetcore.openapi.9.0.3.nupkg.sha512",
-    "C:\\Users\\Tottus Electro\\.nuget\\packages\\microsoft.openapi\\1.6.17\\microsoft.openapi.1.6.17.nupkg.sha512"
-  ],
+  "expectedPackageFiles": [],
   "logs": []
 }
