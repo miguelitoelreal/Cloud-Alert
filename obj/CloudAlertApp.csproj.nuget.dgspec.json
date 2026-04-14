@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Tottus Electro\\Desktop\\IS2\\Cloud-Alert\\CloudAlertApp\\CloudAlertApp.csproj": {}
+    "C:\\Users\\Tottus Electro\\Desktop\\IS2\\Cloud-Alert\\CloudAlertApp.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Tottus Electro\\Desktop\\IS2\\Cloud-Alert\\CloudAlertApp\\CloudAlertApp.csproj": {
+    "C:\\Users\\Tottus Electro\\Desktop\\IS2\\Cloud-Alert\\CloudAlertApp.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Tottus Electro\\Desktop\\IS2\\Cloud-Alert\\CloudAlertApp\\CloudAlertApp.csproj",
+        "projectUniqueName": "C:\\Users\\Tottus Electro\\Desktop\\IS2\\Cloud-Alert\\CloudAlertApp.csproj",
         "projectName": "CloudAlertApp",
-        "projectPath": "C:\\Users\\Tottus Electro\\Desktop\\IS2\\Cloud-Alert\\CloudAlertApp\\CloudAlertApp.csproj",
+        "projectPath": "C:\\Users\\Tottus Electro\\Desktop\\IS2\\Cloud-Alert\\CloudAlertApp.csproj",
         "packagesPath": "C:\\Users\\Tottus Electro\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Tottus Electro\\Desktop\\IS2\\Cloud-Alert\\CloudAlertApp\\obj\\",
+        "outputPath": "C:\\Users\\Tottus Electro\\Desktop\\IS2\\Cloud-Alert\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Tottus Electro\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -43,6 +43,12 @@
       "frameworks": {
         "net9.0": {
           "targetAlias": "net9.0",
+          "dependencies": {
+            "Microsoft.AspNetCore.OpenApi": {
+              "target": "Package",
+              "version": "[9.0.3, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",
@@ -55,6 +61,9 @@
           "assetTargetFallback": true,
           "warn": true,
           "frameworkReferences": {
+            "Microsoft.AspNetCore.App": {
+              "privateAssets": "none"
+            },
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }
