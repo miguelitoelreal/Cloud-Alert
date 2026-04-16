@@ -39,10 +39,30 @@ button.accept-policy {
   line-height: inherit;
 }
 
-.footer {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  white-space: nowrap;
-  line-height: 60px;
+
+/* Footer personalizado Cloud Alert Hub */
+.custom-footer {
+  background: #23272b;
+  color: #f8f9fa;
+  padding-top: 2rem;
+  padding-bottom: 1rem;
+  margin-top: 3rem;
+  text-align: center;
+}
+.custom-footer a {
+  color: #0dcaf0;
+  text-decoration: none;
+  margin: 0 0.5rem;
+  transition: color 0.2s;
+}
+.custom-footer a:hover {
+  color: #fff;
+}
+.custom-footer .footer-icons {
+  margin-top: 0.5rem;
+}
+.custom-footer .footer-icons a {
+  font-size: 1.3rem;
+  vertical-align: middle;
+  margin: 0 0.7rem;
 }
