@@ -11,20 +11,39 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">CloudAlertApp</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+        <nav class="navbar navbar-expand-lg neon-navbar py-3">
+            <div class="container">
+                <a class="navbar-brand fw-bold d-flex align-items-center" asp-area="" asp-controller="Home" asp-action="Index" style="font-size:1.7rem; letter-spacing:0.04em;">
+                    <span class="me-2 d-flex align-items-center">
+                        <!-- Logo SVG futurista -->
+                        <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 0 8px #00e6fbcc);">
+                            <circle cx="19" cy="19" r="17" stroke="#00e6fb" stroke-width="3" fill="#181c2b" />
+                            <path d="M12 22L19 10L26 22H21V28H17V22H12Z" fill="#00e6fb" stroke="#00c6fb" stroke-width="1.5" stroke-linejoin="round"/>
+                        </svg>
+                    </span>
+                    <span style="background: linear-gradient(90deg,#00e6fb 40%,#005bea 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent; background-clip:text;">Cloud Alert Hub</span>
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+                <div class="collapse navbar-collapse" id="mainNavbar">
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link nav-link-neon active" asp-area="" asp-controller="Home" asp-action="Index">Inicio</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link nav-link-neon" href="#features">Funcionalidades</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-neon" href="#">Contacto</a>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav mb-2 mb-lg-0 ms-3">
+                        <li class="nav-item">
+                            <a class="btn btn-outline-info me-2 px-3 fw-bold" href="#" style="border-radius: 1.5rem;">Iniciar sesión</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-info px-3 fw-bold text-white" href="#" style="border-radius: 1.5rem;">Crear cuenta</a>
                         </li>
                     </ul>
                 </div>
@@ -37,13 +56,140 @@
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
+    <!-- Botón flotante de modo claro/oscuro -->
+    <button id="themeToggleBtn" aria-label="Cambiar modo claro/oscuro" style="position:fixed;bottom:32px;right:32px;z-index:2000;width:72px;height:72px;border-radius:50%;border:none;box-shadow:0 4px 32px #00e6fb88;background:#232a3d;display:flex;align-items:center;justify-content:center;transition:background 0.3s, box-shadow 0.3s;overflow:hidden;">
+        <span id="themeToggleIcon" style="display:block;width:60px;height:60px;position:relative;">
+            <!-- SVG modo claro: sol, nubes, pájaros, brillos -->
+            <svg id="iconSunCloud" viewBox="0 0 60 60" width="60" height="60" fill="none" style="position:absolute;top:0;left:0;transition:opacity 0.7s;opacity:0;">
+                <g id="sun-group">
+                    <circle cx="30" cy="30" r="13" fill="#FFD600" filter="url(#glowSun)"/>
+                    <g stroke="#FFD600" stroke-width="2">
+                        <line x1="30" y1="7" x2="30" y2="15"/>
+                        <line x1="30" y1="45" x2="30" y2="53"/>
+                        <line x1="7" y1="30" x2="15" y2="30"/>
+                        <line x1="45" y1="30" x2="53" y2="30"/>
+                        <line x1="13" y1="13" x2="18" y2="18"/>
+                        <line x1="42" y1="42" x2="47" y2="47"/>
+                        <line x1="13" y1="47" x2="18" y2="42"/>
+                        <line x1="42" y1="18" x2="47" y2="13"/>
+                    </g>
+                </g>
+                <!-- Nubes -->
+                <ellipse id="cloud1" cx="44" cy="50" rx="10" ry="3.5" fill="#fff" opacity="0.9">
+                    <animate attributeName="cx" values="44;50;44" dur="3s" repeatCount="indefinite"/>
+                </ellipse>
+                <ellipse id="cloud2" cx="22" cy="54" rx="7" ry="2.5" fill="#fff" opacity="0.7">
+                    <animate attributeName="cx" values="22;16;22" dur="4s" repeatCount="indefinite"/>
+                </ellipse>
+                <!-- Pájaros -->
+                <path id="bird1" d="M14 28 Q17 25 20 28" stroke="#232a3d" stroke-width="1.5" fill="none">
+                    <animate attributeName="d" values="M14 28 Q17 25 20 28;M14 27 Q17 24 20 27;M14 28 Q17 25 20 28" dur="2s" repeatCount="indefinite"/>
+                </path>
+                <path id="bird2" d="M24 22 Q27 19 30 22" stroke="#232a3d" stroke-width="1.2" fill="none">
+                    <animate attributeName="d" values="M24 22 Q27 19 30 22;M24 21 Q27 18 30 21;M24 22 Q27 19 30 22" dur="2.5s" repeatCount="indefinite"/>
+                </path>
+                <!-- Brillos -->
+                <circle cx="30" cy="30" r="13" fill="#fff" opacity="0.1">
+                    <animate attributeName="opacity" values="0.1;0.25;0.1" dur="2.5s" repeatCount="indefinite"/>
+                </circle>
+                <defs>
+                    <filter id="glowSun" x="-20%" y="-20%" width="140%" height="140%">
+                        <feGaussianBlur stdDeviation="2.5" result="glow"/>
+                        <feMerge>
+                            <feMergeNode in="glow"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                </defs>
+            </svg>
+            <!-- SVG modo oscuro: luna, estrellas, nube, brillos -->
+            <svg id="iconMoonStars" viewBox="0 0 60 60" width="60" height="60" fill="none" style="position:absolute;top:0;left:0;transition:opacity 0.7s;opacity:0;">
+                <!-- Luna -->
+                <path d="M44 44Q36 50 26 44Q16 38 20 28Q21 25 24 23Q24.5 22 24 21Q23.5 20 22 21Q12 30 16 42Q20 54 36 54Q52 54 56 42Q57 41 56 40Q55 39 54 40Q53 41 52 44Z" fill="#00e6fb" filter="url(#glowMoon)"/>
+                <circle cx="46" cy="26" r="3" fill="#00e6fb"/>
+                <!-- Estrellas -->
+                <circle cx="14" cy="14" r="1.7" fill="#fff">
+                    <animate attributeName="r" values="1.7;2.5;1.7" dur="2s" repeatCount="indefinite"/>
+                </circle>
+                <circle cx="52" cy="18" r="1.2" fill="#fff">
+                    <animate attributeName="r" values="1.2;2;1.2" dur="2.5s" repeatCount="indefinite"/>
+                </circle>
+                <circle cx="28" cy="10" r="1.3" fill="#fff">
+                    <animate attributeName="r" values="1.3;2;1.3" dur="1.7s" repeatCount="indefinite"/>
+                </circle>
+                <circle cx="38" cy="8" r="0.9" fill="#fff">
+                    <animate attributeName="r" values="0.9;1.5;0.9" dur="2.2s" repeatCount="indefinite"/>
+                </circle>
+                <!-- Nube -->
+                <ellipse id="cloudNight" cx="48" cy="54" rx="10" ry="3.5" fill="#e0e6ed" opacity="0.7">
+                    <animate attributeName="cx" values="48;42;48" dur="4s" repeatCount="indefinite"/>
+                </ellipse>
+                <!-- Brillos -->
+                <circle cx="36" cy="44" r="13" fill="#00e6fb" opacity="0.08">
+                    <animate attributeName="opacity" values="0.08;0.18;0.08" dur="2.5s" repeatCount="indefinite"/>
+                </circle>
+                <defs>
+                    <filter id="glowMoon" x="-20%" y="-20%" width="140%" height="140%">
+                        <feGaussianBlur stdDeviation="2.5" result="glow"/>
+                        <feMerge>
+                            <feMergeNode in="glow"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                </defs>
+            </svg>
+        </span>
+    </button>
+
+    <footer class="custom-footer">
         <div class="container">
-            &copy; 2026 - CloudAlertApp - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            <div class="fw-bold mb-1" style="font-size:1.2rem;">Cloud Alert Hub &mdash; Monitoreo y protección de servicios cloud</div>
+            <div class="mb-2">
+                <small>&copy; 2026 Cloud Alert Hub. Todos los derechos reservados. | <a href="#">Contacto</a></small>
+            </div>
+            <div class="footer-icons">
+                <a href="#" title="Seguridad">&#128274; <span class="visually-hidden">Seguridad</span></a>
+                <a href="#" title="Estado">&#9889; <span class="visually-hidden">Estado</span></a>
+                <a href="#" title="Soporte">&#128231; <span class="visually-hidden">Soporte</span></a>
+            </div>
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    // Tema claro/oscuro con SVG animado
+    const themeBtn = document.getElementById('themeToggleBtn');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const iconSunCloud = document.getElementById('iconSunCloud');
+    const iconMoonStars = document.getElementById('iconMoonStars');
+    function setTheme(dark) {
+        document.body.classList.toggle('light-mode', !dark);
+        document.body.classList.toggle('dark-mode', dark);
+        themeBtn.style.background = dark ? '#232a3d' : '#e0e6ed';
+        // Animación SVG
+        if (dark) {
+            iconSunCloud.style.opacity = 0;
+            iconMoonStars.style.opacity = 1;
+            iconMoonStars.style.transform = 'scale(1)';
+            iconSunCloud.style.transform = 'scale(0.7)';
+        } else {
+            iconSunCloud.style.opacity = 1;
+            iconMoonStars.style.opacity = 0;
+            iconSunCloud.style.transform = 'scale(1.1)';
+            iconMoonStars.style.transform = 'scale(0.7)';
+        }
+    }
+    // Estado inicial
+    let dark = localStorage.getItem('theme') === 'dark' || (localStorage.getItem('theme') === null && prefersDark);
+    setTheme(dark);
+    themeBtn.onclick = () => {
+        dark = !dark;
+        setTheme(dark);
+        localStorage.setItem('theme', dark ? 'dark' : 'light');
+    };
+    // Inicializar iconos
+    setTimeout(() => setTheme(dark), 10);
+    </script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>

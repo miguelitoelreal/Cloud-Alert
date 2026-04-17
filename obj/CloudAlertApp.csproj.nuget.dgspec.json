@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Tottus Electro\\Desktop\\IS2\\Cloud-Alert\\CloudAlertApp.csproj": {}
+    "C:\\Users\\Tottus Electro\\Desktop\\Nueva carpeta\\Cloud-Alert\\CloudAlertApp.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Tottus Electro\\Desktop\\IS2\\Cloud-Alert\\CloudAlertApp.csproj": {
+    "C:\\Users\\Tottus Electro\\Desktop\\Nueva carpeta\\Cloud-Alert\\CloudAlertApp.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Tottus Electro\\Desktop\\IS2\\Cloud-Alert\\CloudAlertApp.csproj",
+        "projectUniqueName": "C:\\Users\\Tottus Electro\\Desktop\\Nueva carpeta\\Cloud-Alert\\CloudAlertApp.csproj",
         "projectName": "CloudAlertApp",
-        "projectPath": "C:\\Users\\Tottus Electro\\Desktop\\IS2\\Cloud-Alert\\CloudAlertApp.csproj",
+        "projectPath": "C:\\Users\\Tottus Electro\\Desktop\\Nueva carpeta\\Cloud-Alert\\CloudAlertApp.csproj",
         "packagesPath": "C:\\Users\\Tottus Electro\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Tottus Electro\\Desktop\\IS2\\Cloud-Alert\\obj\\",
+        "outputPath": "C:\\Users\\Tottus Electro\\Desktop\\Nueva carpeta\\Cloud-Alert\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Tottus Electro\\AppData\\Roaming\\NuGet\\NuGet.Config"
