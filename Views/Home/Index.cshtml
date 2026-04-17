@@ -1,8 +1,184 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Cloud Alert Hub";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 text-center">
+            <h1 class="display-3 fw-bold mb-3">Cloud Alert Hub</h1>
+            <p class="lead mb-4">La plataforma integral para monitoreo, alertas y protección de tus servicios en la nube y activos digitales.</p>
+            <a href="#features" class="btn btn-primary btn-lg mb-5">Descubre las funcionalidades</a>
+        </div>
+    </div>
+
+    <div class="row text-center mb-5" id="features">
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body">
+                    <span class="d-block mb-3" style="height:56px;display:flex;align-items:center;justify-content:center;">
+                        <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/prometheus.svg" alt="Monitoreo" width="48" height="48" title="Monitoreo en Tiempo Real" style="background:transparent;filter:drop-shadow(0 0 8px #00e6fb88);" />
+                    </span>
+                    <h5 class="card-title">Monitoreo en Tiempo Real</h5>
+                    <p class="card-text">Supervisa el estado de más de 2,000 servicios cloud y recibe alertas instantáneas ante incidentes.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body">
+                    <span class="d-block mb-3" style="height:56px;display:flex;align-items:center;justify-content:center;">
+                        <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/opsgenie.svg" alt="Incidentes" width="48" height="48" title="Gestión de Incidentes" style="background:transparent;filter:drop-shadow(0 0 8px #00e6fb88);" />
+                    </span>
+                    <h5 class="card-title">Gestión de Incidentes</h5>
+                    <p class="card-text">Registra, visualiza y notifica incidentes para mantener la continuidad de tus operaciones.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body">
+                    <span class="d-block mb-3" style="height:56px;display:flex;align-items:center;justify-content:center;">
+                        <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/letsencrypt.svg" alt="Protección" width="48" height="48" title="Protección de Marca" style="background:transparent;filter:drop-shadow(0 0 8px #00e6fb88);" />
+                    </span>
+                    <h5 class="card-title">Protección de Marca</h5>
+                    <p class="card-text">Monitorea dominios, certificados y amenazas externas para proteger tu reputación digital.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Integraciones Destacadas -->
+    <div class="row justify-content-center mt-5" id="integraciones">
+        <div class="col-lg-8 text-center">
+            <h2 class="fw-bold mb-4">Integraciones con tus herramientas favoritas</h2>
+            <p class="lead mb-4">Conecta Cloud Alert Hub con los principales servicios cloud y canales de comunicación para una experiencia unificada.</p>
+            <div class="d-flex flex-wrap justify-content-center gap-4 mb-3">
+                <span class="mx-3 text-center">
+                    <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/amazonaws.svg" alt="AWS" width="48" height="48" title="AWS" style="background:transparent;" />
+                    <div style="font-size:0.9em">AWS</div>
+                </span>
+                <span class="mx-3 text-center">
+                    <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/microsoftazure.svg" alt="Azure" width="48" height="48" title="Azure" style="background:transparent;" />
+                    <div style="font-size:0.9em">Azure</div>
+                </span>
+                <span class="mx-3 text-center">
+                    <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/googlecloud.svg" alt="Google Cloud" width="48" height="48" title="Google Cloud" style="background:transparent;" />
+                    <div style="font-size:0.9em">Google Cloud</div>
+                </span>
+                <span class="mx-3 text-center">
+                    <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/slack.svg" alt="Slack" width="48" height="48" title="Slack" style="background:transparent;" />
+                    <div style="font-size:0.9em">Slack</div>
+                </span>
+                <span class="mx-3 text-center">
+                    <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/microsoftteams.svg" alt="Teams" width="48" height="48" title="Microsoft Teams" style="background:transparent;" />
+                    <div style="font-size:0.9em">Teams</div>
+                </span>
+                <span class="mx-3 text-center">
+                    <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/telegram.svg" alt="Telegram" width="48" height="48" title="Telegram" style="background:transparent;" />
+                    <div style="font-size:0.9em">Telegram</div>
+                </span>
+            </div>
+            <small class="text-muted">...y muchas más</small>
+        </div>
+    </div>
+
+    <!-- Casos de Uso -->
+    <div class="row justify-content-center mt-5" id="casos-uso">
+        <div class="col-lg-8 text-center">
+            <h2 class="fw-bold mb-4">Casos de Uso</h2>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <div class="card h-100 bg-dark text-white border-0 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">Empresas SaaS</h5>
+                            <p class="card-text">Garantiza la disponibilidad de tus servicios y comunica incidentes a tus clientes en tiempo real.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="card h-100 bg-dark text-white border-0 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">E-commerce</h5>
+                            <p class="card-text">Detecta caídas o problemas en tu tienda online y actúa antes de que afecten tus ventas.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Testimonios -->
+    <div class="row justify-content-center mt-5" id="testimonios">
+        <div class="col-lg-8 text-center">
+            <h2 class="fw-bold mb-4">Lo que dicen nuestros clientes</h2>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body">
+                            <p class="card-text">"Cloud Alert Hub nos permitió anticipar incidentes críticos y mejorar la confianza de nuestros usuarios."</p>
+                            <span class="fw-bold">— Ana P., CTO en FintechPro</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body">
+                            <p class="card-text">"La integración con Slack y Teams hizo que todo el equipo esté siempre informado al instante."</p>
+                            <span class="fw-bold">— Luis M., IT Manager en RetailX</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Seguridad y Cumplimiento -->
+    <div class="row justify-content-center mt-5" id="seguridad">
+        <div class="col-lg-8 text-center">
+            <h2 class="fw-bold mb-4">Seguridad y Cumplimiento</h2>
+            <p class="lead mb-4">Tus datos y operaciones están protegidos con los más altos estándares de seguridad y cumplimiento normativo.</p>
+            <ul class="list-unstyled lead mb-4" style="padding-left:0;">
+                <li class="d-flex align-items-center justify-content-center mb-2">
+                    <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/letsencrypt.svg" alt="Ícono de cifrado de datos (Let's Encrypt)" width="28" height="28" class="me-2" style="background:transparent;filter:drop-shadow(0 0 4px #00e6fbcc);" />
+                    Cifrado de datos en tránsito y en reposo
+                </li>
+                <li class="d-flex align-items-center justify-content-center mb-2">
+                    <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/owasp.svg" alt="Ícono de cumplimiento GDPR (OWASP)" width="28" height="28" class="me-2" style="background:transparent;filter:drop-shadow(0 0 4px #00e6fbcc);" />
+                    Cumplimiento con GDPR y normativas internacionales
+                </li>
+                <li class="d-flex align-items-center justify-content-center mb-2">
+                    <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/elasticstack.svg" alt="Ícono de auditoría y trazabilidad (Elastic Stack)" width="28" height="28" class="me-2" style="background:transparent;filter:drop-shadow(0 0 4px #00e6fbcc);" />
+                    Auditoría y trazabilidad de eventos
+                </li>
+            </ul>
+        </div>
+    </div>
+    </div>
+
+    <div class="row justify-content-center mt-5">
+        <div class="col-lg-8 text-center">
+            <h2 class="fw-bold mb-3">¿Por qué elegir Cloud Alert Hub?</h2>
+            <ul class="list-unstyled lead mb-4" style="padding-left:0;">
+                <li class="d-flex align-items-center justify-content-center mb-2">
+                    <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/airtable.svg" alt="Ícono de plataforma todo en uno (Airtable)" width="26" height="26" class="me-2" style="background:transparent;filter:drop-shadow(0 0 4px #00e6fbcc);" />
+                    Plataforma todo-en-uno
+                </li>
+                <li class="d-flex align-items-center justify-content-center mb-2">
+                    <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/opsgenie.svg" alt="Ícono de alertas automáticas (Opsgenie)" width="26" height="26" class="me-2" style="background:transparent;filter:drop-shadow(0 0 4px #00e6fbcc);" />
+                    Alertas y reportes automáticos
+                </li>
+                <li class="d-flex align-items-center justify-content-center mb-2">
+                    <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/simpleicons.svg" alt="Ícono de facilidad de uso (Simple Icons)" width="26" height="26" class="me-2" style="background:transparent;filter:drop-shadow(0 0 4px #00e6fbcc);" />
+                    Fácil de usar y personalizar
+                </li>
+                <li class="d-flex align-items-center justify-content-center mb-2">
+                    <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/letsencrypt.svg" alt="Ícono de seguridad y confiabilidad (Let's Encrypt)" width="26" height="26" class="me-2" style="background:transparent;filter:drop-shadow(0 0 4px #00e6fbcc);" />
+                    Seguridad y confiabilidad
+                </li>
+            </ul>
+            <a href="#" class="btn btn-success btn-lg">Comienza ahora</a>
+        </div>
+    </div>
+    </div>
+</div>
 </div>
