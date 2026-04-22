@@ -317,6 +317,48 @@ a:hover, .custom-footer a:hover {
   border: 1.5px solid #00e6fb44;
 }
 
+.auth-page {
+  min-height: calc(100vh - 180px);
+}
+
+.auth-card {
+  border: 1px solid #00e6fb44;
+  backdrop-filter: blur(2px);
+}
+
+.auth-card .form-control {
+  background: #181c2bcc;
+  border: 1px solid #00e6fb55;
+  color: #e0e6ed;
+}
+
+.auth-card .form-control::placeholder {
+  color: #b0b8c1;
+}
+
+.auth-card .form-control:focus {
+  border-color: #00e6fb;
+  background: #1d2436;
+}
+
+.auth-card .form-label {
+  color: #e0e6ed;
+}
+
+.light-mode .auth-card .form-control {
+  background: #ffffff;
+  border-color: #00b4d866;
+  color: #232a3d;
+}
+
+.light-mode .auth-card .form-control::placeholder {
+  color: #6c757d;
+}
+
+.light-mode .auth-card .form-label {
+  color: #232a3d;
+}
+
 /* Scrollbar futurista */
 ::-webkit-scrollbar {
   width: 10px;
