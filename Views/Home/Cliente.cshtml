@@ -1,0 +1,433 @@
+@model List<CloudAlertApp.Models.Cliente>
+
+@{
+    ViewData["Title"] = "Gestión de Clientes";
+}
+
+<style>
+    :root {
+        --bg-dark: #0f1419;
+        --bg-secondary: #1a1f2e;
+        --border-dark: #2d3748;
+        --text-light: #e2e8f0;
+        --text-muted: #a0aec0;
+        --accent-blue: #60a5fa;
+        --accent-green: #10b981;
+    }
+
+    body {
+        background-color: var(--bg-dark);
+        color: var(--text-light);
+    }
+
+    .header-section {
+        margin-bottom: 2rem;
+    }
+
+    .header-section h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        color: var(--text-light);
+    }
+
+    .header-section p {
+        color: var(--text-muted);
+        font-size: 1rem;
+    }
+
+    .container-main {
+        display: grid;
+        grid-template-columns: 1fr 1.5fr;
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+
+    .form-card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-dark);
+        border-radius: 12px;
+        padding: 2rem;
+    }
+
+    .form-title {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+
+    .form-title::before {
+        content: "👤";
+        font-size: 1.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .form-group input,
+    .form-group select {
+        width: 100%;
+        padding: 0.75rem;
+        background: var(--bg-dark);
+        border: 1px solid var(--border-dark);
+        border-radius: 6px;
+        color: var(--text-light);
+        font-size: 1rem;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+        outline: none;
+        border-color: var(--accent-blue);
+        box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+    }
+
+    .form-group input::placeholder {
+        color: var(--text-muted);
+    }
+
+    .btn-guardar {
+        width: 100%;
+        padding: 0.85rem;
+        background: var(--accent-blue);
+        border: none;
+        border-radius: 6px;
+        color: white;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-guardar:hover {
+        background: #3b82f6;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(96, 165, 250, 0.4);
+    }
+
+    .table-section {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-dark);
+        border-radius: 12px;
+        padding: 2rem;
+    }
+
+    .table-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .filters {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .filter-btn {
+        padding: 0.5rem 1rem;
+        background: transparent;
+        border: 1px solid var(--border-dark);
+        border-radius: 6px;
+        color: var(--text-muted);
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+
+    .filter-btn:hover,
+    .filter-btn.active {
+        background: var(--accent-blue);
+        border-color: var(--accent-blue);
+        color: white;
+    }
+
+    .btn-exportar {
+        padding: 0.5rem 1.25rem;
+        background: var(--accent-green);
+        border: none;
+        border-radius: 6px;
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-exportar:hover {
+        background: #059669;
+        transform: translateY(-2px);
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    thead {
+        background: var(--bg-dark);
+    }
+
+    th {
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        border-bottom: 1px solid var(--border-dark);
+    }
+
+    td {
+        padding: 1rem;
+        border-bottom: 1px solid var(--border-dark);
+    }
+
+    tbody tr:hover {
+        background: var(--bg-dark);
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.35rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .status-aws { background: #ff9900; color: white; }
+    .status-azure { background: #0078d4; color: white; }
+    .status-m365 { background: #00a4ef; color: white; }
+
+    .btn-edit {
+        background: var(--accent-blue);
+        border: none;
+        color: white;
+        padding: 0.4rem 0.8rem;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.85rem;
+    }
+
+    .btn-edit:hover {
+        background: #3b82f6;
+    }
+
+    .footer-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 1.5rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border-dark);
+        color: var(--text-muted);
+        font-size: 0.9rem;
+    }
+
+    @media (max-width: 1024px) {
+        .container-main {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .alert {
+        padding: 1rem;
+        border-radius: 6px;
+        margin-bottom: 1rem;
+    }
+
+    .alert-success {
+        background: rgba(16, 185, 129, 0.1);
+        border: 1px solid var(--accent-green);
+        color: var(--accent-green);
+    }
+
+    .icon-status {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        display: inline-block;
+    }
+
+    .icon-status.active {
+        background: var(--accent-green);
+    }
+</style>
+
+<div class="container-fluid py-5" style="background: var(--bg-dark);">
+    <div class="container">
+        <div class="header-section">
+            <h1>Gestión de Clientes</h1>
+            <p>Registro de cuentas y clasificación por tipo de servicio.</p>
+        </div>
+
+        <div id="alertSuccess" class="alert alert-success" style="display: none;">
+            ✓ Cliente registrado exitosamente
+        </div>
+
+        <div class="container-main">
+            <!-- Formulario Registro -->
+            <div class="form-card">
+                <div class="form-title">REGISTRAR CLIENTE</div>
+                
+                <form id="formCliente">
+                    <div class="form-group">
+                        <label>Nombre de la Empresa</label>
+                        <input type="text" id="nombreEmpresa" placeholder="Ej: Global Tech" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Servicio Principal (IND-TI)</label>
+                        <select id="servicioPrincipal" required>
+                            <option value="">Seleccionar servicio...</option>
+                            <option value="AWS">Amazon Web Services (AWS)</option>
+                            <option value="Azure">Microsoft Azure</option>
+                            <option value="M365">Microsoft 365</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Correo Administrador</label>
+                        <input type="email" id="correoAdministrador" placeholder="admin@empresa.com" required>
+                    </div>
+
+                    <button type="submit" class="btn-guardar">Guardar Cliente</button>
+                </form>
+            </div>
+
+            <!-- Tabla Clientes -->
+            <div class="table-section">
+                <div class="table-header">
+                    <div class="filters">
+                        <button class="filter-btn active" data-filter="todos">Todos</button>
+                        <button class="filter-btn" data-filter="AWS">AWS</button>
+                        <button class="filter-btn" data-filter="Azure">Azure</button>
+                        <button class="filter-btn" data-filter="M365">M365</button>
+                    </div>
+                    <button class="btn-exportar" id="btnExportar">📊 Exportar</button>
+                </div>
+
+                <div class="table-responsive">
+                    <table id="tablaClientes">
+                        <thead>
+                            <tr>
+                                <th>CLIENTE</th>
+                                <th>SERVICIO</th>
+                                <th>ADMINISTRADOR</th>
+                                <th>ACCIONES</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaClientesBody">
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="footer-info">
+                    <span id="clientesCount">0 CLIENTES REGISTRADOS</span>
+                    <span id="paginacion">1 DE 1</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let clientesActuales = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model ?? new List<CloudAlertApp.Models.Cliente>()));
+    let filtroActual = 'todos';
+
+    function renderizarTabla() {
+        const tbody = document.getElementById('tablaClientesBody');
+        tbody.innerHTML = '';
+
+        let clientesFiltrados = clientesActuales;
+        if (filtroActual !== 'todos') {
+            clientesFiltrados = clientesActuales.filter(c => c.servicioPrincipal === filtroActual);
+        }
+
+        clientesFiltrados.forEach(cliente => {
+            const row = document.createElement('tr');
+            const badgeClass = `status-${cliente.servicioPrincipal.toLowerCase()}`;
+            row.innerHTML = `
+                <td>
+                    <span class="icon-status active"></span> ${cliente.nombreEmpresa}
+                </td>
+                <td>
+                    <span class="status-badge ${badgeClass}">${cliente.servicioPrincipal}</span>
+                </td>
+                <td>${cliente.correoAdministrador}</td>
+                <td>
+                    <button class="btn-edit">✎ Editar</button>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+
+        document.getElementById('clientesCount').textContent = `${clientesFiltrados.length} CLIENTES REGISTRADOS`;
+    }
+
+    // Formulario Submit
+    document.getElementById('formCliente').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const nombreEmpresa = document.getElementById('nombreEmpresa').value;
+        const servicioPrincipal = document.getElementById('servicioPrincipal').value;
+        const correoAdministrador = document.getElementById('correoAdministrador').value;
+
+        const response = await fetch('/Home/GuardarCliente', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `nombreEmpresa=${encodeURIComponent(nombreEmpresa)}&servicioPrincipal=${encodeURIComponent(servicioPrincipal)}&correoAdministrador=${encodeURIComponent(correoAdministrador)}`
+        });
+
+        if (response.ok) {
+            const nuevoCliente = await response.json();
+            clientesActuales.push(nuevoCliente);
+            renderizarTabla();
+            document.getElementById('formCliente').reset();
+            
+            // Mostrar alerta
+            const alert = document.getElementById('alertSuccess');
+            alert.style.display = 'block';
+            setTimeout(() => alert.style.display = 'none', 3000);
+        }
+    });
+
+    // Filtros
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            e.target.classList.add('active');
+            filtroActual = e.target.dataset.filter;
+            renderizarTabla();
+        });
+    });
+
+    // Exportar
+    document.getElementById('btnExportar').addEventListener('click', () => {
+        window.location.href = '/Home/ExportarExcel';
+    });
+
+    // Inicializar
+    renderizarTabla();
+</script>
