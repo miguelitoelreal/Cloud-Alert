@@ -1,0 +1,97 @@
+@model Cliente
+
+@{
+    ViewData["Title"] = "Editar Cliente";
+}
+
+<div class="container py-5">
+    <div class="row mb-5">
+        <div class="col-12">
+            <h1 class="display-5 fw-bold">Editar Cliente</h1>
+            <p class="lead text-muted">Actualiza la información del cliente.</p>
+        </div>
+    </div>
+
+    <!-- Mensajes de Éxito/Error -->
+    @if (TempData["Exito"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>✓ Éxito:</strong> @TempData["Exito"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>✗ Error:</strong> @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm" style="background-color: #1a1f2e; color: #fff;">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-4">
+                        <i class="bi bi-pencil" style="font-size: 1.5rem; margin-right: 10px;"></i>
+                        <h5 class="card-title mb-0">EDITAR CLIENTE</h5>
+                    </div>
+
+                    <form method="post" action="/Home/EditarCliente/@Model.Id">
+                        <input type="hidden" name="id" value="@Model.Id">
+
+                        <div class="mb-3">
+                            <label for="nombreEmpresa" class="form-label fw-bold">NOMBRE DE LA EMPRESA</label>
+                            <input type="text" class="form-control form-control-lg" id="nombreEmpresa" 
+                                   name="nombreEmpresa" value="@Model.NombreEmpresa" required
+                                   style="background-color: #2a3142; border: 1px solid #3a4252; color: #fff;">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="servicioPrincipal" class="form-label fw-bold">SERVICIO PRINCIPAL (IND-TI)</label>
+                            <select class="form-select form-select-lg" id="servicioPrincipal" 
+                                    name="servicioPrincipal" required
+                                    style="background-color: #2a3142; border: 1px solid #3a4252; color: #fff;">
+                                <option value="">-- Selecciona un servicio --</option>
+                                <option value="AWS" selected="@(Model.ServicioPrincipal == "AWS" ? "selected" : "")">Amazon Web Services (AWS)</option>
+                                <option value="AZURE" selected="@(Model.ServicioPrincipal == "AZURE" ? "selected" : "")">Microsoft Azure</option>
+                                <option value="M365" selected="@(Model.ServicioPrincipal == "M365" ? "selected" : "")">Microsoft 365</option>
+                                <option value="GCP" selected="@(Model.ServicioPrincipal == "GCP" ? "selected" : "")">Google Cloud Platform</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="correoAdministrador" class="form-label fw-bold">CORREO ADMINISTRADOR</label>
+                            <input type="email" class="form-control form-control-lg" id="correoAdministrador" 
+                                   name="correoAdministrador" value="@Model.CorreoAdministrador" required
+                                   style="background-color: #2a3142; border: 1px solid #3a4252; color: #fff;">
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg fw-bold">
+                                ACTUALIZAR CLIENTE
+                            </button>
+                            <a href="/Home/Clientes" class="btn btn-outline-secondary btn-lg fw-bold">
+                                CANCELAR
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control, .form-select {
+        font-size: 0.95rem;
+    }
+
+    .form-control:focus, .form-select:focus {
+        background-color: #2a3142 !important;
+        border-color: #0066ff !important;
+        color: #fff !important;
+        box-shadow: 0 0 0 0.2rem rgba(0, 102, 255, 0.25);
+    }
+</style>

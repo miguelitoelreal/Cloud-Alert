@@ -1,0 +1,214 @@
+@model List<Cliente>
+
+@{
+    ViewData["Title"] = "Gestión de Clientes";
+}
+
+<div class="container py-5">
+    <!-- Mensajes de Éxito/Error -->
+    @if (TempData["Exito"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>✓ Éxito:</strong> @TempData["Exito"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>✗ Error:</strong> @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row mb-5">
+        <div class="col-12 d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="display-5 fw-bold">Gestión de Clientes</h1>
+                <p class="lead text-muted">Registro de cuentas y clasificación por tipo de servicio.</p>
+            </div>
+            <a href="/Home/ExportarClientes" class="btn btn-success btn-lg fw-bold">
+                <i class="bi bi-download"></i> Exportar a Excel
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Formulario de Registro -->
+        <div class="col-lg-5 mb-4">
+            <div class="card border-0 shadow-sm" style="background-color: #1a1f2e; color: #fff;">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-4">
+                        <i class="bi bi-person-plus" style="font-size: 1.5rem; margin-right: 10px;"></i>
+                        <h5 class="card-title mb-0">REGISTRAR CLIENTE</h5>
+                    </div>
+
+                    <form method="post" action="/Home/CrearCliente" id="formCliente">
+                        <div class="mb-3">
+                            <label for="nombreEmpresa" class="form-label fw-bold">NOMBRE DE LA EMPRESA</label>
+                            <input type="text" class="form-control form-control-lg" id="nombreEmpresa" 
+                                   name="nombreEmpresa" placeholder="Ej: Global Tech" required
+                                   style="background-color: #2a3142; border: 1px solid #3a4252; color: #fff;">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="servicioPrincipal" class="form-label fw-bold">SERVICIO PRINCIPAL (IND-TI)</label>
+                            <select class="form-select form-select-lg" id="servicioPrincipal" 
+                                    name="servicioPrincipal" required
+                                    style="background-color: #2a3142; border: 1px solid #3a4252; color: #fff;">
+                                <option value="">-- Selecciona un servicio --</option>
+                                <option value="AWS">Amazon Web Services (AWS)</option>
+                                <option value="AZURE">Microsoft Azure</option>
+                                <option value="M365">Microsoft 365</option>
+                                <option value="GCP">Google Cloud Platform</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="correoAdministrador" class="form-label fw-bold">CORREO ADMINISTRADOR</label>
+                            <input type="email" class="form-control form-control-lg" id="correoAdministrador" 
+                                   name="correoAdministrador" placeholder="admin@empresa.com" required
+                                   style="background-color: #2a3142; border: 1px solid #3a4252; color: #fff;">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold">
+                            GUARDAR CLIENTE
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla de Clientes -->
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm" style="background-color: #1a1f2e;">
+                <div class="card-body p-4">
+                    <!-- Filtros por Servicio -->
+                    <div class="btn-group mb-4 w-100" role="group">
+                        <input type="radio" class="btn-check" name="filtro" id="filtroTodos" value="todos" checked>
+                        <label class="btn btn-outline-primary" for="filtroTodos">Todos</label>
+
+                        <input type="radio" class="btn-check" name="filtro" id="filtroAWS" value="AWS">
+                        <label class="btn btn-outline-secondary" for="filtroAWS">AWS</label>
+
+                        <input type="radio" class="btn-check" name="filtro" id="filtroAzure" value="AZURE">
+                        <label class="btn btn-outline-secondary" for="filtroAzure">Azure</label>
+
+                        <input type="radio" class="btn-check" name="filtro" id="filtroM365" value="M365">
+                        <label class="btn btn-outline-secondary" for="filtroM365">M365</label>
+                    </div>
+
+                    <!-- Tabla -->
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover mb-0" id="tablaClientes">
+                            <thead style="background-color: #0a0e14;">
+                                <tr>
+                                    <th scope="col" class="fw-bold">CLIENTE</th>
+                                    <th scope="col" class="fw-bold">SERVICIO</th>
+                                    <th scope="col" class="fw-bold">ADMINISTRADOR</th>
+                                    <th scope="col" class="fw-bold" style="width: 100px;">ACCIONES</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var cliente in Model)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <span class="badge bg-success rounded-circle" style="width: 10px; height: 10px; margin-right: 8px;"></span>
+                                                <span>@cliente.NombreEmpresa</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            @if (cliente.ServicioPrincipal == "AWS")
+                                            {
+                                                <span class="badge bg-warning text-dark">@cliente.ServicioPrincipal</span>
+                                            }
+                                            else if (cliente.ServicioPrincipal == "AZURE")
+                                            {
+                                                <span class="badge bg-info">@cliente.ServicioPrincipal</span>
+                                            }
+                                            else if (cliente.ServicioPrincipal == "M365")
+                                            {
+                                                <span class="badge bg-success">@cliente.ServicioPrincipal</span>
+                                            }
+                                        </td>
+                                        <td>@cliente.CorreoAdministrador</td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <a href="/Home/EditarCliente/@cliente.Id" class="btn btn-sm btn-primary" title="Editar">
+                                                    <i class="bi bi-pencil"></i>
+                                                </a>
+                                                <form method="post" action="/Home/EliminarCliente" style="display: inline;">
+                                                    <input type="hidden" name="id" value="@cliente.Id">
+                                                    <button type="submit" class="btn btn-sm btn-danger" title="Eliminar" onclick="return confirm('¿Está seguro de que desea eliminar este cliente?')">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Footer con paginación -->
+                    <div class="d-flex justify-content-between align-items-center mt-4 pt-3" style="border-top: 1px solid #3a4252;">
+                        <small class="text-muted">@Model.Count() CLIENTES REGISTRADOS</small>
+                        <small class="text-muted">1 DE 1</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control, .form-select {
+        font-size: 0.95rem;
+    }
+
+    .form-control:focus, .form-select:focus {
+        background-color: #2a3142 !important;
+        border-color: #0066ff !important;
+        color: #fff !important;
+        box-shadow: 0 0 0 0.2rem rgba(0, 102, 255, 0.25);
+    }
+
+    .btn-group label {
+        color: #fff;
+    }
+
+    .btn-check:checked + .btn {
+        background-color: #0066ff !important;
+        border-color: #0066ff !important;
+    }
+
+    table tbody tr {
+        border-color: #3a4252;
+    }
+
+    table tbody tr:hover {
+        background-color: #2a3142 !important;
+    }
+</style>
+
+<script>
+    document.querySelectorAll('input[name="filtro"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            const filtro = this.value;
+            const filas = document.querySelectorAll('#tablaClientes tbody tr');
+            
+            filas.forEach(fila => {
+                if (filtro === 'todos') {
+                    fila.style.display = '';
+                } else {
+                    const servicio = fila.querySelector('td:nth-child(2)').textContent.trim();
+                    fila.style.display = servicio === filtro ? '' : 'none';
+                }
+            });
+        });
+    });
+</script>
