@@ -174,6 +174,23 @@
         transform: translateY(-2px);
     }
 
+    .btn-importar {
+        padding: 0.5rem 1.25rem;
+        background: #2563eb;
+        border: none;
+        border-radius: 6px;
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-left: 0.5rem;
+    }
+
+    .btn-importar:hover {
+        background: #1d4ed8;
+        transform: translateY(-2px);
+    }
+
     .table-responsive {
         overflow-x: auto;
     }
@@ -247,6 +264,13 @@
         background: #3b82f6;
         transform: translateY(-1px);
         box-shadow: 0 2px 8px rgba(96, 165, 250, 0.3);
+    }
+
+    .btn-edit.btn-icon {
+        padding: 0.4rem 0.6rem;
+        font-size: 1rem;
+        line-height: 1;
+        min-width: unset;
     }
 
     .footer-info {
@@ -447,16 +471,18 @@
 
             <!-- Tabla Clientes -->
             <div class="table-section">
+                <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.25rem;">
+                    <button class="btn-exportar" id="btnExportar">📊 Exportar</button>
+                    <button class="btn-importar" id="btnImportar">⬆ Importar Excel</button>
+                    <input type="file" id="inputExcel" accept=".xlsx" style="display:none;" />
+                    <button class="btn-exportar" id="btnLimpiar" style="background: #ef4444;">🗑️ Limpiar todo</button>
+                </div>
                 <div class="table-header">
                     <div class="filters">
                         <button class="filter-btn active" data-filter="todos">Todos</button>
                         <button class="filter-btn" data-filter="AWS">AWS</button>
                         <button class="filter-btn" data-filter="Azure">Azure</button>
                         <button class="filter-btn" data-filter="M365">M365</button>
-                    </div>
-                    <div>
-                        <button class="btn-exportar" id="btnExportar">📊 Exportar</button>
-                        <button class="btn-exportar" id="btnLimpiar" style="background: #ef4444; margin-left: 0.5rem;">🗑️ Limpiar todo</button>
                     </div>
                 </div>
 
@@ -525,7 +551,7 @@
 </div>
 
 <script>
-    let clientesActuales = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model ?? new List<CloudAlertApp.Models.Cliente>()));
+    let clientesActuales = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model ?? new List<CloudAlertApp.Models.Cliente>(), new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
     let filtroActual = 'todos';
 
     function esCorreoGmail(correo) {
@@ -555,8 +581,8 @@
                 <td>${cliente.correoAdministrador}</td>
                 <td>${fecha}</td>
                 <td>
-                    <button class="btn-edit" onclick="editarCliente(${cliente.id})">✎ Editar</button>
-                    <button class="btn-edit" onclick="eliminarCliente(${cliente.id})" style="background: #ef4444; margin-left: 0.5rem;">✕ Eliminar</button>
+                    <button class="btn-edit btn-icon" onclick="editarCliente(${cliente.id})" title="Editar">✎</button>
+                    <button class="btn-edit btn-icon" onclick="eliminarCliente(${cliente.id})" title="Eliminar" style="background: #ef4444; margin-left: 0.4rem;">✕</button>
                 </td>
             `;
             tbody.appendChild(row);
@@ -634,6 +660,9 @@
             if (index !== -1) {
                 clientesActuales[index] = clienteActualizado;
             }
+            filtroActual = 'todos';
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector('.filter-btn[data-filter="todos"]').classList.add('active');
             renderizarTabla();
             document.getElementById('modalEditar').classList.remove('active');
             
@@ -667,6 +696,9 @@
         if (response.ok) {
             const nuevoCliente = await response.json();
             clientesActuales.push(nuevoCliente);
+            filtroActual = 'todos';
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector('.filter-btn[data-filter="todos"]').classList.add('active');
             renderizarTabla();
             document.getElementById('formCliente').reset();
             
@@ -692,6 +724,38 @@
         window.location.href = '/Home/ExportarExcel';
     });
 
+    // Importar
+    document.getElementById('btnImportar').addEventListener('click', () => {
+        document.getElementById('inputExcel').click();
+    });
+
+    document.getElementById('inputExcel').addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) {
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('archivoExcel', file);
+
+        const response = await fetch('/Home/ImportarExcel', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) {
+            const errorMessage = await response.text();
+            alert(`No se pudo importar el Excel: ${errorMessage}`);
+            e.target.value = '';
+            return;
+        }
+
+        const resultado = await response.json();
+        alert(`Importación completada. Importados: ${resultado.importados}, Omitidos: ${resultado.omitidos}`);
+        window.location.reload();
+        e.target.value = '';
+    });
+
     // Limpiar todo
     document.getElementById('btnLimpiar').addEventListener('click', async () => {
         if (confirm('⚠️ Esto eliminará todos los clientes. ¿Continuar?')) {
@@ -701,7 +765,7 @@
             });
 
             if (response.ok) {
-                clientesActuales = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model ?? new List<CloudAlertApp.Models.Cliente>()));
+                clientesActuales = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model ?? new List<CloudAlertApp.Models.Cliente>(), new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
                 renderizarTabla();
                 alert('✓ Datos limpiados exitosamente');
             }
