@@ -38,6 +38,11 @@ public class HomeController : Controller
             return BadRequest("Datos inválidos");
         }
 
+        if (!EsCorreoGmail(correoAdministrador))
+        {
+            return BadRequest("El correo del administrador debe ser Gmail.");
+        }
+
         var nuevoCliente = new Cliente
         {
             Id = clientesData.Max(c => c.Id) + 1,
@@ -69,6 +74,11 @@ public class HomeController : Controller
         if (string.IsNullOrEmpty(nombreEmpresa) || string.IsNullOrEmpty(correoAdministrador))
         {
             return BadRequest("Datos inválidos");
+        }
+
+        if (!EsCorreoGmail(correoAdministrador))
+        {
+            return BadRequest("El correo del administrador debe ser Gmail.");
         }
 
         var cliente = clientesData.FirstOrDefault(c => c.Id == id);
@@ -170,6 +180,11 @@ public class HomeController : Controller
     public IActionResult Privacy()
     {
         return View();
+    }
+
+    private static bool EsCorreoGmail(string correo)
+    {
+        return correo.Trim().EndsWith("@gmail.com", StringComparison.OrdinalIgnoreCase);
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

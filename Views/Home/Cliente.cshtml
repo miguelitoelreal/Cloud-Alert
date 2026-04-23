@@ -438,7 +438,7 @@
 
                     <div class="form-group">
                         <label>Correo Administrador</label>
-                        <input type="email" id="correoAdministrador" placeholder="admin@empresa.com" required>
+                        <input type="email" id="correoAdministrador" placeholder="admin@@gmail.com" pattern="^[^@@\s]+@@gmail\.com$" title="Solo se permite correo Gmail (@@gmail.com)" required>
                     </div>
 
                     <button type="submit" class="btn-guardar">Guardar Cliente</button>
@@ -513,7 +513,7 @@
 
             <div class="form-group">
                 <label>Correo Administrador</label>
-                <input type="email" id="correoAdministradorEdit" placeholder="admin@empresa.com" required>
+                <input type="email" id="correoAdministradorEdit" placeholder="admin@@gmail.com" pattern="^[^@@\s]+@@gmail\.com$" title="Solo se permite correo Gmail (@@gmail.com)" required>
             </div>
 
             <div class="modal-footer">
@@ -527,6 +527,10 @@
 <script>
     let clientesActuales = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model ?? new List<CloudAlertApp.Models.Cliente>()));
     let filtroActual = 'todos';
+
+    function esCorreoGmail(correo) {
+        return /^[^\x40\s]+\x40gmail\.com$/i.test(correo.trim());
+    }
 
     function renderizarTabla() {
         const tbody = document.getElementById('tablaClientesBody');
@@ -613,6 +617,11 @@
         const servicioPrincipal = document.getElementById('servicioPrincipalEdit').value;
         const correoAdministrador = document.getElementById('correoAdministradorEdit').value;
 
+        if (!esCorreoGmail(correoAdministrador)) {
+            alert('El correo del administrador debe ser Gmail (gmail.com).');
+            return;
+        }
+
         const response = await fetch('/Home/ActualizarCliente', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -643,6 +652,11 @@
         const nombreEmpresa = document.getElementById('nombreEmpresa').value;
         const servicioPrincipal = document.getElementById('servicioPrincipal').value;
         const correoAdministrador = document.getElementById('correoAdministrador').value;
+
+        if (!esCorreoGmail(correoAdministrador)) {
+            alert('El correo del administrador debe ser Gmail (gmail.com).');
+            return;
+        }
 
         const response = await fetch('/Home/GuardarCliente', {
             method: 'POST',
