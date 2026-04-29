@@ -1,0 +1,519 @@
+@model List<Cliente>
+@{
+    ViewData["Title"] = "Gestión de Clientes";
+}
+
+<style>
+    .cliente-container {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 20px;
+        padding: 20px;
+    }
+
+    .registro-card {
+        background: linear-gradient(135deg, #1a1f3a 0%, #16213e 100%);
+        border: 1px solid #00e6fb33;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 8px 32px rgba(0, 230, 251, 0.1);
+    }
+
+    .registro-card h2 {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 25px;
+        font-size: 18px;
+        font-weight: 600;
+        color: #00e6fb;
+    }
+
+    .registro-card h2 i {
+        font-size: 24px;
+    }
+
+    .form-group {
+        margin-bottom: 18px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: #a0aec0;
+        letter-spacing: 0.5px;
+    }
+
+    .form-group input,
+    .form-group select {
+        width: 100%;
+        padding: 12px;
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid #00e6fb4d;
+        border-radius: 6px;
+        color: #fff;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+        outline: none;
+        border-color: #00e6fb;
+        background: rgba(0, 230, 251, 0.05);
+        box-shadow: 0 0 12px rgba(0, 230, 251, 0.2);
+    }
+
+    .form-group input::placeholder {
+        color: #64748b;
+    }
+
+    .btn-guardar {
+        width: 100%;
+        padding: 14px;
+        background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+        border: none;
+        border-radius: 6px;
+        color: white;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .btn-guardar:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+    }
+
+    .btn-guardar:active {
+        transform: translateY(0);
+    }
+
+    .gestion-card {
+        background: linear-gradient(135deg, #1a1f3a 0%, #16213e 100%);
+        border: 1px solid #00e6fb33;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 8px 32px rgba(0, 230, 251, 0.1);
+    }
+
+    .acciones-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .botones-acciones {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .btn-accion {
+        padding: 10px 18px;
+        border: none;
+        border-radius: 6px;
+        color: white;
+        font-weight: 600;
+        font-size: 13px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .btn-exportar {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    }
+
+    .btn-importar {
+        background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+    }
+
+    .btn-limpiar {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    }
+
+    .btn-accion:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .filtros {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
+
+    .btn-filtro {
+        padding: 8px 16px;
+        border: 1px solid #00e6fb4d;
+        background: rgba(0, 0, 0, 0.2);
+        color: #a0aec0;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-filtro.active {
+        background: #3b82f6;
+        color: white;
+        border-color: #3b82f6;
+    }
+
+    .btn-filtro:hover {
+        border-color: #00e6fb;
+        color: #00e6fb;
+    }
+
+    .tabla-clientes {
+        overflow-x: auto;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    table thead {
+        border-bottom: 2px solid #00e6fb66;
+    }
+
+    table th {
+        padding: 15px;
+        text-align: left;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: #00e6fb;
+        letter-spacing: 0.5px;
+    }
+
+    table td {
+        padding: 15px;
+        border-bottom: 1px solid #00e6fb33;
+        color: #e2e8f0;
+        font-size: 14px;
+    }
+
+    table tbody tr {
+        transition: all 0.3s ease;
+    }
+
+    table tbody tr:hover {
+        background: rgba(0, 230, 251, 0.05);
+    }
+
+    .badge-servicio {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+
+    .badge-aws {
+        background: rgba(255, 153, 0, 0.2);
+        color: #ffa500;
+    }
+
+    .badge-azure {
+        background: rgba(0, 120, 215, 0.2);
+        color: #0078d4;
+    }
+
+    .badge-m365 {
+        background: rgba(127, 86, 217, 0.2);
+        color: #7f56d9;
+    }
+
+    .badge-servicio::before {
+        content: '●';
+        font-size: 10px;
+    }
+
+    .acciones {
+        display: flex;
+        gap: 8px;
+    }
+
+    .btn-accion-tabla {
+        width: 32px;
+        height: 32px;
+        border: none;
+        border-radius: 6px;
+        color: white;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        font-size: 16px;
+    }
+
+    .btn-editar {
+        background: #3b82f6;
+    }
+
+    .btn-editar:hover {
+        background: #2563eb;
+    }
+
+    .btn-eliminar {
+        background: #ef4444;
+    }
+
+    .btn-eliminar:hover {
+        background: #dc2626;
+    }
+
+    .contador {
+        text-align: right;
+        font-size: 12px;
+        color: #64748b;
+        margin-top: 15px;
+    }
+
+    .alerta {
+        padding: 12px 16px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .alerta-exito {
+        background: rgba(16, 185, 129, 0.2);
+        color: #10b981;
+        border: 1px solid #10b98166;
+    }
+
+    .alerta-error {
+        background: rgba(239, 68, 68, 0.2);
+        color: #ef4444;
+        border: 1px solid #ef444466;
+    }
+
+    .alerta i {
+        font-size: 18px;
+    }
+
+    input[type="file"] {
+        display: none;
+    }
+</style>
+
+<style>
+    @@media (max-width: 1200px) {
+        .cliente-container {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="cliente-container">
+    <!-- Formulario Registro -->
+    <div class="registro-card">
+        <h2><i class="fas fa-user-plus"></i> Registrar Cliente</h2>
+
+        <form method="post" action="@Url.Action("CrearCliente", "Home")">
+            <div class="form-group">
+                <label for="nombreEmpresa">Nombre de la empresa</label>
+                <input type="text" id="nombreEmpresa" name="nombreEmpresa" 
+                       placeholder="Ej: Global Tech" required />
+            </div>
+
+            <div class="form-group">
+                <label for="servicioPrincipal">Servicio principal (IND-TI)</label>
+                <select id="servicioPrincipal" name="servicioPrincipal" required>
+                    <option value="">Seleccionar servicio...</option>
+                    <option value="AWS">AWS</option>
+                    <option value="Azure">Azure</option>
+                    <option value="M365">M365</option>
+                    <option value="Google Cloud">Google Cloud</option>
+                    <option value="Otro">Otro</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="correoAdministrador">Correo administrador</label>
+                <input type="email" id="correoAdministrador" name="correoAdministrador" 
+                       placeholder="admin@empresa.com" required />
+            </div>
+
+            <button type="submit" class="btn-guardar">Guardar Cliente</button>
+        </form>
+    </div>
+
+    <!-- Gestión Clientes -->
+    <div class="gestion-card">
+        <!-- Alertas -->
+        @if (TempData["Exito"] is string exitoMsg)
+        {
+            <div class="alerta alerta-exito">
+                <i class="fas fa-check-circle"></i>
+                <span>@exitoMsg</span>
+            </div>
+        }
+        @if (TempData["Error"] is string errorMsg)
+        {
+            <div class="alerta alerta-error">
+                <i class="fas fa-exclamation-circle"></i>
+                <span>@errorMsg</span>
+            </div>
+        }
+
+        <!-- Acciones -->
+        <div class="acciones-header">
+            <div class="botones-acciones">
+                <form method="get" action="@Url.Action("ExportarClientes", "Home")" style="display: inline;">
+                    <button type="submit" class="btn-accion btn-exportar">
+                        <i class="fas fa-download"></i> Exportar
+                    </button>
+                </form>
+
+                <button class="btn-accion btn-importar" onclick="document.getElementById('fileInput').click()">
+                    <i class="fas fa-upload"></i> Importar Excel
+                </button>
+                <input type="file" id="fileInput" accept=".xlsx,.xls" />
+
+                <form method="post" action="@Url.Action("LimpiarTodo", "Home")" style="display: inline;">
+                    <button type="submit" class="btn-accion btn-limpiar" 
+                            onclick="return confirm('¿Estás seguro de que deseas eliminar todos los clientes?');">
+                        <i class="fas fa-trash"></i> Limpiar todo
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="filtros">
+            <button class="btn-filtro active" onclick="filtrarPor('todos')">Todos</button>
+            <button class="btn-filtro" onclick="filtrarPor('AWS')">AWS</button>
+            <button class="btn-filtro" onclick="filtrarPor('Azure')">Azure</button>
+            <button class="btn-filtro" onclick="filtrarPor('M365')">M365</button>
+        </div>
+
+        <!-- Tabla -->
+        <div class="tabla-clientes">
+            <table id="tablaClientes">
+                <thead>
+                    <tr>
+                        <th>Cliente</th>
+                        <th>Servicio</th>
+                        <th>Administrador</th>
+                        <th>Fecha Registro</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var cliente in Model)
+                    {
+                        <tr class="fila-cliente" data-servicio="@cliente.ServicioPrincipal">
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="width: 12px; height: 12px; background: #10b981; border-radius: 50%; display: inline-block;"></span>
+                                    @cliente.NombreEmpresa
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge-servicio badge-@(cliente.ServicioPrincipal.ToLower())">
+                                    @cliente.ServicioPrincipal
+                                </span>
+                            </td>
+                            <td>@cliente.CorreoAdministrador</td>
+                            <td>@cliente.FechaRegistro.ToString("dd/MM/yyyy")</td>
+                            <td>
+                                <div class="acciones">
+                                    <a href="@Url.Action("EditarCliente", "Home", new { id = cliente.Id })" 
+                                       class="btn-accion-tabla btn-editar" title="Editar">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <form method="post" action="@Url.Action("EliminarCliente", "Home")" style="display: inline;">
+                                        <input type="hidden" name="id" value="@cliente.Id" />
+                                        <button type="submit" class="btn-accion-tabla btn-eliminar" 
+                                                title="Eliminar"
+                                                onclick="return confirm('¿Estás seguro?');">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Contador -->
+        <div class="contador">
+            <strong>@Model.Count</strong> CLIENTES REGISTRADOS <span style="color: #475569;">1 DE @Math.Ceiling(Model.Count / 10.0)</span>
+        </div>
+    </div>
+</div>
+
+<!-- Font Awesome para iconos -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+<script>
+    function filtrarPor(servicio) {
+        const filas = document.querySelectorAll('.fila-cliente');
+        const botones = document.querySelectorAll('.btn-filtro');
+
+        // Actualizar botones activos
+        botones.forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+
+        // Filtrar filas
+        filas.forEach(fila => {
+            if (servicio === 'todos' || fila.dataset.servicio === servicio) {
+                fila.style.display = '';
+            } else {
+                fila.style.display = 'none';
+            }
+        });
+    }
+
+    document.getElementById('fileInput').addEventListener('change', function(e) {
+        if (this.files.length > 0) {
+            const formData = new FormData();
+            formData.append('file', this.files[0]);
+
+            fetch('@Url.Action("ImportarClientes", "Home")', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                location.reload();
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    });
+</script>
+
+@section Scripts {
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+}

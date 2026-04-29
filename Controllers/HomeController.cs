@@ -215,6 +215,64 @@ public class HomeController : Controller
         }
     }
 
+    [HttpPost]
+    public IActionResult ImportarClientes(IFormFile file)
+    {
+        if (file == null || file.Length == 0)
+        {
+            return Json(new { message = "Por favor selecciona un archivo" });
+        }
+
+        try
+        {
+            var clientes = new List<Cliente>();
+
+            using (var stream = new MemoryStream())
+            {
+                file.CopyTo(stream);
+                using (var package = new OfficeOpenXml.ExcelPackage(stream))
+                {
+                    var worksheet = package.Workbook.Worksheets[0];
+                    int rowCount = worksheet.Dimension?.Rows ?? 0;
+
+                    for (int row = 2; row <= rowCount; row++)
+                    {
+                        var nombreEmpresa = worksheet.Cells[row, 2].Value?.ToString();
+                        var servicioPrincipal = worksheet.Cells[row, 3].Value?.ToString();
+                        var correoAdministrador = worksheet.Cells[row, 4].Value?.ToString();
+
+                        if (!string.IsNullOrEmpty(nombreEmpresa) && !string.IsNullOrEmpty(servicioPrincipal))
+                        {
+                            clientes.Add(new Cliente
+                            {
+                                Id = clientes.Count + 1,
+                                NombreEmpresa = nombreEmpresa,
+                                ServicioPrincipal = servicioPrincipal,
+                                CorreoAdministrador = correoAdministrador ?? "",
+                                FechaRegistro = DateTime.Now
+                            });
+                        }
+                    }
+                }
+            }
+
+            GuardarClientesEnSesion(clientes);
+            return Json(new { message = $"Se importaron {clientes.Count} clientes correctamente" });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { message = $"Error al importar: {ex.Message}" });
+        }
+    }
+
+    [HttpPost]
+    public IActionResult LimpiarTodo()
+    {
+        HttpContext.Session.Remove(CLIENTES_SESSION_KEY);
+        TempData["Exito"] = "Todos los clientes han sido eliminados";
+        return RedirectToAction("Clientes");
+    }
+
     public IActionResult Privacy()
     {
         return View();
