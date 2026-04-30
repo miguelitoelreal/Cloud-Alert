@@ -3,24 +3,54 @@
     "Id": 1,
     "NombreEmpresa": "Global Tech Solutions",
     "ServicioPrincipal": "AWS",
+    "Servicios": [],
     "CorreoAdministrador": "admin@globaltech.com",
     "FechaRegistro": "2026-03-24T17:04:08.3611163-05:00",
-    "Activo": true
+    "Activo": true,
+    "Priorizado": true
   },
   {
     "Id": 2,
     "NombreEmpresa": "Finanza International",
     "ServicioPrincipal": "Azure",
+    "Servicios": [],
     "CorreoAdministrador": "ops@finanza.io",
     "FechaRegistro": "2026-04-08T17:04:08.3611191-05:00",
-    "Activo": true
+    "Activo": true,
+    "Priorizado": false
   },
   {
     "Id": 3,
     "NombreEmpresa": "Lumina Logistics",
     "ServicioPrincipal": "M365",
+    "Servicios": [],
     "CorreoAdministrador": "j.doe@lumina.com",
     "FechaRegistro": "2026-04-18T17:04:08.3611193-05:00",
-    "Activo": true
+    "Activo": true,
+    "Priorizado": true
+  },
+  {
+    "Id": 7,
+    "NombreEmpresa": "SALONSPA",
+    "ServicioPrincipal": "AWS",
+    "Servicios": [
+      "AWS"
+    ],
+    "CorreoAdministrador": "rojasguisadoalonso1234@gmail.com",
+    "FechaRegistro": "2026-04-29T19:30:12.5870946-05:00",
+    "Activo": true,
+    "Priorizado": true
+  },
+  {
+    "Id": 8,
+    "NombreEmpresa": "gregorioSA",
+    "ServicioPrincipal": "M365",
+    "Servicios": [
+      "M365"
+    ],
+    "CorreoAdministrador": "rojasguisadoalonso@gmail.com",
+    "FechaRegistro": "2026-04-29T19:32:10.680665-05:00",
+    "Activo": true,
+    "Priorizado": false
   }
 ]

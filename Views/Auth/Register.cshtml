@@ -39,6 +39,25 @@
                             <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
                         </div>
 
+                        <div class="mb-4">
+                            <label class="form-label">Servicios</label>
+                            <span asp-validation-for="ServiciosSeleccionados" class="text-danger d-block mb-2"></span>
+                            <div class="services-container">
+                                @foreach (var servicio in Model.ServiciosDisponibles)
+                                {
+                                    var isChecked = Model.ServiciosSeleccionados != null && Model.ServiciosSeleccionados.Contains(servicio);
+                                    <div class="form-check service-check">
+                                        <input type="checkbox" class="form-check-input" id="servicio_@servicio.Replace(" ", "_").Replace("/", "_")" 
+                                               name="ServiciosSeleccionados" value="@servicio" 
+                                               @(isChecked ? "checked" : "") />
+                                        <label class="form-check-label" for="servicio_@servicio.Replace(" ", "_").Replace("/", "_")">
+                                            <span class="service-label">@servicio</span>
+                                        </label>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
                         <button type="submit" class="btn btn-success w-100 fw-bold">Crear cuenta</button>
                     </form>
 

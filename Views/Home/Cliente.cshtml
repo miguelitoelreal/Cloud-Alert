@@ -426,6 +426,50 @@
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
     }
+
+    /* Estilos para checkboxes de servicios */
+    .servicios-registro, .servicios-modal {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+        margin-top: 0.75rem;
+    }
+
+    .checkbox-item {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem;
+        background: var(--bg-dark);
+        border: 1px solid var(--border-dark);
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .checkbox-item:hover {
+        border-color: var(--accent-blue);
+        background: rgba(96, 165, 250, 0.05);
+    }
+
+    .checkbox-item input[type="checkbox"] {
+        width: 1.1rem;
+        height: 1.1rem;
+        cursor: pointer;
+        accent-color: var(--accent-blue);
+        margin-right: 0.75rem;
+    }
+
+    .checkbox-item label {
+        margin: 0;
+        cursor: pointer;
+        font-size: 0.95rem;
+        color: var(--text-light);
+        font-weight: 500;
+    }
+
+    .checkbox-item input[type="checkbox"]:checked + label {
+        color: var(--accent-blue);
+    }
 </style>
 
 <div class="container-fluid py-5" style="background: var(--bg-dark);">
@@ -452,12 +496,29 @@
 
                     <div class="form-group">
                         <label>Servicio Principal (IND-TI)</label>
-                        <select id="servicioPrincipal" required>
-                            <option value="">Seleccionar servicio...</option>
-                            <option value="AWS">Amazon Web Services (AWS)</option>
-                            <option value="Azure">Microsoft Azure</option>
-                            <option value="M365">Microsoft 365</option>
-                        </select>
+                        <div class="servicios-registro">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="srv-aws" name="servicios" value="AWS">
+                                <label for="srv-aws">Amazon Web Services (AWS)</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="srv-azure" name="servicios" value="Azure">
+                                <label for="srv-azure">Microsoft Azure</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="srv-m365" name="servicios" value="M365">
+                                <label for="srv-m365">Microsoft 365</label>
+                            </div>
+                        </div>
+                        <small id="serviciosError" style="color: #ef4444; display: none; margin-top: 0.5rem; display: block;">Selecciona al menos un servicio</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Priorizar Cliente</label>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="prioritarioRegistro" name="priorizado">
+                            <label for="prioritarioRegistro">Marcar como cliente prioritario ⭐</label>
+                        </div>
                     </div>
 
                     <div class="form-group">
@@ -529,12 +590,29 @@
 
             <div class="form-group">
                 <label>Servicio Principal (IND-TI)</label>
-                <select id="servicioPrincipalEdit" required>
-                    <option value="">Seleccionar servicio...</option>
-                    <option value="AWS">Amazon Web Services (AWS)</option>
-                    <option value="Azure">Microsoft Azure</option>
-                    <option value="M365">Microsoft 365</option>
-                </select>
+                <div class="servicios-modal">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="srv-aws-edit" name="servicios" value="AWS">
+                        <label for="srv-aws-edit">Amazon Web Services (AWS)</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="srv-azure-edit" name="servicios" value="Azure">
+                        <label for="srv-azure-edit">Microsoft Azure</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="srv-m365-edit" name="servicios" value="M365">
+                        <label for="srv-m365-edit">Microsoft 365</label>
+                    </div>
+                </div>
+                <small id="serviciosErrorEdit" style="color: #ef4444; display: none; margin-top: 0.5rem; display: block;">Selecciona al menos un servicio</small>
+            </div>
+
+            <div class="form-group">
+                <label>Priorizar Cliente</label>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="prioritarioEdit" name="priorizado">
+                    <label for="prioritarioEdit">Marcar como cliente prioritario ⭐</label>
+                </div>
             </div>
 
             <div class="form-group">
@@ -564,19 +642,35 @@
 
         let clientesFiltrados = clientesActuales;
         if (filtroActual !== 'todos') {
-            clientesFiltrados = clientesActuales.filter(c => c.servicioPrincipal === filtroActual);
+            clientesFiltrados = clientesActuales.filter(c => {
+                const servicios = c.servicios && c.servicios.length > 0 ? c.servicios : (c.servicioPrincipal ? [c.servicioPrincipal] : []);
+                return servicios.includes(filtroActual);
+            });
         }
+
+        // Ordenar: priorizados primero
+        clientesFiltrados = clientesFiltrados.sort((a, b) => {
+            if (a.priorizado === b.priorizado) return 0;
+            return a.priorizado ? -1 : 1;
+        });
 
         clientesFiltrados.forEach(cliente => {
             const row = document.createElement('tr');
-            const badgeClass = `status-${cliente.servicioPrincipal.toLowerCase()}`;
+            const servicios = cliente.servicios && cliente.servicios.length > 0 ? cliente.servicios : (cliente.servicioPrincipal ? [cliente.servicioPrincipal] : []);
             const fecha = new Date(cliente.fechaRegistro).toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' });
+            const estrella = cliente.priorizado ? '⭐ ' : '';
+            
+            const badgesHTML = servicios.map(srv => {
+                const badgeClass = `status-${srv.toLowerCase()}`;
+                return `<span class="status-badge ${badgeClass}">${srv}</span>`;
+            }).join('');
+
             row.innerHTML = `
                 <td>
-                    <span class="icon-status active"></span> ${cliente.nombreEmpresa}
+                    <span class="icon-status active"></span> ${estrella}${cliente.nombreEmpresa}
                 </td>
                 <td>
-                    <span class="status-badge ${badgeClass}">${cliente.servicioPrincipal}</span>
+                    ${badgesHTML}
                 </td>
                 <td>${cliente.correoAdministrador}</td>
                 <td>${fecha}</td>
@@ -606,14 +700,47 @@
         }
     }
 
+    async function priorizarCliente(id) {
+        const response = await fetch('/Home/PriorizarCliente', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `id=${id}`
+        });
+
+        if (response.ok) {
+            const clienteActualizado = await response.json();
+            const index = clientesActuales.findIndex(c => c.id === clienteActualizado.id);
+            if (index !== -1) {
+                clientesActuales[index] = clienteActualizado;
+            }
+            renderizarTabla();
+        }
+    }
+
     function editarCliente(id) {
         const cliente = clientesActuales.find(c => c.id === id);
         if (!cliente) return;
 
         document.getElementById('clienteIdEdit').value = cliente.id;
         document.getElementById('nombreEmpresaEdit').value = cliente.nombreEmpresa;
-        document.getElementById('servicioPrincipalEdit').value = cliente.servicioPrincipal;
         document.getElementById('correoAdministradorEdit').value = cliente.correoAdministrador;
+        document.getElementById('prioritarioEdit').checked = cliente.priorizado || false;
+
+        // Desmarcar todos los checkboxes
+        document.querySelectorAll('.servicios-modal input[name=\"servicios\"]').forEach(cb => cb.checked = false);
+
+        // Marcar los servicios del cliente
+        const servicios = cliente.servicios && cliente.servicios.length > 0 
+            ? cliente.servicios 
+            : (cliente.servicioPrincipal ? [cliente.servicioPrincipal] : []);
+        
+        servicios.forEach(servicio => {
+            const checkbox = document.querySelector(`.servicios-modal input[value="${servicio}"]`);
+            if (checkbox) checkbox.checked = true;
+        });
+
+        // Limpiar mensaje de error
+        document.getElementById('serviciosErrorEdit').style.display = 'none';
 
         document.getElementById('modalEditar').classList.add('active');
     }
@@ -640,8 +767,17 @@
 
         const id = document.getElementById('clienteIdEdit').value;
         const nombreEmpresa = document.getElementById('nombreEmpresaEdit').value;
-        const servicioPrincipal = document.getElementById('servicioPrincipalEdit').value;
+        const servicios = Array.from(document.querySelectorAll('.servicios-modal input[name=\"servicios\"]:checked'))
+            .map(cb => cb.value);
         const correoAdministrador = document.getElementById('correoAdministradorEdit').value;
+        const priorizado = document.getElementById('prioritarioEdit').checked;
+
+        // Validar que se seleccione al menos un servicio
+        if (servicios.length === 0) {
+            document.getElementById('serviciosErrorEdit').textContent = 'Selecciona al menos un servicio';
+            document.getElementById('serviciosErrorEdit').style.display = 'block';
+            return;
+        }
 
         if (!esCorreoGmail(correoAdministrador)) {
             alert('El correo del administrador debe ser Gmail (gmail.com).');
@@ -651,7 +787,7 @@
         const response = await fetch('/Home/ActualizarCliente', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `id=${id}&nombreEmpresa=${encodeURIComponent(nombreEmpresa)}&servicioPrincipal=${encodeURIComponent(servicioPrincipal)}&correoAdministrador=${encodeURIComponent(correoAdministrador)}`
+            body: `id=${id}&nombreEmpresa=${encodeURIComponent(nombreEmpresa)}&servicios=${encodeURIComponent(servicios.join(','))}&correoAdministrador=${encodeURIComponent(correoAdministrador)}&priorizado=${priorizado}`
         });
 
         if (response.ok) {
@@ -679,8 +815,17 @@
         e.preventDefault();
 
         const nombreEmpresa = document.getElementById('nombreEmpresa').value;
-        const servicioPrincipal = document.getElementById('servicioPrincipal').value;
+        const servicios = Array.from(document.querySelectorAll('.servicios-registro input[name=\"servicios\"]:checked'))
+            .map(cb => cb.value);
         const correoAdministrador = document.getElementById('correoAdministrador').value;
+        const priorizado = document.getElementById('prioritarioRegistro').checked;
+
+        // Validar que se seleccione al menos un servicio
+        if (servicios.length === 0) {
+            document.getElementById('serviciosError').textContent = 'Selecciona al menos un servicio';
+            document.getElementById('serviciosError').style.display = 'block';
+            return;
+        }
 
         if (!esCorreoGmail(correoAdministrador)) {
             alert('El correo del administrador debe ser Gmail (gmail.com).');
@@ -690,7 +835,7 @@
         const response = await fetch('/Home/GuardarCliente', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `nombreEmpresa=${encodeURIComponent(nombreEmpresa)}&servicioPrincipal=${encodeURIComponent(servicioPrincipal)}&correoAdministrador=${encodeURIComponent(correoAdministrador)}`
+            body: `nombreEmpresa=${encodeURIComponent(nombreEmpresa)}&servicios=${encodeURIComponent(servicios.join(','))}&correoAdministrador=${encodeURIComponent(correoAdministrador)}&priorizado=${priorizado}`
         });
 
         if (response.ok) {
@@ -773,5 +918,25 @@
     });
 
     // Inicializar
+    // Limpiar mensaje de error cuando se selecciona un checkbox en el formulario de registro
+    document.querySelectorAll('.servicios-registro input[name="servicios"]').forEach(checkbox => {
+        checkbox.addEventListener('change', () => {
+            const serviciosSeleccionados = document.querySelectorAll('.servicios-registro input[name="servicios"]:checked').length;
+            if (serviciosSeleccionados > 0) {
+                document.getElementById('serviciosError').style.display = 'none';
+            }
+        });
+    });
+
+    // Limpiar mensaje de error cuando se selecciona un checkbox en el modal de edición
+    document.querySelectorAll('.servicios-modal input[name="servicios"]').forEach(checkbox => {
+        checkbox.addEventListener('change', () => {
+            const serviciosSeleccionados = document.querySelectorAll('.servicios-modal input[name="servicios"]:checked').length;
+            if (serviciosSeleccionados > 0) {
+                document.getElementById('serviciosErrorEdit').style.display = 'none';
+            }
+        });
+    });
+
     renderizarTabla();
 </script>

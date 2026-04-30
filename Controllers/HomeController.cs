@@ -16,9 +16,9 @@ public class HomeController : Controller
 
     private static List<Cliente> clientesData = new List<Cliente>
     {
-        new Cliente { Id = 1, NombreEmpresa = "Global Tech Solutions", ServicioPrincipal = "AWS", CorreoAdministrador = "admin@globaltech.com", FechaRegistro = DateTime.Now.AddDays(-30) },
-        new Cliente { Id = 2, NombreEmpresa = "Finanza International", ServicioPrincipal = "Azure", CorreoAdministrador = "ops@finanza.io", FechaRegistro = DateTime.Now.AddDays(-15) },
-        new Cliente { Id = 3, NombreEmpresa = "Lumina Logistics", ServicioPrincipal = "M365", CorreoAdministrador = "j.doe@lumina.com", FechaRegistro = DateTime.Now.AddDays(-5) }
+        new Cliente { Id = 1, NombreEmpresa = "Global Tech Solutions", ServicioPrincipal = "AWS", Servicios = new List<string> { "AWS" }, CorreoAdministrador = "admin@globaltech.com", FechaRegistro = DateTime.Now.AddDays(-30) },
+        new Cliente { Id = 2, NombreEmpresa = "Finanza International", ServicioPrincipal = "Azure", Servicios = new List<string> { "Azure" }, CorreoAdministrador = "ops@finanza.io", FechaRegistro = DateTime.Now.AddDays(-15) },
+        new Cliente { Id = 3, NombreEmpresa = "Lumina Logistics", ServicioPrincipal = "M365", Servicios = new List<string> { "M365" }, CorreoAdministrador = "j.doe@lumina.com", FechaRegistro = DateTime.Now.AddDays(-5) }
     };
 
     public HomeController(ILogger<HomeController> logger, IWebHostEnvironment environment)
@@ -39,9 +39,9 @@ public class HomeController : Controller
     }
 
     [HttpPost]
-    public IActionResult GuardarCliente(string nombreEmpresa, string servicioPrincipal, string correoAdministrador)
+    public IActionResult GuardarCliente(string nombreEmpresa, string servicios, string correoAdministrador, bool priorizado = false)
     {
-        if (string.IsNullOrEmpty(nombreEmpresa) || string.IsNullOrEmpty(correoAdministrador))
+        if (string.IsNullOrEmpty(nombreEmpresa) || string.IsNullOrEmpty(servicios) || string.IsNullOrEmpty(correoAdministrador))
         {
             return BadRequest("Datos inválidos");
         }
@@ -51,13 +51,21 @@ public class HomeController : Controller
             return BadRequest("El correo del administrador debe ser Gmail.");
         }
 
+        var serviciosList = servicios.Split(',').Where(s => !string.IsNullOrWhiteSpace(s)).ToList();
+        if (serviciosList.Count == 0)
+        {
+            return BadRequest("Debes seleccionar al menos un servicio.");
+        }
+
         var nuevoCliente = new Cliente
         {
             Id = clientesData.Max(c => c.Id) + 1,
             NombreEmpresa = nombreEmpresa,
-            ServicioPrincipal = servicioPrincipal,
+            ServicioPrincipal = serviciosList.First(),
+            Servicios = serviciosList,
             CorreoAdministrador = correoAdministrador,
-            FechaRegistro = DateTime.Now
+            FechaRegistro = DateTime.Now,
+            Priorizado = priorizado
         };
 
         clientesData.Add(nuevoCliente);
@@ -78,9 +86,9 @@ public class HomeController : Controller
     }
 
     [HttpPost]
-    public IActionResult ActualizarCliente(int id, string nombreEmpresa, string servicioPrincipal, string correoAdministrador)
+    public IActionResult ActualizarCliente(int id, string nombreEmpresa, string servicios, string correoAdministrador, bool priorizado = false)
     {
-        if (string.IsNullOrEmpty(nombreEmpresa) || string.IsNullOrEmpty(correoAdministrador))
+        if (string.IsNullOrEmpty(nombreEmpresa) || string.IsNullOrEmpty(servicios) || string.IsNullOrEmpty(correoAdministrador))
         {
             return BadRequest("Datos inválidos");
         }
@@ -96,9 +104,17 @@ public class HomeController : Controller
             return NotFound("Cliente no encontrado");
         }
 
+        var serviciosList = servicios.Split(',').Where(s => !string.IsNullOrWhiteSpace(s)).ToList();
+        if (serviciosList.Count == 0)
+        {
+            return BadRequest("Debes seleccionar al menos un servicio.");
+        }
+
         cliente.NombreEmpresa = nombreEmpresa;
-        cliente.ServicioPrincipal = servicioPrincipal;
+        cliente.ServicioPrincipal = serviciosList.First();
+        cliente.Servicios = serviciosList;
         cliente.CorreoAdministrador = correoAdministrador;
+        cliente.Priorizado = priorizado;
 
         GuardarClientes();
         return Ok(cliente);
@@ -119,14 +135,28 @@ public class HomeController : Controller
     }
 
     [HttpPost]
+    public IActionResult PriorizarCliente(int id)
+    {
+        var cliente = clientesData.FirstOrDefault(c => c.Id == id);
+        if (cliente == null)
+        {
+            return NotFound("Cliente no encontrado");
+        }
+
+        cliente.Priorizado = !cliente.Priorizado;
+        GuardarClientes();
+        return Ok(cliente);
+    }
+
+    [HttpPost]
     public IActionResult LimpiarTodos()
     {
         clientesData.Clear();
         clientesData = new List<Cliente>
         {
-            new Cliente { Id = 1, NombreEmpresa = "Global Tech Solutions", ServicioPrincipal = "AWS", CorreoAdministrador = "admin@globaltech.com", FechaRegistro = DateTime.Now.AddDays(-30) },
-            new Cliente { Id = 2, NombreEmpresa = "Finanza International", ServicioPrincipal = "Azure", CorreoAdministrador = "ops@finanza.io", FechaRegistro = DateTime.Now.AddDays(-15) },
-            new Cliente { Id = 3, NombreEmpresa = "Lumina Logistics", ServicioPrincipal = "M365", CorreoAdministrador = "j.doe@lumina.com", FechaRegistro = DateTime.Now.AddDays(-5) }
+            new Cliente { Id = 1, NombreEmpresa = "Global Tech Solutions", ServicioPrincipal = "AWS", Servicios = new List<string> { "AWS" }, CorreoAdministrador = "admin@globaltech.com", FechaRegistro = DateTime.Now.AddDays(-30) },
+            new Cliente { Id = 2, NombreEmpresa = "Finanza International", ServicioPrincipal = "Azure", Servicios = new List<string> { "Azure" }, CorreoAdministrador = "ops@finanza.io", FechaRegistro = DateTime.Now.AddDays(-15) },
+            new Cliente { Id = 3, NombreEmpresa = "Lumina Logistics", ServicioPrincipal = "M365", Servicios = new List<string> { "M365" }, CorreoAdministrador = "j.doe@lumina.com", FechaRegistro = DateTime.Now.AddDays(-5) }
         };
         GuardarClientes();
         return Ok("Datos limpiados");
@@ -227,8 +257,11 @@ public class HomeController : Controller
         {
             var worksheet = package.Workbook.Worksheets.Add("Clientes");
 
+            // Ordenar: priorizados primero, luego el resto
+            var clientesOrdenados = clientesData.OrderByDescending(c => c.Priorizado).ToList();
+
             // Encabezados
-            var headers = new[] { "ID", "EMPRESA", "SERVICIO", "CORREO ADMINISTRADOR", "FECHA REGISTRO" };
+            var headers = new[] { "⭐", "ID", "EMPRESA", "SERVICIO", "CORREO ADMINISTRADOR", "FECHA REGISTRO" };
             for (int i = 0; i < headers.Length; i++)
             {
                 var cell = worksheet.Cells[1, i + 1];
@@ -244,19 +277,20 @@ public class HomeController : Controller
 
             // Datos
             int row = 2;
-            foreach (var cliente in clientesData)
+            foreach (var cliente in clientesOrdenados)
             {
-                worksheet.Cells[row, 1].Value = cliente.Id;
-                worksheet.Cells[row, 2].Value = cliente.NombreEmpresa;
-                worksheet.Cells[row, 3].Value = cliente.ServicioPrincipal;
-                worksheet.Cells[row, 4].Value = cliente.CorreoAdministrador;
-                worksheet.Cells[row, 5].Value = cliente.FechaRegistro.ToString("yyyy-MM-dd");
+                worksheet.Cells[row, 1].Value = cliente.Priorizado ? "⭐" : "";
+                worksheet.Cells[row, 2].Value = cliente.Id;
+                worksheet.Cells[row, 3].Value = cliente.NombreEmpresa;
+                worksheet.Cells[row, 4].Value = cliente.ServicioPrincipal;
+                worksheet.Cells[row, 5].Value = cliente.CorreoAdministrador;
+                worksheet.Cells[row, 6].Value = cliente.FechaRegistro.ToString("yyyy-MM-dd");
 
-                for (int i = 1; i <= 5; i++)
+                for (int i = 1; i <= 6; i++)
                 {
                     var cell = worksheet.Cells[row, i];
                     cell.Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin, System.Drawing.Color.LightGray);
-                    if (i == 1 || i == 5)
+                    if (i == 2 || i == 6)
                         cell.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
                 }
 

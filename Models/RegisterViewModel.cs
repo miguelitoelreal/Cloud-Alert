@@ -21,4 +21,17 @@ public class RegisterViewModel
     [DataType(DataType.Password)]
     [Compare(nameof(Password), ErrorMessage = "Las contrasenas no coinciden.")]
     public string ConfirmPassword { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Debes seleccionar al menos un servicio.")]
+    public List<string> ServiciosSeleccionados { get; set; } = new();
+
+    public List<string> ServiciosDisponibles { get; set; } = new()
+    {
+        "Monitoreo en tiempo real",
+        "Alertas por correo",
+        "Reportes analíticos",
+        "Dashboard personalizado",
+        "API REST",
+        "Notificaciones SMS"
+    };
 }

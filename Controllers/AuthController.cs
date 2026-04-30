@@ -39,7 +39,16 @@ public class AuthController : Controller
             return View(model);
         }
 
-        TempData["AuthMessage"] = "Registro simulado correctamente. Ahora puedes iniciar sesion.";
+        // Validar que se seleccione al menos un servicio
+        if (model.ServiciosSeleccionados == null || model.ServiciosSeleccionados.Count == 0)
+        {
+            ModelState.AddModelError("ServiciosSeleccionados", "Debes seleccionar al menos un servicio.");
+            return View(model);
+        }
+
+        TempData["AuthMessage"] = "Registro simulado correctamente. Servicios seleccionados: " + 
+                                  string.Join(", ", model.ServiciosSeleccionados) + 
+                                  ". Ahora puedes iniciar sesion.";
         return RedirectToAction(nameof(Login));
     }
 }
