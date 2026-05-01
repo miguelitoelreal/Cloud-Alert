@@ -54,10 +54,41 @@
                                     name="servicioPrincipal" required
                                     style="background-color: #2a3142; border: 1px solid #3a4252; color: #fff;">
                                 <option value="">-- Selecciona un servicio --</option>
-                                <option value="AWS" selected="@(Model.ServicioPrincipal == "AWS" ? "selected" : "")">Amazon Web Services (AWS)</option>
-                                <option value="AZURE" selected="@(Model.ServicioPrincipal == "AZURE" ? "selected" : "")">Microsoft Azure</option>
-                                <option value="M365" selected="@(Model.ServicioPrincipal == "M365" ? "selected" : "")">Microsoft 365</option>
-                                <option value="GCP" selected="@(Model.ServicioPrincipal == "GCP" ? "selected" : "")">Google Cloud Platform</option>
+                                @if (Model.ServicioPrincipal == "AWS")
+                                {
+                                    <option value="AWS" selected>Amazon Web Services (AWS)</option>
+                                }
+                                else
+                                {
+                                    <option value="AWS">Amazon Web Services (AWS)</option>
+                                }
+
+                                @if (Model.ServicioPrincipal == "AZURE")
+                                {
+                                    <option value="AZURE" selected>Microsoft Azure</option>
+                                }
+                                else
+                                {
+                                    <option value="AZURE">Microsoft Azure</option>
+                                }
+
+                                @if (Model.ServicioPrincipal == "M365")
+                                {
+                                    <option value="M365" selected>Microsoft 365</option>
+                                }
+                                else
+                                {
+                                    <option value="M365">Microsoft 365</option>
+                                }
+
+                                @if (Model.ServicioPrincipal == "GCP")
+                                {
+                                    <option value="GCP" selected>Google Cloud Platform</option>
+                                }
+                                else
+                                {
+                                    <option value="GCP">Google Cloud Platform</option>
+                                }
                             </select>
                         </div>
 

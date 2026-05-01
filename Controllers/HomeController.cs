@@ -220,12 +220,15 @@ public class HomeController : Controller
     {
         if (file == null || file.Length == 0)
         {
-            return Json(new { message = "Por favor selecciona un archivo" });
+            TempData["Error"] = "Por favor selecciona un archivo";
+            return RedirectToAction("Clientes");
         }
 
         try
         {
-            var clientes = new List<Cliente>();
+            var clientes = ObtenerClientesDeSesion();
+            var nextId = clientes.Count > 0 ? clientes.Max(c => c.Id) + 1 : 1;
+            var nuevosClientes = new List<Cliente>();
 
             using (var stream = new MemoryStream())
             {
@@ -243,12 +246,12 @@ public class HomeController : Controller
 
                         if (!string.IsNullOrEmpty(nombreEmpresa) && !string.IsNullOrEmpty(servicioPrincipal))
                         {
-                            clientes.Add(new Cliente
+                            nuevosClientes.Add(new Cliente
                             {
-                                Id = clientes.Count + 1,
+                                Id = nextId++,
                                 NombreEmpresa = nombreEmpresa,
                                 ServicioPrincipal = servicioPrincipal,
-                                CorreoAdministrador = correoAdministrador ?? "",
+                                CorreoAdministrador = correoAdministrador ?? string.Empty,
                                 FechaRegistro = DateTime.Now
                             });
                         }
@@ -256,13 +259,23 @@ public class HomeController : Controller
                 }
             }
 
-            GuardarClientesEnSesion(clientes);
-            return Json(new { message = $"Se importaron {clientes.Count} clientes correctamente" });
+            if (nuevosClientes.Count > 0)
+            {
+                clientes.AddRange(nuevosClientes);
+                GuardarClientesEnSesion(clientes);
+                TempData["Exito"] = $"Se importaron {nuevosClientes.Count} clientes correctamente";
+            }
+            else
+            {
+                TempData["Error"] = "No se encontraron clientes válidos en el archivo";
+            }
         }
         catch (Exception ex)
         {
-            return Json(new { message = $"Error al importar: {ex.Message}" });
+            TempData["Error"] = $"Error al importar: {ex.Message}";
         }
+
+        return RedirectToAction("Clientes");
     }
 
     [HttpPost]
