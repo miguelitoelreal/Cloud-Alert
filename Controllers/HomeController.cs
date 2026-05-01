@@ -33,6 +33,11 @@ public class HomeController : Controller
         return View();
     }
 
+    public IActionResult Status()
+    {
+        return View();
+    }
+
     public IActionResult Cliente()
     {
         return View("Cliente", clientesData);
