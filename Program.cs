@@ -1,10 +1,16 @@
 using Microsoft.EntityFrameworkCore;
 using CloudAlertApp.Data;
+using CloudAlertApp.Services.Interfaces;
+using CloudAlertApp.Services;
+using CloudAlertApp.Services.Background;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+builder.Services.AddScoped<IRssProcessorService, RssProcessorService>();
+builder.Services.AddHttpClient<RssProcessorService>();
+builder.Services.AddHostedService<RssWorker>();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(

@@ -470,13 +470,143 @@
     .checkbox-item input[type="checkbox"]:checked + label {
         color: var(--accent-blue);
     }
+
+    // css alert boton
+    <>
+.alert-bell {
+    position: relative;
+    cursor: pointer;
+    font-size: 22px;
+}
+
+.badge {
+    position: absolute;
+    top: -5px;
+    right: -10px;
+    background: red;
+    color: white;
+    border-radius: 50%;
+    padding: 3px 7px;
+    font-size: 12px;
+}
+
+.alerts-panel {
+    position: absolute;
+    right: 0;
+    top: 60px;
+    width: 380px;
+    max-height: 500px;
+    overflow-y: auto;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0px 10px 30px rgba(0,0,0,0.3);
+    padding: 0;
+    z-index: 999;
+}
+
+.incident {
+    padding: 8px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+}
+
+.critical {
+    border-left: 5px solid red;
+}
+
+.high {
+    border-left: 5px solid orange;
+}
+
+.critical-banner {
+    background: red;
+    color: white;
+    padding: 10px;
+    text-align: center;
+}
+
+.alert-header {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.alert-header h5 {
+    margin: 0;
+}
+
+.provider-block {
+    margin-top: 10px;
+}
+
+.provider-title {
+    background: #ef4444;
+    color: white;
+    padding: 6px 10px;
+    font-weight: bold;
+    border-radius: 6px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.badge-mini {
+    background: #fff;
+    color: #ef4444;
+    border-radius: 20px;
+    padding: 2px 8px;
+    font-size: 11px;
+    margin-left: 5px;
+}
+
+.incident-card {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+}
+
+.incident-card:hover {
+    background: #f9fafb;
+}
+
+.tag {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.tag-critical {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.tag-high {
+    background: #ffedd5;
+    color: #c2410c;
+}
+
 </style>
+
 
 <div class="container-fluid py-5" style="background: var(--bg-dark);">
     <div class="container">
         <div class="header-section">
             <h1>Gestión de Clientes</h1>
             <p>Registro de cuentas y clasificación por tipo de servicio.</p>
+        </div>
+
+        <div id="criticalBanner" class="critical-banner d-none">
+    ⚠️ Incidente crítico detectado
+        </div>
+
+        <div class="alert-bell" onclick="toggleAlerts()">
+            🔔
+            <span id="alertCount" class="badge">0</span>
+        </div>
+
+        <div id="alertsPanel" class="alerts-panel d-none">
+            <h5>Incidentes Activos</h5>
+            <div id="alertsContainer"></div>
         </div>
 
         <div id="alertSuccess" class="alert alert-success" style="display: none;">
@@ -631,6 +761,7 @@
 <script>
     let clientesActuales = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model ?? new List<CloudAlertApp.Models.Cliente>(), new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
     let filtroActual = 'todos';
+    let visible = false;
 
     function esCorreoGmail(correo) {
         return /^[^\x40\s]+\x40gmail\.com$/i.test(correo.trim());
@@ -937,6 +1068,82 @@
             }
         });
     });
+
+
+    //alert button
+    function toggleAlerts() {
+    const panel = document.getElementById("alertsPanel");
+    visible = !visible;
+
+    panel.classList.toggle("d-none");
+
+    if (visible) loadAlerts();
+    }
+
+async function loadAlerts() {
+    const res = await fetch("/api/incidentes/activos");
+    const data = await res.json();
+
+    const container = document.getElementById("alertsContainer");
+    container.innerHTML = "";
+
+    let total = 0;
+
+    data.forEach(group => {
+        total += group.total;
+
+        let html = `
+            <div class="provider-block">
+
+                <div class="provider-title">
+                    ${group.proveedor} (${group.total})
+                    <div>
+                        <span class="badge-mini">${group.criticos} Crítico</span>
+                        <span class="badge-mini">${group.altos} Alto</span>
+                    </div>
+                </div>
+        `;
+
+        group.incidentes.forEach(i => {
+
+            let tag = "";
+            if (i.severidad === 1)
+                tag = `<span class="tag tag-critical">Crítica</span>`;
+            else if (i.severidad === 2)
+                tag = `<span class="tag tag-high">Alta</span>`;
+
+            html += `
+                <div class="incident-card" onclick="openDetail('${i.urlDetalle}')">
+                    ${tag}
+                    <div><strong>${i.titulo}</strong></div>
+                    <small>${new Date(i.fecha).toLocaleString()}</small>
+                </div>
+            `;
+        });
+
+        html += `</div>`;
+
+        container.innerHTML += html;
+    });
+
+    document.getElementById("alertCount").innerText = total;
+
+    checkCritical(data);
+}
+
+function openDetail(url) {
+    window.open(url, "_blank"); // ✔️ cumple criterio
+}
+
+function checkCritical(data) {
+    const banner = document.getElementById("criticalBanner");
+
+    const hasCritical = data.some(x => x.criticos > 0);
+
+    if (hasCritical) {
+        banner.classList.remove("d-none");
+    }
+}
 
     renderizarTabla();
 </script>
