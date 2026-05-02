@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using CloudAlertApp.Models;
+using CloudAlertApp.Services;
 using OfficeOpenXml;
 using System.Text.Json;
 
@@ -10,6 +11,7 @@ public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
     private readonly IWebHostEnvironment _environment;
+    private readonly ICloudStatusService _cloudStatusService;
     private static readonly object ClientesLock = new();
     private static bool _clientesInicializados;
     private static string _clientesStoragePath = string.Empty;
@@ -21,16 +23,31 @@ public class HomeController : Controller
         new Cliente { Id = 3, NombreEmpresa = "Lumina Logistics", ServicioPrincipal = "M365", Servicios = new List<string> { "M365" }, CorreoAdministrador = "j.doe@lumina.com", FechaRegistro = DateTime.Now.AddDays(-5) }
     };
 
-    public HomeController(ILogger<HomeController> logger, IWebHostEnvironment environment)
+    public HomeController(ILogger<HomeController> logger, IWebHostEnvironment environment, ICloudStatusService cloudStatusService)
     {
         _logger = logger;
         _environment = environment;
+        _cloudStatusService = cloudStatusService;
         InicializarClientesSiEsNecesario();
     }
 
     public IActionResult Index()
     {
         return View();
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Status(CancellationToken cancellationToken)
+    {
+        var model = await _cloudStatusService.GetSnapshotAsync(cancellationToken);
+        return View(model);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> StatusSnapshot(CancellationToken cancellationToken)
+    {
+        var snapshot = await _cloudStatusService.GetSnapshotAsync(cancellationToken);
+        return Json(snapshot);
     }
 
     public IActionResult Cliente()
