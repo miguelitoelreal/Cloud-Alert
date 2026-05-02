@@ -1,14 +1,7 @@
+@model CloudAlertApp.Models.CloudStatusPageViewModel
+
 @{
     ViewData["Title"] = "Estado Global";
-
-    var servicios = new[]
-    {
-        new { Nombre = "AWS", Estado = "Operativo", Indicador = "success", Region = "Global", Disponibilidad = "99.98%", Incidencia = "Sin incidentes activos" },
-        new { Nombre = "Azure", Estado = "Degradado", Indicador = "warning", Region = "US / EU", Disponibilidad = "99.72%", Incidencia = "Latencia elevada en servicios de red" },
-        new { Nombre = "Microsoft 365", Estado = "Operativo", Indicador = "success", Region = "Global", Disponibilidad = "99.95%", Incidencia = "Sin incidentes activos" },
-        new { Nombre = "Google Cloud", Estado = "Operativo", Indicador = "success", Region = "Global", Disponibilidad = "99.97%", Incidencia = "Sin incidentes activos" },
-        new { Nombre = "Cloudflare", Estado = "Mantenimiento", Indicador = "info", Region = "Edge", Disponibilidad = "99.89%", Incidencia = "Ventana programada en balanceadores" }
-    };
 }
 
 <section class="status-hero py-5">
@@ -18,20 +11,20 @@
                 <span class="status-kicker">Monitoreo global</span>
                 <h1 class="display-4 fw-bold mt-3 mb-3">Estado en vivo de los servicios cloud</h1>
                 <p class="lead status-lead mb-4">
-                    Vista publica del estado general de los proveedores e integraciones criticas. El detalle interno por cliente se puede agregar despues sin cambiar esta superficie.
+                    Vista publica del estado general usando fuentes oficiales. Para evitar ruido y consumo innecesario, este tablero se renueva cada 60 minutos.
                 </p>
                 <div class="d-flex flex-wrap gap-3">
                     <div class="status-summary-card">
-                        <span class="summary-label">Servicios monitoreados</span>
-                        <strong>5</strong>
+                        <span class="summary-label">Fuentes monitoreadas</span>
+                        <strong id="summarySources">@Model.Services.Count</strong>
                     </div>
                     <div class="status-summary-card">
                         <span class="summary-label">Activos estables</span>
-                        <strong>3</strong>
+                        <strong id="summaryHealthy">@Model.HealthyCount</strong>
                     </div>
                     <div class="status-summary-card status-summary-attention">
                         <span class="summary-label">Requieren atencion</span>
-                        <strong>2</strong>
+                        <strong id="summaryAttention">@Model.AttentionCount</strong>
                     </div>
                 </div>
             </div>
@@ -41,10 +34,8 @@
                         <span class="overview-dot"></span>
                         Actualizacion reciente
                     </div>
-                    <div class="overview-time">Hace 2 minutos</div>
-                    <p class="mb-0">
-                        El monitoreo global detecta un nivel de servicio estable con una degradacion parcial en Azure y mantenimiento programado en Cloudflare.
-                    </p>
+                    <div class="overview-time" id="overviewTime">@Model.LastCheckedAtUtc.ToUniversalTime().ToString("HH:mm:ss") UTC</div>
+                    <p class="mb-0" id="overviewText">@Model.Overview</p>
                 </div>
             </div>
         </div>
@@ -57,32 +48,34 @@
             <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
                 <div>
                     <h2 class="h3 fw-bold mb-1">Panel global</h2>
-                    <p class="status-muted mb-0">Estado sintetico para cualquier visitante.</p>
+                    <p class="status-muted mb-0">Estado sintetico para cualquier visitante con datos en vivo.</p>
                 </div>
-                <span class="status-refresh">Ultimo refresh automatico: 09:41 UTC</span>
+                <span class="status-refresh" id="statusRefresh">Ultimo refresh: @Model.LastUpdatedAtUtc.ToUniversalTime().ToString("yyyy-MM-dd HH:mm:ss") UTC | Proximo refresco automatico en 60 minutos</span>
             </div>
 
-            <div class="row g-4">
-                @foreach (var servicio in servicios)
+            <div class="row g-4" id="statusCards">
+                @foreach (var servicio in Model.Services)
                 {
                     <div class="col-md-6 col-xl-4">
                         <article class="status-service-card">
                             <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
                                 <div>
-                                    <h3 class="h5 mb-1">@servicio.Nombre</h3>
-                                    <p class="status-muted mb-0">Cobertura: @servicio.Region</p>
+                                    <h3 class="h5 mb-1">@servicio.Name</h3>
+                                    <p class="status-muted mb-0">Cobertura: @servicio.Scope</p>
                                 </div>
-                                <span class="status-pill status-@servicio.Indicador">@servicio.Estado</span>
+                                <span class="status-pill status-@servicio.Level">@servicio.DisplayStatus</span>
                             </div>
 
                             <div class="status-metric-row">
-                                <span>Disponibilidad</span>
-                                <strong>@servicio.Disponibilidad</strong>
+                                <span>Fuente</span>
+                                <strong>@servicio.SourceLabel</strong>
                             </div>
                             <div class="status-metric-row">
-                                <span>Observacion</span>
-                                <strong class="status-incident-text">@servicio.Incidencia</strong>
+                                <span>Actualizado</span>
+                                <strong>@servicio.SourceUpdatedAtUtc.ToUniversalTime().ToString("HH:mm:ss") UTC</strong>
                             </div>
+                            <p class="status-summary-copy mt-3 mb-0">@servicio.Summary</p>
+                            <a class="status-source-link" href="@servicio.SourceUrl" target="_blank" rel="noopener noreferrer">Ver fuente oficial</a>
                         </article>
                     </div>
                 }
@@ -202,6 +195,8 @@
         border-radius: 1.2rem;
         background: linear-gradient(180deg, rgba(24, 28, 43, 0.95), rgba(18, 24, 38, 0.98));
         border: 1px solid rgba(255, 255, 255, 0.06);
+        display: flex;
+        flex-direction: column;
     }
 
     .status-pill {
@@ -231,6 +226,11 @@
         color: #7ee7f7;
     }
 
+    .status-danger {
+        background: rgba(255, 91, 91, 0.18);
+        color: #ff9f9f;
+    }
+
     .status-metric-row {
         display: flex;
         justify-content: space-between;
@@ -252,11 +252,30 @@
         max-width: 18ch;
     }
 
+    .status-summary-copy {
+        color: rgba(224, 230, 237, 0.84);
+        line-height: 1.6;
+        flex: 1 0 auto;
+    }
+
+    .status-source-link {
+        display: inline-flex;
+        margin-top: 1rem;
+        color: #7ee7f7;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .status-source-link:hover {
+        color: #ffffff;
+    }
+
     body.light-mode .status-lead,
     body.light-mode .status-muted,
     body.light-mode .status-refresh,
     body.light-mode .status-metric-row span,
-    body.light-mode .summary-label {
+    body.light-mode .summary-label,
+    body.light-mode .status-summary-copy {
         color: rgba(35, 42, 61, 0.72) !important;
     }
 
@@ -288,3 +307,81 @@
         }
     }
 </style>
+
+<script>
+    (() => {
+        const refreshUrl = '@Url.Action("StatusSnapshot", "Home")';
+        const statusCards = document.getElementById('statusCards');
+        const statusRefresh = document.getElementById('statusRefresh');
+        const overviewTime = document.getElementById('overviewTime');
+        const overviewText = document.getElementById('overviewText');
+        const summarySources = document.getElementById('summarySources');
+        const summaryHealthy = document.getElementById('summaryHealthy');
+        const summaryAttention = document.getElementById('summaryAttention');
+
+        function formatUtc(value) {
+            const date = new Date(value);
+            return `${date.toISOString().slice(11, 19)} UTC`;
+        }
+
+        function escapeHtml(value) {
+            return value
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#39;');
+        }
+
+        function renderCards(services) {
+            statusCards.innerHTML = services.map(service => `
+                <div class="col-md-6 col-xl-4">
+                    <article class="status-service-card">
+                        <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+                            <div>
+                                <h3 class="h5 mb-1">${escapeHtml(service.name)}</h3>
+                                <p class="status-muted mb-0">Cobertura: ${escapeHtml(service.scope)}</p>
+                            </div>
+                            <span class="status-pill status-${escapeHtml(service.level)}">${escapeHtml(service.displayStatus)}</span>
+                        </div>
+                        <div class="status-metric-row">
+                            <span>Fuente</span>
+                            <strong>${escapeHtml(service.sourceLabel)}</strong>
+                        </div>
+                        <div class="status-metric-row">
+                            <span>Actualizado</span>
+                            <strong>${formatUtc(service.sourceUpdatedAtUtc)}</strong>
+                        </div>
+                        <p class="status-summary-copy mt-3 mb-0">${escapeHtml(service.summary)}</p>
+                        <a class="status-source-link" href="${escapeHtml(service.sourceUrl)}" target="_blank" rel="noopener noreferrer">Ver fuente oficial</a>
+                    </article>
+                </div>`).join('');
+        }
+
+        async function refreshStatus() {
+            try {
+                const response = await fetch(refreshUrl, {
+                    headers: { 'X-Requested-With': 'fetch' },
+                    cache: 'no-store'
+                });
+
+                if (!response.ok) {
+                    return;
+                }
+
+                const snapshot = await response.json();
+                summarySources.textContent = String(snapshot.services.length);
+                summaryHealthy.textContent = String(snapshot.healthyCount);
+                summaryAttention.textContent = String(snapshot.attentionCount);
+                overviewTime.textContent = formatUtc(snapshot.lastCheckedAtUtc);
+                overviewText.textContent = snapshot.overview;
+                statusRefresh.textContent = `Ultimo refresh: ${new Date(snapshot.lastUpdatedAtUtc).toISOString().replace('T', ' ').slice(0, 19)} UTC`;
+                renderCards(snapshot.services);
+            } catch (error) {
+                console.error('No se pudo actualizar el tablero de estado.', error);
+            }
+        }
+
+        window.setInterval(refreshStatus, 3600000);
+    })();
+</script>
