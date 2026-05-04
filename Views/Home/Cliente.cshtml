@@ -13,11 +13,37 @@
         --text-muted: #a0aec0;
         --accent-blue: #60a5fa;
         --accent-green: #10b981;
+        --bg-card-shadow: rgba(0, 0, 0, 0.35);
+        --table-header: linear-gradient(135deg, #0f172a 0%, #1f2937 100%);
+    }
+
+    @@media (prefers-color-scheme: light) {
+        :root {
+            --bg-dark: #f8fafc;
+            --bg-secondary: #ffffff;
+            --border-dark: #cbd5e1;
+            --text-light: #0f172a;
+            --text-muted: #475569;
+            --accent-blue: #2563eb;
+            --accent-green: #059669;
+            --bg-card-shadow: rgba(15, 23, 42, 0.08);
+            --table-header: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+        }
     }
 
     body {
         background-color: var(--bg-dark);
         color: var(--text-light);
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-bottom: 1.5rem;
     }
 
     .header-section {
@@ -46,8 +72,9 @@
     .form-card {
         background: var(--bg-secondary);
         border: 1px solid var(--border-dark);
-        border-radius: 12px;
+        border-radius: 16px;
         padding: 2rem;
+        box-shadow: 0 24px 60px -30px var(--bg-card-shadow);
     }
 
     .form-title {
@@ -124,8 +151,9 @@
     .table-section {
         background: var(--bg-secondary);
         border: 1px solid var(--border-dark);
-        border-radius: 12px;
+        border-radius: 16px;
         padding: 2rem;
+        box-shadow: 0 24px 60px -30px var(--bg-card-shadow);
     }
 
     .table-header {
@@ -202,7 +230,7 @@
     }
 
     thead {
-        background: linear-gradient(135deg, var(--bg-dark) 0%, var(--border-dark) 100%);
+        background: var(--table-header);
     }
 
     th {
@@ -249,15 +277,22 @@
     .status-m365 { background: #00a4ef; color: white; }
 
     .btn-edit {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.4rem;
         background: var(--accent-blue);
         border: none;
         color: white;
-        padding: 0.5rem 1rem;
+        padding: 0.45rem 0.85rem;
         border-radius: 4px;
         cursor: pointer;
         font-size: 0.85rem;
         font-weight: 500;
+        line-height: 1.2;
+        white-space: nowrap;
         transition: all 0.3s ease;
+        min-height: 2.4rem;
     }
 
     .btn-edit:hover {
@@ -271,6 +306,27 @@
         font-size: 1rem;
         line-height: 1;
         min-width: unset;
+    }
+
+    .actions-group {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .actions-group .btn-edit {
+        min-width: 100px;
+    }
+
+    .btn-edit.btn-danger {
+        background: #ef4444;
+    }
+
+    .btn-edit.btn-danger:hover {
+        background: #dc2626;
+        box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
     }
 
     .footer-info {
@@ -474,9 +530,11 @@
 
 <div class="container-fluid py-5" style="background: var(--bg-dark);">
     <div class="container">
-        <div class="header-section">
-            <h1>Gestión de Clientes</h1>
-            <p>Registro de cuentas y clasificación por tipo de servicio.</p>
+        <div class="header-row">
+            <div class="header-section">
+                <h1>Gestión de Clientes</h1>
+                <p>Registro de cuentas y clasificación por tipo de servicio.</p>
+            </div>
         </div>
 
         <div id="alertSuccess" class="alert alert-success" style="display: none;">
@@ -533,10 +591,9 @@
             <!-- Tabla Clientes -->
             <div class="table-section">
                 <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.25rem;">
-                    <button class="btn-exportar" id="btnExportar">📊 Exportar</button>
-                    <button class="btn-importar" id="btnImportar">⬆ Importar Excel</button>
-                    <input type="file" id="inputExcel" accept=".xlsx" style="display:none;" />
-                    <button class="btn-exportar" id="btnLimpiar" style="background: #ef4444;">🗑️ Limpiar todo</button>
+                    <button class="btn-exportar" id="btnExportarCsv">📄 Exportar a CSV</button>
+                    <button class="btn-importar" id="btnImportarCsv">⬆ Importar CSV</button>
+                    <input type="file" id="inputCsv" accept=".csv" style="display:none;" />
                 </div>
                 <div class="table-header">
                     <div class="filters">
@@ -675,8 +732,10 @@
                 <td>${cliente.correoAdministrador}</td>
                 <td>${fecha}</td>
                 <td>
-                    <button class="btn-edit btn-icon" onclick="editarCliente(${cliente.id})" title="Editar">✎</button>
-                    <button class="btn-edit btn-icon" onclick="eliminarCliente(${cliente.id})" title="Eliminar" style="background: #ef4444; margin-left: 0.4rem;">✕</button>
+                    <div class="actions-group">
+                        <button class="btn-edit" onclick="editarCliente(${cliente.id})" title="Editar">✎ Editar</button>
+                        <button class="btn-edit btn-danger" onclick="eliminarCliente(${cliente.id})" title="Eliminar">✕ Eliminar</button>
+                    </div>
                 </td>
             `;
             tbody.appendChild(row);
@@ -864,33 +923,33 @@
         });
     });
 
-    // Exportar
-    document.getElementById('btnExportar').addEventListener('click', () => {
-        window.location.href = '/Home/ExportarExcel';
+    // Exportar a CSV
+    document.getElementById('btnExportarCsv').addEventListener('click', () => {
+        window.location.href = '/Home/ExportarCsv';
     });
 
-    // Importar
-    document.getElementById('btnImportar').addEventListener('click', () => {
-        document.getElementById('inputExcel').click();
+    // Importar CSV
+    document.getElementById('btnImportarCsv').addEventListener('click', () => {
+        document.getElementById('inputCsv').click();
     });
 
-    document.getElementById('inputExcel').addEventListener('change', async (e) => {
+    document.getElementById('inputCsv').addEventListener('change', async (e) => {
         const file = e.target.files[0];
         if (!file) {
             return;
         }
 
         const formData = new FormData();
-        formData.append('archivoExcel', file);
+        formData.append('archivoCsv', file);
 
-        const response = await fetch('/Home/ImportarExcel', {
+        const response = await fetch('/Home/ImportarCsv', {
             method: 'POST',
             body: formData
         });
 
         if (!response.ok) {
             const errorMessage = await response.text();
-            alert(`No se pudo importar el Excel: ${errorMessage}`);
+            alert(`No se pudo importar el CSV: ${errorMessage}`);
             e.target.value = '';
             return;
         }
@@ -899,22 +958,6 @@
         alert(`Importación completada. Importados: ${resultado.importados}, Omitidos: ${resultado.omitidos}`);
         window.location.reload();
         e.target.value = '';
-    });
-
-    // Limpiar todo
-    document.getElementById('btnLimpiar').addEventListener('click', async () => {
-        if (confirm('⚠️ Esto eliminará todos los clientes. ¿Continuar?')) {
-            const response = await fetch('/Home/LimpiarTodos', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-            });
-
-            if (response.ok) {
-                clientesActuales = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model ?? new List<CloudAlertApp.Models.Cliente>(), new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
-                renderizarTabla();
-                alert('✓ Datos limpiados exitosamente');
-            }
-        }
     });
 
     // Inicializar

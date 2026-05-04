@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using System.Globalization;
+using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using CloudAlertApp.Models;
 using OfficeOpenXml;
@@ -310,6 +312,190 @@ public class HomeController : Controller
             var bytes = package.GetAsByteArray();
             return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"Clientes_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx");
         }
+    }
+
+    [HttpGet]
+    public IActionResult ExportarClientes()
+    {
+        return ExportarCsv();
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> ImportarClientes(IFormFile? archivoCsv)
+    {
+        return await ImportarCsv(archivoCsv);
+    }
+
+    public IActionResult ExportarCsv()
+    {
+        var builder = new StringBuilder();
+        builder.AppendLine("Id,NombreEmpresa,ServicioPrincipal,CorreoAdministrador,FechaRegistro,Priorizado");
+
+        foreach (var cliente in clientesData.OrderByDescending(c => c.Priorizado))
+        {
+            var row = string.Join(",", new[]
+            {
+                EscapeCsvValue(cliente.Id.ToString()),
+                EscapeCsvValue(cliente.NombreEmpresa),
+                EscapeCsvValue(cliente.ServicioPrincipal),
+                EscapeCsvValue(cliente.CorreoAdministrador),
+                EscapeCsvValue(cliente.FechaRegistro.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)),
+                EscapeCsvValue(cliente.Priorizado ? "Sí" : "No")
+            });
+            builder.AppendLine(row);
+        }
+
+        var bytes = Encoding.UTF8.GetBytes(builder.ToString());
+        return File(bytes, "text/csv", $"Clientes_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> ImportarCsv(IFormFile? archivoCsv)
+    {
+        if (archivoCsv == null || archivoCsv.Length == 0)
+        {
+            return BadRequest("Debes subir un archivo CSV.");
+        }
+
+        if (!Path.GetExtension(archivoCsv.FileName).Equals(".csv", StringComparison.OrdinalIgnoreCase))
+        {
+            return BadRequest("Formato inválido. Solo se admite .csv");
+        }
+
+        int importados = 0;
+        int omitidos = 0;
+
+        using var reader = new StreamReader(archivoCsv.OpenReadStream(), Encoding.UTF8);
+        var lines = new List<string>();
+        while (!reader.EndOfStream)
+        {
+            lines.Add(await reader.ReadLineAsync() ?? string.Empty);
+        }
+
+        if (lines.Count == 0)
+        {
+            return BadRequest("El archivo CSV está vacío.");
+        }
+
+        var startIndex = 0;
+        var firstRowFields = ParseCsvLine(lines[0]);
+        if (firstRowFields.Count >= 3 &&
+            (firstRowFields[0].Contains("empresa", StringComparison.OrdinalIgnoreCase) || firstRowFields[0].Contains("nombre", StringComparison.OrdinalIgnoreCase)) &&
+            firstRowFields[1].Contains("servicio", StringComparison.OrdinalIgnoreCase) &&
+            firstRowFields[2].Contains("correo", StringComparison.OrdinalIgnoreCase))
+        {
+            startIndex = 1;
+        }
+
+        for (int i = startIndex; i < lines.Count; i++)
+        {
+            var fields = ParseCsvLine(lines[i]);
+            if (fields.Count < 3)
+            {
+                omitidos++;
+                continue;
+            }
+
+            var nombreEmpresa = fields[0].Trim();
+            var servicioPrincipal = fields[1].Trim();
+            var correoAdministrador = fields[2].Trim();
+            var fechaTexto = fields.Count > 3 ? fields[3].Trim() : string.Empty;
+
+            if (string.IsNullOrWhiteSpace(nombreEmpresa) || string.IsNullOrWhiteSpace(correoAdministrador))
+            {
+                omitidos++;
+                continue;
+            }
+
+            if (!EsCorreoGmail(correoAdministrador))
+            {
+                omitidos++;
+                continue;
+            }
+
+            if (clientesData.Any(c => c.CorreoAdministrador.Equals(correoAdministrador, StringComparison.OrdinalIgnoreCase)))
+            {
+                omitidos++;
+                continue;
+            }
+
+            DateTime fechaRegistro = DateTime.Now;
+            if (DateTime.TryParse(fechaTexto, out var fechaCsv))
+            {
+                fechaRegistro = fechaCsv;
+            }
+
+            int nuevoId = clientesData.Count == 0 ? 1 : clientesData.Max(c => c.Id) + 1;
+            clientesData.Add(new Cliente
+            {
+                Id = nuevoId,
+                NombreEmpresa = nombreEmpresa,
+                ServicioPrincipal = string.IsNullOrWhiteSpace(servicioPrincipal) ? "N/A" : servicioPrincipal,
+                Servicios = string.IsNullOrWhiteSpace(servicioPrincipal) ? new List<string>() : new List<string> { servicioPrincipal },
+                CorreoAdministrador = correoAdministrador,
+                FechaRegistro = fechaRegistro
+            });
+
+            importados++;
+        }
+
+        GuardarClientes();
+        return Ok(new
+        {
+            importados,
+            omitidos,
+            total = importados + omitidos
+        });
+    }
+
+    private static string EscapeCsvValue(string value)
+    {
+        if (value.Contains('"') || value.Contains(',') || value.Contains('\n') || value.Contains('\r'))
+        {
+            return '"' + value.Replace("\"", "\"\"") + '"';
+        }
+
+        return value;
+    }
+
+    private static List<string> ParseCsvLine(string line)
+    {
+        var values = new List<string>();
+        if (string.IsNullOrEmpty(line))
+        {
+            return values;
+        }
+
+        var current = new StringBuilder();
+        bool inQuotes = false;
+        for (int i = 0; i < line.Length; i++)
+        {
+            var c = line[i];
+            if (c == '"')
+            {
+                if (inQuotes && i + 1 < line.Length && line[i + 1] == '"')
+                {
+                    current.Append('"');
+                    i++;
+                }
+                else
+                {
+                    inQuotes = !inQuotes;
+                }
+            }
+            else if (c == ',' && !inQuotes)
+            {
+                values.Add(current.ToString());
+                current.Clear();
+            }
+            else
+            {
+                current.Append(c);
+            }
+        }
+
+        values.Add(current.ToString());
+        return values;
     }
 
     public IActionResult Privacy()
