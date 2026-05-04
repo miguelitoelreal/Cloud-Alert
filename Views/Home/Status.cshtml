@@ -1,0 +1,387 @@
+@model CloudAlertApp.Models.CloudStatusPageViewModel
+
+@{
+    ViewData["Title"] = "Estado Global";
+}
+
+<section class="status-hero py-5">
+    <div class="container">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-7">
+                <span class="status-kicker">Monitoreo global</span>
+                <h1 class="display-4 fw-bold mt-3 mb-3">Estado en vivo de los servicios cloud</h1>
+                <p class="lead status-lead mb-4">
+                    Vista publica del estado general usando fuentes oficiales. Para evitar ruido y consumo innecesario, este tablero se renueva cada 60 minutos.
+                </p>
+                <div class="d-flex flex-wrap gap-3">
+                    <div class="status-summary-card">
+                        <span class="summary-label">Fuentes monitoreadas</span>
+                        <strong id="summarySources">@Model.Services.Count</strong>
+                    </div>
+                    <div class="status-summary-card">
+                        <span class="summary-label">Activos estables</span>
+                        <strong id="summaryHealthy">@Model.HealthyCount</strong>
+                    </div>
+                    <div class="status-summary-card status-summary-attention">
+                        <span class="summary-label">Requieren atencion</span>
+                        <strong id="summaryAttention">@Model.AttentionCount</strong>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-5">
+                <div class="status-overview-panel">
+                    <div class="overview-header">
+                        <span class="overview-dot"></span>
+                        Actualizacion reciente
+                    </div>
+                    <div class="overview-time" id="overviewTime">@Model.LastCheckedAtUtc.ToUniversalTime().ToString("HH:mm:ss") UTC</div>
+                    <p class="mb-0" id="overviewText">@Model.Overview</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="pb-5">
+    <div class="container">
+        <div class="status-board">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+                <div>
+                    <h2 class="h3 fw-bold mb-1">Panel global</h2>
+                    <p class="status-muted mb-0">Estado sintetico para cualquier visitante con datos en vivo.</p>
+                </div>
+                <span class="status-refresh" id="statusRefresh">Ultimo refresh: @Model.LastUpdatedAtUtc.ToUniversalTime().ToString("yyyy-MM-dd HH:mm:ss") UTC | Proximo refresco automatico en 60 minutos</span>
+            </div>
+
+            <div class="row g-4" id="statusCards">
+                @foreach (var servicio in Model.Services)
+                {
+                    <div class="col-md-6 col-xl-4">
+                        <article class="status-service-card">
+                            <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+                                <div>
+                                    <h3 class="h5 mb-1">@servicio.Name</h3>
+                                    <p class="status-muted mb-0">Cobertura: @servicio.Scope</p>
+                                </div>
+                                <span class="status-pill status-@servicio.Level">@servicio.DisplayStatus</span>
+                            </div>
+
+                            <div class="status-metric-row">
+                                <span>Fuente</span>
+                                <strong>@servicio.SourceLabel</strong>
+                            </div>
+                            <div class="status-metric-row">
+                                <span>Actualizado</span>
+                                <strong>@servicio.SourceUpdatedAtUtc.ToUniversalTime().ToString("HH:mm:ss") UTC</strong>
+                            </div>
+                            <p class="status-summary-copy mt-3 mb-0">@servicio.Summary</p>
+                            <a class="status-source-link" href="@servicio.SourceUrl" target="_blank" rel="noopener noreferrer">Ver fuente oficial</a>
+                        </article>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .status-hero {
+        position: relative;
+    }
+
+    .status-kicker {
+        display: inline-block;
+        padding: 0.45rem 0.85rem;
+        border: 1px solid rgba(0, 230, 251, 0.3);
+        border-radius: 999px;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: #7ee7f7;
+        background: rgba(0, 230, 251, 0.08);
+    }
+
+    .status-lead {
+        max-width: 60ch;
+        color: rgba(224, 230, 237, 0.85);
+    }
+
+    .status-summary-card {
+        min-width: 170px;
+        padding: 1rem 1.1rem;
+        border-radius: 1rem;
+        background: linear-gradient(180deg, rgba(24, 28, 43, 0.95), rgba(35, 42, 61, 0.95));
+        border: 1px solid rgba(0, 230, 251, 0.12);
+        box-shadow: 0 18px 50px -30px rgba(0, 230, 251, 0.65);
+    }
+
+    .status-summary-card strong {
+        display: block;
+        font-size: 1.8rem;
+        color: #ffffff;
+    }
+
+    .summary-label {
+        display: block;
+        margin-bottom: 0.4rem;
+        font-size: 0.82rem;
+        color: rgba(224, 230, 237, 0.72);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+    }
+
+    .status-summary-attention {
+        border-color: rgba(255, 193, 7, 0.25);
+        box-shadow: 0 18px 50px -30px rgba(255, 193, 7, 0.45);
+    }
+
+    .status-overview-panel {
+        padding: 1.5rem;
+        border-radius: 1.25rem;
+        background: radial-gradient(circle at top, rgba(0, 230, 251, 0.12), rgba(24, 28, 43, 0.94) 60%);
+        border: 1px solid rgba(126, 231, 247, 0.18);
+        box-shadow: 0 24px 60px -30px rgba(0, 230, 251, 0.5);
+    }
+
+    .overview-header {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        margin-bottom: 0.75rem;
+        color: #7ee7f7;
+        font-size: 0.92rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+    }
+
+    .overview-dot {
+        width: 0.65rem;
+        height: 0.65rem;
+        border-radius: 50%;
+        background: #43e97b;
+        box-shadow: 0 0 12px rgba(67, 233, 123, 0.8);
+    }
+
+    .overview-time {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 0.65rem;
+    }
+
+    .status-board {
+        padding: 2rem;
+        border-radius: 1.5rem;
+        background: rgba(13, 17, 28, 0.82);
+        border: 1px solid rgba(126, 231, 247, 0.12);
+        box-shadow: 0 24px 60px -36px rgba(0, 0, 0, 0.65);
+        backdrop-filter: blur(12px);
+    }
+
+    .status-muted {
+        color: rgba(224, 230, 237, 0.68);
+    }
+
+    .status-refresh {
+        padding: 0.55rem 0.85rem;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.04);
+        color: rgba(224, 230, 237, 0.8);
+        font-size: 0.9rem;
+    }
+
+    .status-service-card {
+        height: 100%;
+        padding: 1.35rem;
+        border-radius: 1.2rem;
+        background: linear-gradient(180deg, rgba(24, 28, 43, 0.95), rgba(18, 24, 38, 0.98));
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .status-pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.45rem 0.8rem;
+        border-radius: 999px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+    }
+
+    .status-success {
+        background: rgba(67, 233, 123, 0.16);
+        color: #8ef0ae;
+    }
+
+    .status-warning {
+        background: rgba(255, 193, 7, 0.18);
+        color: #ffd666;
+    }
+
+    .status-info {
+        background: rgba(0, 180, 216, 0.18);
+        color: #7ee7f7;
+    }
+
+    .status-danger {
+        background: rgba(255, 91, 91, 0.18);
+        color: #ff9f9f;
+    }
+
+    .status-metric-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        padding-top: 0.85rem;
+        margin-top: 0.85rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .status-metric-row span {
+        color: rgba(224, 230, 237, 0.7);
+    }
+
+    .status-metric-row strong {
+        text-align: right;
+    }
+
+    .status-incident-text {
+        max-width: 18ch;
+    }
+
+    .status-summary-copy {
+        color: rgba(224, 230, 237, 0.84);
+        line-height: 1.6;
+        flex: 1 0 auto;
+    }
+
+    .status-source-link {
+        display: inline-flex;
+        margin-top: 1rem;
+        color: #7ee7f7;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .status-source-link:hover {
+        color: #ffffff;
+    }
+
+    body.light-mode .status-lead,
+    body.light-mode .status-muted,
+    body.light-mode .status-refresh,
+    body.light-mode .status-metric-row span,
+    body.light-mode .summary-label,
+    body.light-mode .status-summary-copy {
+        color: rgba(35, 42, 61, 0.72) !important;
+    }
+
+    body.light-mode .status-summary-card,
+    body.light-mode .status-service-card,
+    body.light-mode .status-board,
+    body.light-mode .status-overview-panel {
+        background: rgba(255, 255, 255, 0.92);
+        border-color: rgba(0, 180, 216, 0.12);
+        color: #232a3d;
+    }
+
+    body.light-mode .status-summary-card strong,
+    body.light-mode .overview-time,
+    body.light-mode .status-metric-row strong,
+    body.light-mode .status-service-card h3,
+    body.light-mode .status-board h2,
+    body.light-mode .status-hero h1 {
+        color: #232a3d !important;
+    }
+
+    @@media (max-width: 768px) {
+        .status-board {
+            padding: 1.25rem;
+        }
+
+        .status-summary-card {
+            min-width: 145px;
+        }
+    }
+</style>
+
+<script>
+    (() => {
+        const refreshUrl = '@Url.Action("StatusSnapshot", "Home")';
+        const statusCards = document.getElementById('statusCards');
+        const statusRefresh = document.getElementById('statusRefresh');
+        const overviewTime = document.getElementById('overviewTime');
+        const overviewText = document.getElementById('overviewText');
+        const summarySources = document.getElementById('summarySources');
+        const summaryHealthy = document.getElementById('summaryHealthy');
+        const summaryAttention = document.getElementById('summaryAttention');
+
+        function formatUtc(value) {
+            const date = new Date(value);
+            return `${date.toISOString().slice(11, 19)} UTC`;
+        }
+
+        function escapeHtml(value) {
+            return value
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#39;');
+        }
+
+        function renderCards(services) {
+            statusCards.innerHTML = services.map(service => `
+                <div class="col-md-6 col-xl-4">
+                    <article class="status-service-card">
+                        <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+                            <div>
+                                <h3 class="h5 mb-1">${escapeHtml(service.name)}</h3>
+                                <p class="status-muted mb-0">Cobertura: ${escapeHtml(service.scope)}</p>
+                            </div>
+                            <span class="status-pill status-${escapeHtml(service.level)}">${escapeHtml(service.displayStatus)}</span>
+                        </div>
+                        <div class="status-metric-row">
+                            <span>Fuente</span>
+                            <strong>${escapeHtml(service.sourceLabel)}</strong>
+                        </div>
+                        <div class="status-metric-row">
+                            <span>Actualizado</span>
+                            <strong>${formatUtc(service.sourceUpdatedAtUtc)}</strong>
+                        </div>
+                        <p class="status-summary-copy mt-3 mb-0">${escapeHtml(service.summary)}</p>
+                        <a class="status-source-link" href="${escapeHtml(service.sourceUrl)}" target="_blank" rel="noopener noreferrer">Ver fuente oficial</a>
+                    </article>
+                </div>`).join('');
+        }
+
+        async function refreshStatus() {
+            try {
+                const response = await fetch(refreshUrl, {
+                    headers: { 'X-Requested-With': 'fetch' },
+                    cache: 'no-store'
+                });
+
+                if (!response.ok) {
+                    return;
+                }
+
+                const snapshot = await response.json();
+                summarySources.textContent = String(snapshot.services.length);
+                summaryHealthy.textContent = String(snapshot.healthyCount);
+                summaryAttention.textContent = String(snapshot.attentionCount);
+                overviewTime.textContent = formatUtc(snapshot.lastCheckedAtUtc);
+                overviewText.textContent = snapshot.overview;
+                statusRefresh.textContent = `Ultimo refresh: ${new Date(snapshot.lastUpdatedAtUtc).toISOString().replace('T', ' ').slice(0, 19)} UTC`;
+                renderCards(snapshot.services);
+            } catch (error) {
+                console.error('No se pudo actualizar el tablero de estado.', error);
+            }
+        }
+
+        window.setInterval(refreshStatus, 3600000);
+    })();
+</script>

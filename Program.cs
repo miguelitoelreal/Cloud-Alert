@@ -1,9 +1,16 @@
 using Microsoft.EntityFrameworkCore;
 using CloudAlertApp.Data;
+using CloudAlertApp.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddMemoryCache();
+builder.Services.AddHttpClient<ICloudStatusService, CloudStatusService>(client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(15);
+    client.DefaultRequestHeaders.UserAgent.ParseAdd("CloudAlertHub/1.0");
+});
 
 
 builder.Services.AddDbContext<AppDbContext>(options =>
