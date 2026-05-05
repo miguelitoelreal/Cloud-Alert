@@ -40,17 +40,5 @@
     "FechaRegistro": "2026-04-29T19:30:12.5870946-05:00",
     "Activo": true,
     "Priorizado": true
-  },
-  {
-    "Id": 8,
-    "NombreEmpresa": "gregorioSA",
-    "ServicioPrincipal": "M365",
-    "Servicios": [
-      "M365"
-    ],
-    "CorreoAdministrador": "rojasguisadoalonso@gmail.com",
-    "FechaRegistro": "2026-04-29T19:32:10.680665-05:00",
-    "Activo": true,
-    "Priorizado": false
   }
 ]
