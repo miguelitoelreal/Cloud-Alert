@@ -41,14 +41,26 @@
                             <a class="nav-link nav-link-neon" href="#">Contacto</a>
                         </li>
                     </ul>
-                    <ul class="navbar-nav mb-2 mb-lg-0 ms-3">
-                        <li class="nav-item">
-                            <a class="btn btn-outline-info me-2 px-3 fw-bold" asp-controller="Auth" asp-action="Login" style="border-radius: 1.5rem;">Iniciar sesión</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="btn btn-info px-3 fw-bold text-white" asp-controller="Auth" asp-action="Register" style="border-radius: 1.5rem;">Crear cuenta</a>
-                        </li>
-                    </ul>
+                    <div class="navbar-actions ms-lg-3 mt-3 mt-lg-0">
+                        <div class="notification-wrap" id="notificationWrap">
+                            <button type="button" id="notificationBellBtn" class="notification-bell-btn" aria-label="Abrir notificaciones" aria-expanded="false">
+                                <span class="notification-bell-icon" aria-hidden="true">🔔</span>
+                                <span id="notificationCount" class="notification-badge d-none">0</span>
+                            </button>
+                            <div id="notificationPanel" class="notification-panel d-none" role="menu" aria-label="Notificaciones recientes">
+                                <div class="notification-panel-header">
+                                    <div>
+                                        <div class="notification-panel-kicker">Alertas activas</div>
+                                        <h2 class="notification-panel-title">Notificaciones</h2>
+                                    </div>
+                                    <span id="notificationPanelCount" class="notification-panel-count">0 incidentes</span>
+                                </div>
+                                <div id="notificationList" class="notification-list"></div>
+                            </div>
+                        </div>
+                        <a class="btn btn-outline-info me-2 px-3 fw-bold" asp-controller="Auth" asp-action="Login" style="border-radius: 1.5rem;">Iniciar sesión</a>
+                        <a class="btn btn-info px-3 fw-bold text-white" asp-controller="Auth" asp-action="Register" style="border-radius: 1.5rem;">Crear cuenta</a>
+                    </div>
                 </div>
             </div>
         </nav>

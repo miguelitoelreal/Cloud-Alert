@@ -526,7 +526,10 @@
     .checkbox-item input[type="checkbox"]:checked + label {
         color: var(--accent-blue);
     }
+
+    /* alert UI removed: bell and panel were removed per UX request */
 </style>
+
 
 <div class="container-fluid py-5" style="background: var(--bg-dark);">
     <div class="container">
@@ -536,6 +539,11 @@
                 <p>Registro de cuentas y clasificación por tipo de servicio.</p>
             </div>
         </div>
+
+        <div id="criticalBanner" class="critical-banner d-none">
+    ⚠️ Incidente crítico detectado
+        </div>
+
 
         <div id="alertSuccess" class="alert alert-success" style="display: none;">
             ✓ Cliente registrado exitosamente
@@ -688,6 +696,7 @@
 <script>
     let clientesActuales = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model ?? new List<CloudAlertApp.Models.Cliente>(), new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
     let filtroActual = 'todos';
+    let visible = false;
 
     function esCorreoGmail(correo) {
         return /^[^\x40\s]+\x40gmail\.com$/i.test(correo.trim());
@@ -980,6 +989,9 @@
             }
         });
     });
+
+
+    // alerts removed from Cliente page; criticalBanner left intact
 
     renderizarTabla();
 </script>
