@@ -75,7 +75,11 @@
                                 <strong>@servicio.SourceUpdatedAtUtc.ToUniversalTime().ToString("HH:mm:ss") UTC</strong>
                             </div>
                             <p class="status-summary-copy mt-3 mb-0">@servicio.Summary</p>
-                            <a class="status-source-link" href="@servicio.SourceUrl" target="_blank" rel="noopener noreferrer">Ver fuente oficial</a>
+                            <div class="d-flex flex-wrap align-items-center gap-2 mt-3">
+                                <a class="status-source-link" href="@servicio.SourceUrl" target="_blank" rel="noopener noreferrer">Ver fuente oficial</a>
+                                <button type="button" class="btn btn-sm latency-measure-btn" onclick="measureLatency('@servicio.Name', '@servicio.SourceUrl', this)">Medir latencia</button>
+                            </div>
+                            <div class="latency-result mt-3 text-sm text-white-50" style="min-height:1.2rem"></div>
                         </article>
                     </div>
                 }
@@ -260,7 +264,7 @@
 
     .status-source-link {
         display: inline-flex;
-        margin-top: 1rem;
+        align-items: center;
         color: #7ee7f7;
         text-decoration: none;
         font-weight: 600;
@@ -268,6 +272,48 @@
 
     .status-source-link:hover {
         color: #ffffff;
+    }
+
+    .latency-measure-btn {
+        border: none;
+        background: transparent;
+        color: #7ee7f7;
+        box-shadow: none;
+        line-height: 1;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 0.15rem;
+        margin-left: auto;
+        cursor: pointer;
+        border-radius: 0.35rem;
+        transition: background 0.2s ease, transform 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .latency-measure-btn:hover,
+    .latency-measure-btn:focus {
+        background: rgba(126, 231, 247, 0.14);
+        color: #e6f9ff;
+        box-shadow: inset 0 0 0 1px rgba(126, 231, 247, 0.35);
+    }
+
+    .latency-measure-btn:focus-visible {
+        outline: 2px solid rgba(126, 231, 247, 0.55);
+        outline-offset: 3px;
+    }
+
+    .latency-measure-btn:active {
+        transform: translateY(1px);
+    }
+
+    .latency-measure-btn:disabled {
+        opacity: 0.65;
+        cursor: not-allowed;
+    }
+
+    .latency-detail {
+        color: rgba(224, 230, 237, 0.75);
+        font-size: 0.88rem;
+        line-height: 1.4;
     }
 
     body.light-mode .status-lead,
@@ -353,9 +399,59 @@
                             <strong>${formatUtc(service.sourceUpdatedAtUtc)}</strong>
                         </div>
                         <p class="status-summary-copy mt-3 mb-0">${escapeHtml(service.summary)}</p>
-                        <a class="status-source-link" href="${escapeHtml(service.sourceUrl)}" target="_blank" rel="noopener noreferrer">Ver fuente oficial</a>
+                        <div class="d-flex flex-wrap align-items-center gap-2 mt-3">
+                            <a class="status-source-link" href="${escapeHtml(service.sourceUrl)}" target="_blank" rel="noopener noreferrer">Ver fuente oficial</a>
+                            <button type="button" class="btn btn-sm btn-outline-light" onclick="measureLatency('${escapeHtml(service.name)}', '${escapeHtml(service.sourceUrl)}', this)">Medir latencia</button>
+                        </div>
+                        <div class="latency-result mt-3 text-sm text-white-50" style="min-height:1.2rem"></div>
                     </article>
                 </div>`).join('');
+        }
+
+        window.measureLatency = async function(serviceName, endpointUrl, button) {
+            const card = button.closest('.status-service-card');
+            const resultContainer = card.querySelector('.latency-result');
+            button.disabled = true;
+            const originalText = button.textContent;
+            button.textContent = 'Midiendo...';
+            resultContainer.textContent = '';
+
+            try {
+                const response = await fetch('/api/latency/measure', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ serviceName, endpointUrl, protocol: 'Auto' })
+                });
+
+                if (!response.ok) {
+                    let message = 'No se pudo medir la latencia.';
+                    try {
+                        const errorData = await response.json();
+                        if (errorData?.error) {
+                            message += ` ${errorData.error}`;
+                        }
+                    } catch {
+                        // ignore invalid JSON
+                    }
+                    resultContainer.textContent = message;
+                    return;
+                }
+
+                const payload = await response.json();
+                const statusClass = payload.isStable ? 'success' : payload.status === 'Alerta' ? 'warning' : 'danger';
+                resultContainer.innerHTML = `
+                    <div><strong>Total:</strong> ${payload.totalMs} ms — <span class="text-${statusClass}">${payload.status}</span></div>
+                    <div class="latency-detail mt-1">DNS ${payload.dnsMs} ms · TCP ${payload.connectMs} ms · TLS ${payload.tlsMs} ms · Resp. ${payload.responseMs} ms</div>
+                `;
+            } catch (error) {
+                resultContainer.textContent = 'Error al medir la latencia.';
+                console.error(error);
+            } finally {
+                button.disabled = false;
+                button.textContent = originalText;
+            }
         }
 
         async function refreshStatus() {

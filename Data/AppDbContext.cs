@@ -13,6 +13,7 @@ namespace CloudAlertApp.Data
 
       public DbSet<Proveedor> Proveedores { get; set; }
       public DbSet<Incidente> Incidentes { get; set; }
+      public DbSet<LatencyMeasurement> LatencyMeasurements { get; set; }
 
       public AppDbContext(DbContextOptions<AppDbContext> options)
             : base(options)
@@ -69,6 +70,35 @@ namespace CloudAlertApp.Data
                   entity.HasOne(i => i.Proveedor)
                         .WithMany(p => p.Incidentes)
                         .HasForeignKey(i => i.ProveedorId);
+            });
+
+            modelBuilder.Entity<LatencyMeasurement>(entity =>
+            {
+                  entity.HasKey(e => e.Id);
+
+                  entity.Property(e => e.ServiceName)
+                        .IsRequired()
+                        .HasMaxLength(150);
+
+                  entity.Property(e => e.EndpointUrl)
+                        .IsRequired()
+                        .HasMaxLength(500);
+
+                  entity.Property(e => e.Protocol)
+                        .IsRequired()
+                        .HasMaxLength(20);
+
+                  entity.Property(e => e.IsContentValid)
+                        .IsRequired();
+
+                  entity.Property(e => e.Status)
+                        .IsRequired()
+                        .HasMaxLength(50);
+
+                  entity.Property(e => e.MeasuredAtUtc)
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                  entity.HasIndex(e => new { e.ServiceName, e.MeasuredAtUtc });
             });
         }
     }
