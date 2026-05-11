@@ -1,7 +1,9 @@
 using System.Net;
 using System.Text.Json;
 using System.Xml.Linq;
+using CloudAlertApp.Data;
 using CloudAlertApp.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace CloudAlertApp.Services;
@@ -18,17 +20,19 @@ public class CloudStatusService : ICloudStatusService
     private readonly HttpClient _httpClient;
     private readonly IMemoryCache _memoryCache;
     private readonly ILogger<CloudStatusService> _logger;
+    private readonly AppDbContext _dbContext;
 
-    public CloudStatusService(HttpClient httpClient, IMemoryCache memoryCache, ILogger<CloudStatusService> logger)
+    public CloudStatusService(HttpClient httpClient, IMemoryCache memoryCache, ILogger<CloudStatusService> logger, AppDbContext dbContext)
     {
         _httpClient = httpClient;
         _memoryCache = memoryCache;
         _logger = logger;
+        _dbContext = dbContext;
     }
 
-    public Task<CloudStatusPageViewModel> GetSnapshotAsync(CancellationToken cancellationToken = default)
+    public async Task<CloudStatusPageViewModel> GetSnapshotAsync(CancellationToken cancellationToken = default)
     {
-        return _memoryCache.GetOrCreateAsync(CacheKey, async entry =>
+        return (await _memoryCache.GetOrCreateAsync(CacheKey, async entry =>
         {
             entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(60);
 
@@ -44,6 +48,28 @@ public class CloudStatusService : ICloudStatusService
             var attentionCount = orderedServices.Count - healthyCount;
             var lastUpdatedAtUtc = orderedServices.Max(service => service.SourceUpdatedAtUtc);
 
+            // Cargar incidentes de la base de datos (máximo 3)
+            var incidentes = await _dbContext.Incidentes
+                .Include(i => i.Proveedor)
+                .Where(i => i.Activo)
+                .OrderByDescending(i => i.Fecha)
+                .Take(3)
+                .ToListAsync(cancellationToken);
+
+            var incidentesViewModel = incidentes.Select(i => new IncidentoListViewModel
+            {
+                Id = i.Id,
+                Codigo = i.Codigo,
+                Titulo = i.Titulo,
+                Descripcion = i.Descripcion,
+                Severidad = i.Severidad,
+                Servicio = i.Servicio,
+                NombreProveedor = i.Proveedor?.Nombre ?? "Sin proveedor",
+                Fecha = i.Fecha,
+                Estado = "Abierto",
+                AsignadoA = "Equipo de Soporte"
+            }).ToList();
+
             return new CloudStatusPageViewModel
             {
                 LastCheckedAtUtc = checkedAtUtc,
@@ -51,9 +77,10 @@ public class CloudStatusService : ICloudStatusService
                 HealthyCount = healthyCount,
                 AttentionCount = attentionCount,
                 Overview = BuildOverview(healthyCount, attentionCount, orderedServices),
-                Services = orderedServices
+                Services = orderedServices,
+                Incidentes = incidentesViewModel
             };
-        })!;
+        }))!;
     }
 
     private async Task<CloudServiceStatusViewModel> GetAwsStatusAsync(CancellationToken cancellationToken)

@@ -8,6 +8,7 @@ public class CloudStatusPageViewModel
     public int AttentionCount { get; set; }
     public string Overview { get; set; } = string.Empty;
     public List<CloudServiceStatusViewModel> Services { get; set; } = new();
+    public List<IncidentoListViewModel> Incidentes { get; set; } = new();
 }
 
 public class CloudServiceStatusViewModel
@@ -21,4 +22,18 @@ public class CloudServiceStatusViewModel
     public string SourceUrl { get; set; } = string.Empty;
     public DateTimeOffset SourceUpdatedAtUtc { get; set; }
     public int SortOrder { get; set; }
+}
+
+public class IncidentoListViewModel
+{
+    public int Id { get; set; }
+    public string Codigo { get; set; } = string.Empty;
+    public string Titulo { get; set; } = string.Empty;
+    public string Descripcion { get; set; } = string.Empty;
+    public Severidad Severidad { get; set; }
+    public string Servicio { get; set; } = string.Empty;
+    public string NombreProveedor { get; set; } = string.Empty;
+    public DateTime Fecha { get; set; }
+    public string Estado { get; set; } = "Abierto";
+    public string AsignadoA { get; set; } = string.Empty;
 }
