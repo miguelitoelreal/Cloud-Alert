@@ -77,7 +77,7 @@
                             <p class="status-summary-copy mt-3 mb-0">@servicio.Summary</p>
                             <div class="d-flex flex-wrap align-items-center gap-2 mt-3">
                                 <a class="status-source-link" href="@servicio.SourceUrl" target="_blank" rel="noopener noreferrer">Ver fuente oficial</a>
-                                <button type="button" class="btn btn-sm latency-measure-btn" onclick="measureLatency('@servicio.Name', '@servicio.SourceUrl', this)">Medir latencia</button>
+                                    <button type="button" class="btn btn-sm latency-measure-btn" onclick="redirectToLatencyTester('@servicio.Name','@servicio.SourceUrl')">Medir latencia</button>
                             </div>
                             <div class="latency-result mt-3 text-sm text-white-50" style="min-height:1.2rem"></div>
                         </article>
@@ -401,11 +401,16 @@
                         <p class="status-summary-copy mt-3 mb-0">${escapeHtml(service.summary)}</p>
                         <div class="d-flex flex-wrap align-items-center gap-2 mt-3">
                             <a class="status-source-link" href="${escapeHtml(service.sourceUrl)}" target="_blank" rel="noopener noreferrer">Ver fuente oficial</a>
-                            <button type="button" class="btn btn-sm btn-outline-light" onclick="measureLatency('${escapeHtml(service.name)}', '${escapeHtml(service.sourceUrl)}', this)">Medir latencia</button>
+                            <button type="button" class="btn btn-sm btn-outline-light" onclick="redirectToLatencyTester('${escapeHtml(service.name)}', '${escapeHtml(service.sourceUrl)}')">Medir latencia</button>
                         </div>
                         <div class="latency-result mt-3 text-sm text-white-50" style="min-height:1.2rem"></div>
                     </article>
                 </div>`).join('');
+        }
+
+        window.redirectToLatencyTester = function(serviceName, endpointUrl) {
+            const target = `/latency/tester?serviceName=${encodeURIComponent(serviceName)}&endpointUrl=${encodeURIComponent(endpointUrl)}`;
+            window.location.href = target;
         }
 
         window.measureLatency = async function(serviceName, endpointUrl, button) {
