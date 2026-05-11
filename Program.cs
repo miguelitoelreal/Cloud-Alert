@@ -19,6 +19,8 @@ builder.Services.AddScoped<ILatencyProbeService, LatencyProbeService>();
 builder.Services.AddHttpClient<RssProcessorService>();
 builder.Services.AddHttpClient("LatencyProbe");
 builder.Services.AddHostedService<RssWorker>();
+//dns - hu19
+builder.Services.AddScoped<DnsLookupService>();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(
