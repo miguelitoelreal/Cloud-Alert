@@ -16,12 +16,12 @@
                 <a class="navbar-brand fw-bold d-flex align-items-center" asp-area="" asp-controller="Home" asp-action="Index" style="font-size:1.7rem; letter-spacing:0.04em;">
                     <span class="me-2 d-flex align-items-center">
                         <!-- Logo SVG futurista -->
-                        <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 0 8px #00e6fbcc);">
-                            <circle cx="19" cy="19" r="17" stroke="#00e6fb" stroke-width="3" fill="#181c2b" />
-                            <path d="M12 22L19 10L26 22H21V28H17V22H12Z" fill="#00e6fb" stroke="#00c6fb" stroke-width="1.5" stroke-linejoin="round"/>
+                        <svg id="brandLogo" width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 0 8px #00e6fbcc); transition: filter 0.3s;">
+                            <circle cx="19" cy="19" r="17" stroke="#00e6fb" stroke-width="3" fill="#181c2b" style="transition: stroke 0.3s, fill 0.3s;"/>
+                            <path d="M12 22L19 10L26 22H21V28H17V22H12Z" fill="#00e6fb" stroke="#00c6fb" stroke-width="1.5" stroke-linejoin="round" style="transition: fill 0.3s, stroke 0.3s;"/>
                         </svg>
                     </span>
-                    <span style="background: linear-gradient(90deg,#00e6fb 40%,#005bea 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent; background-clip:text;">Cloud Alert Hub</span>
+                    <span id="brandText" style="background: linear-gradient(90deg,#00e6fb 40%,#005bea 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; color:transparent; transition: all 0.3s;">Cloud Alert Hub</span>
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -59,7 +59,6 @@
                             </div>
                         </div>
                         <a class="btn btn-outline-info me-2 px-3 fw-bold" asp-controller="Auth" asp-action="Login" style="border-radius: 1.5rem;">Iniciar sesión</a>
-                        <a class="btn btn-info px-3 fw-bold text-white" asp-controller="Auth" asp-action="Register" style="border-radius: 1.5rem;">Crear cuenta</a>
                     </div>
                 </div>
             </div>
@@ -181,6 +180,52 @@
         document.body.classList.toggle('light-mode', !dark);
         document.body.classList.toggle('dark-mode', dark);
         themeBtn.style.background = dark ? '#232a3d' : '#e0e6ed';
+        
+        // Actualizar logo
+        const logo = document.getElementById('brandLogo');
+        const brandText = document.getElementById('brandText');
+        
+        if (logo) {
+            const circles = logo.querySelectorAll('circle');
+            const paths = logo.querySelectorAll('path');
+            
+            if (dark) {
+                // Modo oscuro
+                circles.forEach(c => {
+                    c.setAttribute('stroke', '#00e6fb');
+                    c.setAttribute('fill', '#181c2b');
+                });
+                paths.forEach(p => {
+                    p.setAttribute('fill', '#00e6fb');
+                    p.setAttribute('stroke', '#00c6fb');
+                });
+                logo.style.filter = 'drop-shadow(0 0 8px #00e6fbcc)';
+            } else {
+                // Modo claro
+                circles.forEach(c => {
+                    c.setAttribute('stroke', '#00b4d8');
+                    c.setAttribute('fill', '#f8fafc');
+                });
+                paths.forEach(p => {
+                    p.setAttribute('fill', '#00b4d8');
+                    p.setAttribute('stroke', '#0077cc');
+                });
+                logo.style.filter = 'drop-shadow(0 0 8px #00b4d888)';
+            }
+        }
+        
+        if (brandText) {
+            if (dark) {
+                brandText.style.background = 'linear-gradient(90deg, #00e6fb 40%, #005bea 100%)';
+            } else {
+                brandText.style.background = 'linear-gradient(90deg, #00b4d8 40%, #0077cc 100%)';
+            }
+            brandText.style.webkitBackgroundClip = 'text';
+            brandText.style.webkitTextFillColor = 'transparent';
+            brandText.style.backgroundClip = 'text';
+            brandText.style.color = 'transparent';
+        }
+        
         // Animación SVG
         if (dark) {
             iconSunCloud.style.opacity = 0;
