@@ -15,7 +15,9 @@ builder.Services.AddHttpClient<ICloudStatusService, CloudStatusService>(client =
 });
 
 builder.Services.AddScoped<IRssProcessorService, RssProcessorService>();
+builder.Services.AddScoped<ILatencyProbeService, LatencyProbeService>();
 builder.Services.AddHttpClient<RssProcessorService>();
+builder.Services.AddHttpClient("LatencyProbe");
 builder.Services.AddHostedService<RssWorker>();
 
 builder.Services.AddDbContext<AppDbContext>(options =>

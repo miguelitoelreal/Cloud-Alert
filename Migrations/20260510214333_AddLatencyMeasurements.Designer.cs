@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using CloudAlertApp.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CloudAlertApp.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260510214333_AddLatencyMeasurements")]
+    partial class AddLatencyMeasurements
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -133,12 +136,6 @@ namespace CloudAlertApp.Migrations
                     b.Property<double>("AvgMs")
                         .HasColumnType("double precision");
 
-                    b.Property<double>("ConnectMs")
-                        .HasColumnType("double precision");
-
-                    b.Property<double>("DnsMs")
-                        .HasColumnType("double precision");
-
                     b.Property<string>("EndpointUrl")
                         .IsRequired()
                         .HasMaxLength(500)
@@ -146,9 +143,6 @@ namespace CloudAlertApp.Migrations
 
                     b.Property<string>("ErrorMessage")
                         .HasColumnType("text");
-
-                    b.Property<bool>("IsContentValid")
-                        .HasColumnType("boolean");
 
                     b.Property<bool>("IsStable")
                         .HasColumnType("boolean");
@@ -172,9 +166,6 @@ namespace CloudAlertApp.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
 
-                    b.Property<double>("ResponseMs")
-                        .HasColumnType("double precision");
-
                     b.Property<string>("ServiceName")
                         .IsRequired()
                         .HasMaxLength(150)
@@ -185,17 +176,8 @@ namespace CloudAlertApp.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
-                    b.Property<int?>("StatusCode")
-                        .HasColumnType("integer");
-
                     b.Property<int>("SuccessCount")
                         .HasColumnType("integer");
-
-                    b.Property<double>("TlsMs")
-                        .HasColumnType("double precision");
-
-                    b.Property<double>("TotalMs")
-                        .HasColumnType("double precision");
 
                     b.HasKey("Id");
 

@@ -1,0 +1,97 @@
+@model CloudAlertApp.Models.LatencyTesterViewModel
+
+@{
+    ViewData["Title"] = "Response Time Tester";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card p-4">
+                <h3 class="mb-3">Response Time Tester</h3>
+                <div class="mb-3">
+                    <label class="form-label">URL a probar</label>
+                    <input id="inputUrl" class="form-control" value="@Model.EndpointUrl" placeholder="https://example.com" />
+                </div>
+                <div class="d-flex gap-2 mb-3">
+                    <button id="btnTest" class="btn btn-primary">Test</button>
+                    <a id="linkOpen" class="btn btn-outline-secondary" target="_blank">Abrir en nueva pestaña</a>
+                </div>
+
+                <div id="testedUrl" class="mb-3 text-muted">URL Probada: <span id="testedUrlValue"></span></div>
+
+                <div id="resultCard" class="p-3 border rounded" style="min-height:120px; display:none;">
+                    <div id="statusBadge" class="mb-2"></div>
+                    <div id="httpInfo" class="mb-1"></div>
+                    <div id="totalTime" class="display-6 fw-bold"></div>
+                    <div id="details" class="text-muted mt-2"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function () {
+        const inputUrl = document.getElementById('inputUrl');
+        const btnTest = document.getElementById('btnTest');
+        const testedUrlValue = document.getElementById('testedUrlValue');
+        const linkOpen = document.getElementById('linkOpen');
+        const resultCard = document.getElementById('resultCard');
+        const statusBadge = document.getElementById('statusBadge');
+        const httpInfo = document.getElementById('httpInfo');
+        const totalTime = document.getElementById('totalTime');
+        const details = document.getElementById('details');
+
+        function setUrl(url) {
+            inputUrl.value = url || '';
+            testedUrlValue.textContent = url || '';
+            linkOpen.href = url || '#';
+        }
+
+        setUrl('@Model.EndpointUrl');
+
+        btnTest.addEventListener('click', async function () {
+            const url = inputUrl.value.trim();
+            if (!url) return;
+            btnTest.disabled = true;
+            btnTest.textContent = 'Midiendo...';
+            resultCard.style.display = 'none';
+            try {
+                const response = await fetch('/api/latency/measure', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ serviceName: '@Model.ServiceName', endpointUrl: url, protocol: 'Auto' })
+                });
+
+                if (!response.ok) {
+                    totalTime.textContent = '';
+                    statusBadge.textContent = '';
+                    httpInfo.textContent = 'Error al realizar la medición';
+                    resultCard.style.display = 'block';
+                    return;
+                }
+
+                const payload = await response.json();
+                testedUrlValue.textContent = url;
+                resultCard.style.display = 'block';
+
+                const statusClass = payload.isStable ? 'badge bg-success' : (payload.status === 'Alerta' ? 'badge bg-warning text-dark' : 'badge bg-danger');
+                statusBadge.innerHTML = `<span class="${statusClass}">${payload.status} ${payload.httpStatus ? '· HTTP ' + payload.httpStatus : ''}</span>`;
+
+                httpInfo.innerHTML = payload.responseSize ? `Tamaño: ${payload.responseSize} · HTTP ${payload.httpStatus || '—'}` : `HTTP ${payload.httpStatus || '—'}`;
+                totalTime.textContent = `${payload.totalMs} ms`;
+                details.innerHTML = `DNS ${payload.dnsMs} ms · TCP ${payload.connectMs} ms · TLS ${payload.tlsMs} ms · Resp. ${payload.responseMs} ms`;
+            } catch (err) {
+                totalTime.textContent = '';
+                statusBadge.textContent = '';
+                httpInfo.textContent = 'Error al medir latencia.';
+                resultCard.style.display = 'block';
+                console.error(err);
+            } finally {
+                btnTest.disabled = false;
+                btnTest.textContent = 'Test';
+            }
+        });
+    })();
+</script>
