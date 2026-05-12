@@ -10,12 +10,11 @@
             <div class="card p-4">
                 <h3 class="mb-3">Response Time Tester</h3>
                 <div class="mb-3">
-                    <label class="form-label">URL a probar</label>
+                    <label for="inputUrl" class="form-label">URL a probar</label>
                     <input id="inputUrl" class="form-control" value="@Model.EndpointUrl" placeholder="https://example.com" />
                 </div>
-                <div class="d-flex gap-2 mb-3">
+                <div class="mb-3">
                     <button id="btnTest" class="btn btn-primary">Test</button>
-                    <a id="linkOpen" class="btn btn-outline-secondary" target="_blank">Abrir en nueva pestaña</a>
                 </div>
 
                 <div id="testedUrl" class="mb-3 text-muted">URL Probada: <span id="testedUrlValue"></span></div>
@@ -36,7 +35,6 @@
         const inputUrl = document.getElementById('inputUrl');
         const btnTest = document.getElementById('btnTest');
         const testedUrlValue = document.getElementById('testedUrlValue');
-        const linkOpen = document.getElementById('linkOpen');
         const resultCard = document.getElementById('resultCard');
         const statusBadge = document.getElementById('statusBadge');
         const httpInfo = document.getElementById('httpInfo');
@@ -46,7 +44,6 @@
         function setUrl(url) {
             inputUrl.value = url || '';
             testedUrlValue.textContent = url || '';
-            linkOpen.href = url || '#';
         }
 
         setUrl('@Model.EndpointUrl');
