@@ -39,7 +39,10 @@ public class CloudStatusService : ICloudStatusService
                 GetGoogleCloudStatusAsync(cancellationToken),
                 GetCloudflareStatusAsync(cancellationToken));
 
-            var orderedServices = services.OrderBy(service => service.SortOrder).ToList();
+            var orderedServices = services
+                .Select(EnrichServiceMetadata)
+                .OrderBy(service => service.SortOrder)
+                .ToList();
             var healthyCount = orderedServices.Count(service => service.Level == "success");
             var attentionCount = orderedServices.Count - healthyCount;
             var lastUpdatedAtUtc = orderedServices.Max(service => service.SourceUpdatedAtUtc);
@@ -69,7 +72,7 @@ public class CloudStatusService : ICloudStatusService
 
             if (firstItem is null)
             {
-                return CreateOperationalStatus("AWS", "AWS RSS", sourceUrl, lastBuildDate, "Sin incidentes recientes publicados en el feed.", 1);
+                return CreateOperationalStatus("AWS", "AWS RSS", sourceUrl, lastBuildDate, "Sin incidentes recientes publicados en el feed.", 1, 3);
             }
 
             var title = firstItem.Element("title")?.Value?.Trim() ?? "Actualizacion reciente";
@@ -79,7 +82,8 @@ public class CloudStatusService : ICloudStatusService
 
             if (!recentEvent)
             {
-                return CreateOperationalStatus("AWS", "AWS RSS", sourceUrl, lastBuildDate, "Sin eventos publicos recientes en las ultimas 72 horas.", 1);
+                var daysWithoutIncidents = Math.Max(3, (int)Math.Floor((DateTimeOffset.UtcNow - itemDate).TotalDays));
+                return CreateOperationalStatus("AWS", "AWS RSS", sourceUrl, lastBuildDate, "Sin eventos publicos recientes en las ultimas 72 horas.", 1, daysWithoutIncidents);
             }
 
             var (displayStatus, level) = MapRssTitleToLevel(title);
@@ -94,6 +98,7 @@ public class CloudStatusService : ICloudStatusService
                 SourceLabel = "AWS RSS",
                 SourceUrl = sourceUrl,
                 SourceUpdatedAtUtc = itemDate,
+                DaysWithoutIncidents = 0,
                 SortOrder = 1
             };
         }
@@ -117,7 +122,7 @@ public class CloudStatusService : ICloudStatusService
 
             if (firstItem is null)
             {
-                return CreateOperationalStatus("Azure", "Azure RSS", sourceUrl, lastBuildDate, "Sin incidentes activos publicados en el feed de Azure.", 2);
+                return CreateOperationalStatus("Azure", "Azure RSS", sourceUrl, lastBuildDate, "Sin incidentes activos publicados en el feed de Azure.", 2, 3);
             }
 
             var title = firstItem.Element("title")?.Value?.Trim() ?? "Actualizacion reciente";
@@ -127,7 +132,8 @@ public class CloudStatusService : ICloudStatusService
 
             if (!recentEvent)
             {
-                return CreateOperationalStatus("Azure", "Azure RSS", sourceUrl, lastBuildDate, "El feed no reporta eventos recientes en las ultimas 72 horas.", 2);
+                var daysWithoutIncidents = Math.Max(3, (int)Math.Floor((DateTimeOffset.UtcNow - itemDate).TotalDays));
+                return CreateOperationalStatus("Azure", "Azure RSS", sourceUrl, lastBuildDate, "El feed no reporta eventos recientes en las ultimas 72 horas.", 2, daysWithoutIncidents);
             }
 
             var (displayStatus, level) = MapRssTitleToLevel(title);
@@ -142,6 +148,7 @@ public class CloudStatusService : ICloudStatusService
                 SourceLabel = "Azure RSS",
                 SourceUrl = sourceUrl,
                 SourceUpdatedAtUtc = itemDate,
+                DaysWithoutIncidents = 0,
                 SortOrder = 2
             };
         }
@@ -196,6 +203,7 @@ public class CloudStatusService : ICloudStatusService
                 SourceLabel = "Google Cloud incidents API",
                 SourceUrl = sourceUrl,
                 SourceUpdatedAtUtc = modified,
+                DaysWithoutIncidents = 0,
                 SortOrder = 3
             };
         }
@@ -248,6 +256,7 @@ public class CloudStatusService : ICloudStatusService
                 SourceLabel = "Cloudflare status API",
                 SourceUrl = sourceUrl,
                 SourceUpdatedAtUtc = updatedAtUtc,
+                DaysWithoutIncidents = level == "success" ? Math.Max(0, (int)Math.Floor((DateTimeOffset.UtcNow - updatedAtUtc).TotalDays)) : 0,
                 SortOrder = 4
             };
         }
@@ -273,6 +282,26 @@ public class CloudStatusService : ICloudStatusService
         return $"{healthyCount} fuentes estables y {attentionCount} con atencion: {string.Join(", ", affectedProviders)}.";
     }
 
+    private static CloudServiceStatusViewModel EnrichServiceMetadata(CloudServiceStatusViewModel service)
+    {
+        var metadata = service.Name switch
+        {
+            "AWS" => ("aws", "Servicios Cloud", "Infraestructura principal y cargas de trabajo de Amazon Web Services.", "aws", "Produccion"),
+            "Azure" => ("azure", "Servicios Cloud", "Servicios empresariales y despliegues administrados sobre Microsoft Azure.", "azure", "Staging"),
+            "Google Cloud" => ("google-cloud", "Servicios Cloud", "Capacidad operativa y monitoreo publico de Google Cloud Platform.", "google", "Analitica"),
+            "Cloudflare" => ("cloudflare", "Servicios Cloud", "Red perimetral, DNS y proteccion de trafico administrados por Cloudflare.", "cloudflare", "Edge global"),
+            _ => (service.Name.ToLowerInvariant().Replace(' ', '-'), "Servicios Cloud", "Estado publico del servicio monitoreado.", "neutral", "General")
+        };
+
+        service.Slug = metadata.Item1;
+        service.Category = metadata.Item2;
+        service.Description = metadata.Item3;
+        service.Accent = metadata.Item4;
+        service.EnvironmentLabel = metadata.Item5;
+
+        return service;
+    }
+
     private async Task<XDocument> LoadXmlAsync(string sourceUrl, CancellationToken cancellationToken)
     {
         using var response = await _httpClient.GetAsync(sourceUrl, cancellationToken);
@@ -282,7 +311,7 @@ public class CloudStatusService : ICloudStatusService
         return XDocument.Load(stream);
     }
 
-    private static CloudServiceStatusViewModel CreateOperationalStatus(string name, string sourceLabel, string sourceUrl, DateTimeOffset updatedAtUtc, string summary, int sortOrder)
+    private static CloudServiceStatusViewModel CreateOperationalStatus(string name, string sourceLabel, string sourceUrl, DateTimeOffset updatedAtUtc, string summary, int sortOrder, int daysWithoutIncidents = 0)
     {
         return new CloudServiceStatusViewModel
         {
@@ -294,6 +323,7 @@ public class CloudStatusService : ICloudStatusService
             SourceLabel = sourceLabel,
             SourceUrl = sourceUrl,
             SourceUpdatedAtUtc = updatedAtUtc,
+            DaysWithoutIncidents = daysWithoutIncidents,
             SortOrder = sortOrder
         };
     }
@@ -310,6 +340,7 @@ public class CloudStatusService : ICloudStatusService
             SourceLabel = sourceLabel,
             SourceUrl = sourceUrl,
             SourceUpdatedAtUtc = DateTimeOffset.UtcNow,
+            DaysWithoutIncidents = 0,
             SortOrder = sortOrder
         };
     }
