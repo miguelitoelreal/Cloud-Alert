@@ -1,0 +1,18 @@
+# .gitignore for ASP.NET Core projects
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vs/
+.env
+.env.*
+*.swp
+*.DS_Store
+*.vscode/
+wwwroot/node_modules/
+node_modules/
+# Rider
+.idea/
+*.sln.iml

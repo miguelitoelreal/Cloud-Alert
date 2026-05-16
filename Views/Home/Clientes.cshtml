@@ -1,0 +1,279 @@
+@model List<Cliente>
+
+@{
+    ViewData["Title"] = "Gestión de Clientes";
+}
+
+<div class="container py-5">
+    <!-- Mensajes de Éxito/Error -->
+    @if (TempData["Exito"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>✓ Éxito:</strong> @TempData["Exito"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>✗ Error:</strong> @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row mb-5">
+        <div class="col-12 d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="display-5 fw-bold">Gestión de Clientes</h1>
+                <p class="lead text-muted">Registro de cuentas y clasificación por tipo de servicio.</p>
+            </div>
+            <div class="d-flex flex-column flex-md-row gap-2 align-items-center">
+                <a href="/Home/ExportarClientes" class="btn btn-success fw-bold">
+                    <i class="bi bi-download"></i> Exportar a Excel
+                </a>
+                <form method="post" action="/Home/ImportarClientes" enctype="multipart/form-data" class="d-flex gap-2 align-items-center">
+                    <input type="file" name="file" accept=".xlsx,.xls" class="form-control" style="max-width:240px;" required>
+                    <button type="submit" class="btn btn-info fw-bold">
+                        <i class="bi bi-upload"></i> Importar Excel
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Formulario de Registro -->
+        <div class="col-lg-5 mb-4">
+            <div class="card border-0 shadow-sm" style="background-color: #1a1f2e; color: #fff;">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-4">
+                        <i class="bi bi-person-plus" style="font-size: 1.5rem; margin-right: 10px;"></i>
+                        <h5 class="card-title mb-0">REGISTRAR CLIENTE</h5>
+                    </div>
+
+                    <form method="post" action="/Home/GuardarCliente" id="formCliente">
+                        <div class="mb-3">
+                            <label for="nombreEmpresa" class="form-label fw-bold">NOMBRE DE LA EMPRESA</label>
+                            <input type="text" class="form-control form-control-lg" id="nombreEmpresa" 
+                                   name="nombreEmpresa" placeholder="Ej: Global Tech" required
+                                   style="background-color: #2a3142; border: 1px solid #3a4252; color: #fff;">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="servicioPrincipal" class="form-label fw-bold">SERVICIO PRINCIPAL (IND-TI)</label>
+                            <select class="form-select form-select-lg" id="servicioPrincipal" 
+                                    name="servicioPrincipal" required
+                                    style="background-color: #2a3142; border: 1px solid #3a4252; color: #fff;">
+                                <option value="">-- Selecciona un servicio --</option>
+                                <option value="AWS">Amazon Web Services (AWS)</option>
+                                <option value="AZURE">Microsoft Azure</option>
+                                <option value="M365">Microsoft 365</option>
+                                <option value="GCP">Google Cloud Platform</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="correoAdministrador" class="form-label fw-bold">CORREO ADMINISTRADOR</label>
+                            <input type="email" class="form-control form-control-lg" id="correoAdministrador" 
+                                   name="correoAdministrador" placeholder="admin@empresa.com" required
+                                   style="background-color: #2a3142; border: 1px solid #3a4252; color: #fff;">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold">
+                            GUARDAR CLIENTE
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla de Clientes -->
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm" style="background-color: #1a1f2e;">
+                <div class="card-body p-4">
+                    <!-- Filtros por Servicio -->
+                    <div class="row mb-3">
+                        <div class="col-12 col-md-6 mb-3 mb-md-0">
+                            <input type="search" id="clienteSearch" class="form-control form-control-lg" placeholder="Buscar cliente, correo o servicio" style="background-color: #2a3142; border: 1px solid #3a4252; color: #fff;" />
+                        </div>
+                    </div>
+                    <div class="btn-group mb-4 w-100" role="group">
+                        <input type="radio" class="btn-check" name="filtro" id="filtroTodos" value="todos" checked>
+                        <label class="btn btn-outline-primary" for="filtroTodos">Todos</label>
+
+                        <input type="radio" class="btn-check" name="filtro" id="filtroAWS" value="AWS">
+                        <label class="btn btn-outline-secondary" for="filtroAWS">AWS</label>
+
+                        <input type="radio" class="btn-check" name="filtro" id="filtroAzure" value="AZURE">
+                        <label class="btn btn-outline-secondary" for="filtroAzure">Azure</label>
+
+                        <input type="radio" class="btn-check" name="filtro" id="filtroM365" value="M365">
+                        <label class="btn btn-outline-secondary" for="filtroM365">M365</label>
+
+                        <input type="radio" class="btn-check" name="filtro" id="filtroGCP" value="GCP">
+                        <label class="btn btn-outline-secondary" for="filtroGCP">GCP</label>
+                    </div>
+
+                    <!-- Tabla -->
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover mb-0" id="tablaClientes">
+                            <thead style="background-color: #0a0e14;">
+                                <tr>
+                                    <th scope="col" class="fw-bold">CLIENTE</th>
+                                    <th scope="col" class="fw-bold">SERVICIO</th>
+                                    <th scope="col" class="fw-bold">ADMINISTRADOR</th>
+                                    <th scope="col" class="fw-bold text-center" style="width: 120px;">ACCIONES</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var cliente in Model)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <span class="badge bg-success rounded-circle" style="width: 10px; height: 10px; margin-right: 8px;"></span>
+                                                <span>@cliente.NombreEmpresa</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            @if (cliente.ServicioPrincipal == "AWS")
+                                            {
+                                                <span class="badge bg-warning text-dark">@cliente.ServicioPrincipal</span>
+                                            }
+                                            else if (cliente.ServicioPrincipal == "AZURE")
+                                            {
+                                                <span class="badge bg-info">@cliente.ServicioPrincipal</span>
+                                            }
+                                            else if (cliente.ServicioPrincipal == "M365")
+                                            {
+                                                <span class="badge bg-success">@cliente.ServicioPrincipal</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary">@cliente.ServicioPrincipal</span>
+                                            }
+                                        </td>
+                                        <td>@cliente.CorreoAdministrador</td>
+                                        <td class="text-center">
+                                            <div class="d-flex justify-content-center gap-2">
+                                                <a href="/Home/EditarCliente/@cliente.Id" class="btn btn-sm btn-warning" title="Editar">
+                                                    <i class="bi bi-pencil-fill"></i> Editar
+                                                </a>
+                                                <form method="post" action="/Home/EliminarCliente" style="display: inline;">
+                                                    <input type="hidden" name="id" value="@cliente.Id">
+                                                    <button type="submit" class="btn btn-sm btn-danger" title="Eliminar" onclick="return confirm('¿Está seguro de que desea eliminar este cliente?')">
+                                                        <i class="bi bi-trash-fill"></i> Eliminar
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                                @if (!Model.Any())
+                                {
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted py-4">
+                                            No hay clientes registrados aún. Agrega uno para comenzar.
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Footer con información -->
+                    <div class="d-flex justify-content-between align-items-center mt-4 pt-3" style="border-top: 1px solid #3a4252;">
+                        <small class="text-muted">@Model.Count() CLIENTES REGISTRADOS</small>
+                        <small class="text-muted">Filtrados por servicio</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .client-card {
+        background: rgba(20, 28, 48, 0.95);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 1rem;
+    }
+
+    .stats-card {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 1rem;
+    }
+
+    .icon-circle {
+        width: 3rem;
+        height: 3rem;
+        border-radius: 1rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 10px 30px rgba(0, 102, 255, 0.18);
+    }
+
+    .search-group .form-control,
+    .client-card .form-select,
+    .client-card .form-control {
+        border-radius: 0.9rem;
+    }
+
+    .status-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        display: inline-block;
+        box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.12);
+    }
+
+    .btn-check:checked + .btn {
+        background-color: #0d6efd !important;
+        color: #fff !important;
+        border-color: #0d6efd !important;
+    }
+
+    .table tbody tr:hover {
+        background: rgba(255, 255, 255, 0.04);
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        border-color: #0d6efd !important;
+    }
+</style>
+
+<script>
+    const filtroRadios = document.querySelectorAll('input[name="filtro"]');
+    const buscador = document.getElementById('clienteSearch');
+    const filas = document.querySelectorAll('#tablaClientes tbody tr');
+
+    const actualizarVista = () => {
+        const filtro = document.querySelector('input[name="filtro"]:checked').value;
+        const termino = buscador?.value?.toLowerCase().trim() ?? '';
+
+        filas.forEach(fila => {
+            const servicioCell = fila.querySelector('td:nth-child(2)');
+            const clienteCell = fila.querySelector('td:nth-child(1)');
+            const correoCell = fila.querySelector('td:nth-child(3)');
+
+            const servicio = servicioCell?.textContent.trim() ?? '';
+            const cliente = clienteCell?.textContent.toLowerCase() ?? '';
+            const correo = correoCell?.textContent.toLowerCase() ?? '';
+
+            const coincideFiltro = filtro === 'todos' || servicio === filtro;
+            const coincideBusqueda = termino === '' || cliente.includes(termino) || correo.includes(termino) || servicio.toLowerCase().includes(termino);
+
+            fila.style.display = coincideFiltro && coincideBusqueda ? '' : 'none';
+        });
+    };
+
+    filtroRadios.forEach(radio => radio.addEventListener('change', actualizarVista));
+    if (buscador) {
+        buscador.addEventListener('input', actualizarVista);
+    }
+</script>
