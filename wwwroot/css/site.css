@@ -817,85 +817,13 @@ a:hover, .custom-footer a:hover {
   text-shadow: 0 0 6px rgba(0, 180, 216, 0.2);
 }
 
-/* Estilos responsivos para cliente/dashboard */
-.client-form-card {
-  background-color: #1a1f2e;
-  color: #fff;
-  transition: background-color 0.3s, color 0.3s;
-}
-
-.light-mode .client-form-card {
-  background-color: #ffffff;
-  color: #232a3d;
-  box-shadow: 0 6px 32px -8px rgba(0, 119, 204, 0.18);
-}
-
-.client-table-card {
-  background-color: #1a1f2e;
-  transition: background-color 0.3s;
-}
-
-.light-mode .client-table-card {
-  background-color: #ffffff;
-  box-shadow: 0 6px 32px -8px rgba(0, 119, 204, 0.18);
-}
-
-.client-input, .client-select {
-  background-color: #2a3142;
-  border: 1px solid #3a4252;
-  color: #fff;
-  transition: background-color 0.3s, border-color 0.3s, color 0.3s;
-}
-
-.client-input:focus, .client-select:focus {
-  background-color: #2a3142;
-  border-color: #00e6fb;
-  color: #fff;
-  box-shadow: 0 0 12px rgba(0, 230, 251, 0.2);
-}
-
-.light-mode .client-input, .light-mode .client-select {
-  background-color: #f8f9fa;
-  border: 1px solid #dee2e6;
-  color: #232a3d;
-}
-
-.light-mode .client-input:focus, .light-mode .client-select:focus {
-  background-color: #ffffff;
-  border-color: #00b4d8;
-  color: #232a3d;
-  box-shadow: 0 0 12px rgba(0, 180, 216, 0.2);
-}
-
-.client-table-dark {
-  color: #e0e6ed;
-  background-color: transparent;
-}
-
-.light-mode .client-table-dark {
-  color: #232a3d;
-}
-
-.client-table-dark thead {
-  background-color: #0a0e14;
-}
-
-.light-mode .client-table-dark thead {
-  background-color: #e9ecef;
-}
-
-.client-table-dark tbody tr:hover {
-  background-color: rgba(255, 255, 255, 0.04);
-}
-
-.light-mode .client-table-dark tbody tr:hover {
-  background-color: rgba(0, 119, 204, 0.04);
-}
-
-.client-divider {
-  border-top: 1px solid #3a4252;
-}
-
-.light-mode .client-divider {
-  border-top: 1px solid #dee2e6;
+/* Estilos para truncar descripción de incidentes */
+.incident-description {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 1rem 0;
+  line-height: 1.5;
 }
