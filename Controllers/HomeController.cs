@@ -47,6 +47,37 @@ public class HomeController : Controller
     }
 
     [HttpGet]
+    public async Task<IActionResult> ServiceStatus(string slug, CancellationToken cancellationToken)
+    {
+        var snapshot = await _cloudStatusService.GetSnapshotAsync(cancellationToken);
+        var selectedService = snapshot.Services.FirstOrDefault(service =>
+            string.Equals(service.Slug, slug, StringComparison.OrdinalIgnoreCase));
+
+        if (selectedService is null)
+        {
+            return NotFound();
+        }
+
+        var relatedServices = snapshot.Services
+            .Where(service =>
+                !string.Equals(service.Slug, selectedService.Slug, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(service.Category, selectedService.Category, StringComparison.OrdinalIgnoreCase))
+            .OrderBy(service => service.SortOrder)
+            .ToList();
+
+        var model = new CloudServiceDetailPageViewModel
+        {
+            LastCheckedAtUtc = snapshot.LastCheckedAtUtc,
+            LastUpdatedAtUtc = snapshot.LastUpdatedAtUtc,
+            StatusSummary = BuildServiceStatusSummary(selectedService),
+            SelectedService = selectedService,
+            RelatedServices = relatedServices
+        };
+
+        return View(model);
+    }
+
+    [HttpGet]
     public async Task<IActionResult> StatusSnapshot(CancellationToken cancellationToken)
     {
         var snapshot = await _cloudStatusService.GetSnapshotAsync(cancellationToken);
@@ -56,6 +87,17 @@ public class HomeController : Controller
     public IActionResult Cliente()
     {
         return View("Cliente", clientesData);
+    }
+
+    private static string BuildServiceStatusSummary(CloudServiceStatusViewModel service)
+    {
+        return service.Level switch
+        {
+            "success" => "No hay problemas reportados en la ultima verificacion.",
+            "warning" => "Se detectaron eventos recientes que requieren seguimiento.",
+            "danger" => "Hay una afectacion activa reportada por la fuente oficial.",
+            _ => "La fuente oficial no devolvio un estado concluyente en esta verificacion."
+        };
     }
 
     [HttpPost]

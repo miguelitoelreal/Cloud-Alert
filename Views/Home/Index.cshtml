@@ -53,7 +53,7 @@
                         };
 
                         <div class="col-md-6">
-                            <button type="button" class="home-service-button">
+                            <a asp-controller="Home" asp-action="ServiceStatus" asp-route-slug="@servicio.Slug" class="home-service-button">
                                 <span class="home-service-icon" aria-hidden="true">
                                     <span></span>
                                     <span></span>
@@ -68,7 +68,7 @@
                                         <span class="home-service-status-text">@servicio.DisplayStatus</span>
                                     </span>
                                 </span>
-                            </button>
+                            </a>
                         </div>
                     }
                 </div>
@@ -309,6 +309,7 @@
         align-items: center;
         gap: 1rem;
         text-align: left;
+        text-decoration: none;
         transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
     }
 
