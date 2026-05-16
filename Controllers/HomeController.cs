@@ -33,9 +33,10 @@ public class HomeController : Controller
         InicializarClientesSiEsNecesario();
     }
 
-    public IActionResult Index()
+    public async Task<IActionResult> Index(CancellationToken cancellationToken)
     {
-        return View();
+        var model = await _cloudStatusService.GetSnapshotAsync(cancellationToken);
+        return View(model);
     }
 
     [HttpGet]
