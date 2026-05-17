@@ -89,6 +89,26 @@ public class HomeController : Controller
         return View("Cliente", clientesData);
     }
 
+    [HttpGet]
+    public IActionResult Notificar()
+    {
+        var availableServices = clientesData
+            .SelectMany(GetClientServices)
+            .Select(NormalizeServiceName)
+            .Where(servicio => !string.IsNullOrWhiteSpace(servicio))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(servicio => servicio)
+            .ToList();
+
+        var model = new ServiceNotificationsPageViewModel
+        {
+            AvailableServices = availableServices,
+            RegisteredClientsCount = clientesData.Count
+        };
+
+        return View(model);
+    }
+
     private static string BuildServiceStatusSummary(CloudServiceStatusViewModel service)
     {
         return service.Level switch
@@ -98,6 +118,30 @@ public class HomeController : Controller
             "danger" => "Hay una afectacion activa reportada por la fuente oficial.",
             _ => "La fuente oficial no devolvio un estado concluyente en esta verificacion."
         };
+    }
+
+    private static string NormalizeServiceName(string serviceName)
+    {
+        return serviceName.Trim().ToUpperInvariant() switch
+        {
+            "AWS" => "AWS",
+            "AZURE" => "Azure",
+            "M365" => "M365",
+            "GCP" => "GCP",
+            var value => value
+        };
+    }
+
+    private static IEnumerable<string> GetClientServices(Cliente cliente)
+    {
+        if (cliente.Servicios != null && cliente.Servicios.Count > 0)
+        {
+            return cliente.Servicios;
+        }
+
+        return string.IsNullOrWhiteSpace(cliente.ServicioPrincipal)
+            ? Array.Empty<string>()
+            : new[] { cliente.ServicioPrincipal };
     }
 
     [HttpPost]

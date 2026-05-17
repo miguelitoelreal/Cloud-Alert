@@ -388,12 +388,23 @@
   font-weight: 500;
   font-size: 1.1rem;
   position: relative;
-  transition: color 0.2s;
+  padding: 0.55rem 1rem !important;
+  border: 1px solid transparent !important;
+  border-radius: 999px;
+  transition: color 0.2s, border-color 0.2s, background-color 0.2s, box-shadow 0.2s, transform 0.2s;
 }
-.nav-link-neon.active,
-.nav-link-neon:hover {
+.nav-link-neon.active {
   color: #00e6fb !important;
   text-shadow: 0 0 8px #00e6fbcc, 0 0 2px #fff;
+}
+.nav-link-neon:hover,
+.nav-link-neon:focus-visible {
+  color: #00e6fb !important;
+  background: rgba(0, 230, 251, 0.08);
+  border-color: rgba(0, 230, 251, 0.55) !important;
+  box-shadow: 0 0 18px rgba(0, 230, 251, 0.18);
+  text-shadow: 0 0 8px #00e6fbcc, 0 0 2px #fff;
+  transform: translateY(-1px);
 }
 .navbar {
   border-radius: 0 0 1.5rem 1.5rem;
