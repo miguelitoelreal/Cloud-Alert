@@ -68,7 +68,7 @@ namespace CloudAlertApp.Migrations
                     b.HasIndex("CorreoAdministrador")
                         .IsUnique();
 
-                    b.ToTable("Clientes");
+                    b.ToTable("Clientes", (string)null);
                 });
 
             modelBuilder.Entity("CloudAlertApp.Models.Incidente", b =>
@@ -119,7 +119,7 @@ namespace CloudAlertApp.Migrations
 
                     b.HasIndex("ProveedorId");
 
-                    b.ToTable("Incidentes");
+                    b.ToTable("Incidentes", (string)null);
                 });
 
             modelBuilder.Entity("CloudAlertApp.Models.LatencyMeasurement", b =>
@@ -219,7 +219,7 @@ namespace CloudAlertApp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Proveedores");
+                    b.ToTable("Proveedores", (string)null);
                 });
 
             modelBuilder.Entity("CloudAlertApp.Models.Incidente", b =>

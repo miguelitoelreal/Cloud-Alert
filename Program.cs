@@ -14,6 +14,11 @@ builder.Services.AddHttpClient<ICloudStatusService, CloudStatusService>(client =
     client.DefaultRequestHeaders.UserAgent.ParseAdd("CloudAlertHub/1.0");
 });
 
+builder.Services.AddHttpClient<ITranslationService, GoogleTranslationService>(client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(10);
+});
+
 builder.Services.AddScoped<IRssProcessorService, RssProcessorService>();
 builder.Services.AddScoped<ILatencyProbeService, LatencyProbeService>();
 builder.Services.AddHttpClient<RssProcessorService>();

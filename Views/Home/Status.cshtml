@@ -1,3 +1,5 @@
+@using CloudAlertApp.Models
+
 @model CloudAlertApp.Models.CloudStatusPageViewModel
 
 @{
@@ -48,45 +50,148 @@
             <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
                 <div>
                     <h2 class="h3 fw-bold mb-1">Panel global</h2>
-                    <p class="status-muted mb-0">Estado sintetico para cualquier visitante con datos en vivo.</p>
+                    <p class="status-muted mb-0">Incidentes activos monitoreados.</p>
                 </div>
-                <span class="status-refresh" id="statusRefresh">Ultimo refresh: @Model.LastUpdatedAtUtc.ToUniversalTime().ToString("yyyy-MM-dd HH:mm:ss") UTC | Proximo refresco automatico en 60 minutos</span>
             </div>
 
-            <div class="row g-4" id="statusCards">
-                @foreach (var servicio in Model.Services)
-                {
-                    <div class="col-md-6 col-xl-4">
-                        <article class="status-service-card">
-                            <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
-                                <div>
-                                    <h3 class="h5 mb-1">@servicio.Name</h3>
-                                    <p class="status-muted mb-0">Cobertura: @servicio.Scope</p>
+            @if (Model.Incidentes.Any())
+            {
+                <div class="incidents-list" id="incidentsList">
+                    @foreach (var incidente in Model.Incidentes)
+                    {
+                        <div class="incident-card">
+                            <div class="incident-header">
+                                <div class="incident-icon severity-@(incidente.Severidad.ToString().ToLower())">
+                                    @if (incidente.Severidad == Severidad.Critica)
+                                    {
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="12" cy="12" r="10"></circle>
+                                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                                        </svg>
+                                    }
+                                    else if (incidente.Severidad == Severidad.Alta)
+                                    {
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3.05h16.94a2 2 0 0 0 1.71-3.05L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                                            <line x1="12" y1="9" x2="12" y2="13"></line>
+                                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                                        </svg>
+                                    }
+                                    else
+                                    {
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="12" cy="12" r="10"></circle>
+                                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                                        </svg>
+                                    }
                                 </div>
-                                <span class="status-pill status-@servicio.Level">@servicio.DisplayStatus</span>
+                                <div class="incident-title-section">
+                                    <div class="incident-code-row">
+                                        <span class="incident-code">@incidente.Codigo</span>
+                                        <span class="service-badge">@incidente.NombreProveedor</span>
+                                        <span class="severity-badge severity-@(incidente.Severidad.ToString().ToLower())">
+                                            @if (incidente.Severidad == Severidad.Critica) { <text>CRÍTICA</text> }
+                                            else if (incidente.Severidad == Severidad.Alta) { <text>ALTA</text> }
+                                            else { <text>MEDIA</text> }
+                                        </span>
+                                        <span class="status-badge">@incidente.Estado</span>
+                                    </div>
+                                    <h3 class="incident-title">@incidente.Titulo</h3>
+                                </div>
+                                <div class="incident-actions">
+                                    <button type="button" class="btn-details" onclick="openIncidentModal(@incidente.Id)">Ver Detalles</button>
+                                </div>
                             </div>
 
-                            <div class="status-metric-row">
-                                <span>Fuente</span>
-                                <strong>@servicio.SourceLabel</strong>
+                            <p class="incident-description">@incidente.Descripcion</p>
+
+                            <div class="incident-metadata">
+                                <div class="metadata-item">
+                                    <span class="metadata-label">Fecha</span>
+                                    <span class="metadata-value">@incidente.Fecha.ToString("yyyy-MM-dd HH:mm")</span>
+                                </div>
+                                <div class="metadata-item">
+                                    <span class="metadata-label">Servicio</span>
+                                    <span class="metadata-value">@incidente.Servicio</span>
+                                </div>
+                                <div class="metadata-item">
+                                    <span class="metadata-label">Proveedor</span>
+                                    <span class="metadata-value">@incidente.NombreProveedor</span>
+                                </div>
+                                <div class="metadata-item">
+                                    <span class="metadata-label">Asignado a</span>
+                                    <span class="metadata-value">@incidente.AsignadoA</span>
+                                </div>
                             </div>
-                            <div class="status-metric-row">
-                                <span>Actualizado</span>
-                                <strong>@servicio.SourceUpdatedAtUtc.ToUniversalTime().ToString("HH:mm:ss") UTC</strong>
-                            </div>
-                            <p class="status-summary-copy mt-3 mb-0">@servicio.Summary</p>
-                            <div class="d-flex flex-wrap align-items-center gap-2 mt-3">
-                                <a class="status-source-link" href="@servicio.SourceUrl" target="_blank" rel="noopener noreferrer">Ver fuente oficial</a>
-                                    <button type="button" class="btn btn-sm latency-measure-btn" onclick="redirectToLatencyTester('@servicio.Name','@servicio.SourceUrl')">Medir latencia</button>
-                            </div>
-                            <div class="latency-result mt-3 text-sm text-white-50" style="min-height:1.2rem"></div>
-                        </article>
-                    </div>
-                }
-            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="no-incidents-message">
+                    <p class="status-muted">No hay incidentes activos en este momento.</p>
+                </div>
+            }
         </div>
     </div>
 </section>
+
+<!-- Modal de Detalles del Incidente -->
+<div class="modal fade" id="incidentModal" tabindex="-1" aria-labelledby="incidentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content incident-modal-content">
+            <div class="modal-header incident-modal-header">
+                <div>
+                    <h5 class="modal-title" id="incidentModalLabel"></h5>
+                    <small id="incidentModalSubtitle"></small>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body incident-modal-body">
+                <div class="detail-row">
+                    <div class="detail-col">
+                        <label class="detail-label">Severidad</label>
+                        <p id="modalSeveridad"></p>
+                    </div>
+                    <div class="detail-col">
+                        <label class="detail-label">Estado</label>
+                        <p id="modalEstado"></p>
+                    </div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-col">
+                        <label class="detail-label">Servicio</label>
+                        <p id="modalServicio"></p>
+                    </div>
+                    <div class="detail-col">
+                        <label class="detail-label">Fecha</label>
+                        <p id="modalFecha"></p>
+                    </div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-col full-width">
+                        <label class="detail-label">Descripción</label>
+                        <p id="modalDescripcion" style="max-height: 200px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; border-radius: 4px;"></p>
+                    </div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-col full-width">
+                        <label class="detail-label">Proveedor</label>
+                        <p id="modalProveedor"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-success" onclick="downloadIncidentPDF()">📥 Compartir</button>
+                <a href="#" id="modalUrlLink" class="btn btn-primary" target="_blank">Ver más información</a>
+            </div>
+        </div>
+    </div>
+</div>
 
 <style>
     .status-hero {
@@ -264,7 +369,7 @@
 
     .status-source-link {
         display: inline-flex;
-        align-items: center;
+        margin-top: 1rem;
         color: #7ee7f7;
         text-decoration: none;
         font-weight: 600;
@@ -272,48 +377,6 @@
 
     .status-source-link:hover {
         color: #ffffff;
-    }
-
-    .latency-measure-btn {
-        border: none;
-        background: transparent;
-        color: #7ee7f7;
-        box-shadow: none;
-        line-height: 1;
-        display: inline-flex;
-        align-items: center;
-        padding: 0 0.15rem;
-        margin-left: auto;
-        cursor: pointer;
-        border-radius: 0.35rem;
-        transition: background 0.2s ease, transform 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .latency-measure-btn:hover,
-    .latency-measure-btn:focus {
-        background: rgba(126, 231, 247, 0.14);
-        color: #e6f9ff;
-        box-shadow: inset 0 0 0 1px rgba(126, 231, 247, 0.35);
-    }
-
-    .latency-measure-btn:focus-visible {
-        outline: 2px solid rgba(126, 231, 247, 0.55);
-        outline-offset: 3px;
-    }
-
-    .latency-measure-btn:active {
-        transform: translateY(1px);
-    }
-
-    .latency-measure-btn:disabled {
-        opacity: 0.65;
-        cursor: not-allowed;
-    }
-
-    .latency-detail {
-        color: rgba(224, 230, 237, 0.75);
-        font-size: 0.88rem;
-        line-height: 1.4;
     }
 
     body.light-mode .status-lead,
@@ -343,6 +406,375 @@
         color: #232a3d !important;
     }
 
+    /* Incident List Styles */
+    .incidents-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .incident-card {
+        padding: 1.5rem;
+        border-radius: 1rem;
+        background: linear-gradient(180deg, rgba(24, 28, 43, 0.95), rgba(18, 24, 38, 0.98));
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        transition: border-color 0.3s ease;
+    }
+
+    .incident-card:hover {
+        border-color: rgba(126, 231, 247, 0.3);
+    }
+
+    .incident-header {
+        display: flex;
+        gap: 1.5rem;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+    }
+
+    .incident-icon {
+        flex-shrink: 0;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.6rem;
+        font-weight: 700;
+    }
+
+    .incident-icon.severity-critica {
+        background: rgba(255, 91, 91, 0.2);
+        color: #ff9f9f;
+    }
+
+    .incident-icon.severity-alta {
+        background: rgba(255, 193, 7, 0.2);
+        color: #ffd666;
+    }
+
+    .incident-icon.severity-media {
+        background: rgba(255, 152, 0, 0.2);
+        color: #ffb366;
+    }
+
+    .incident-title-section {
+        flex: 1;
+    }
+
+    .incident-code-row {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+        margin-bottom: 0.6rem;
+        flex-wrap: wrap;
+    }
+
+    .incident-code {
+        font-weight: 700;
+        color: #7ee7f7;
+        font-size: 0.95rem;
+    }
+
+    .severity-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.35rem 0.7rem;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+    }
+
+    .severity-badge.severity-critica {
+        background: rgba(255, 91, 91, 0.2);
+        color: #ff9f9f;
+    }
+
+    .severity-badge.severity-alta {
+        background: rgba(255, 193, 7, 0.2);
+        color: #ffd666;
+    }
+
+    .severity-badge.severity-media {
+        background: rgba(255, 152, 0, 0.2);
+        color: #ffb366;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.35rem 0.7rem;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        background: rgba(67, 233, 123, 0.2);
+        color: #8ef0ae;
+    }
+
+    .service-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.35rem 0.7rem;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        background: rgba(0, 180, 216, 0.2);
+        color: #7ee7f7;
+    }
+
+    .incident-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin: 0;
+        color: #ffffff;
+    }
+
+    .incident-actions {
+        flex-shrink: 0;
+    }
+
+    .btn-details {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: linear-gradient(135deg, rgba(67, 233, 123, 0.15), rgba(0, 180, 216, 0.15));
+        color: #7ee7f7;
+        border: 1px solid rgba(126, 231, 247, 0.3);
+        border-radius: 0.6rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .btn-details:hover {
+        background: linear-gradient(135deg, rgba(67, 233, 123, 0.25), rgba(0, 180, 216, 0.25));
+        border-color: rgba(126, 231, 247, 0.6);
+        color: #ffffff;
+    }
+
+    .incident-description {
+        color: rgba(224, 230, 237, 0.84);
+        line-height: 1.6;
+        margin: 1rem 0 1.5rem 0;
+        font-size: 0.95rem;
+    }
+
+    .incident-metadata {
+        display: flex;
+        gap: 2rem;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        flex-wrap: wrap;
+    }
+
+    .metadata-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+    }
+
+    .metadata-label {
+        font-size: 0.8rem;
+        color: rgba(224, 230, 237, 0.6);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+    }
+
+    .metadata-value {
+        color: rgba(224, 230, 237, 0.9);
+        font-weight: 500;
+    }
+
+    .no-incidents-message {
+        text-align: center;
+        padding: 2rem;
+    }
+
+    body.light-mode .incident-card {
+        background: rgba(255, 255, 255, 0.92);
+        border-color: rgba(0, 180, 216, 0.12);
+        color: #232a3d;
+    }
+
+    body.light-mode .incident-card:hover {
+        border-color: rgba(0, 180, 216, 0.3);
+    }
+
+    body.light-mode .incident-title,
+    body.light-mode .incident-code {
+        color: #232a3d;
+    }
+
+    body.light-mode .incident-description,
+    body.light-mode .metadata-value {
+        color: rgba(35, 42, 61, 0.85);
+    }
+
+    body.light-mode .metadata-label {
+        color: rgba(35, 42, 61, 0.6);
+    }
+
+    /* Modal Styles */
+    .incident-modal-content {
+        background: linear-gradient(180deg, rgba(24, 28, 43, 0.98), rgba(18, 24, 38, 0.99));
+        border: 1px solid rgba(126, 231, 247, 0.2);
+        color: rgba(224, 230, 237, 0.9);
+    }
+
+    .incident-modal-header {
+        border-bottom: 1px solid rgba(126, 231, 247, 0.15);
+        padding: 1.5rem;
+    }
+
+    .incident-modal-header h5 {
+        margin-bottom: 0.3rem;
+        color: #ffffff;
+        font-size: 1.3rem;
+    }
+
+    .incident-modal-header small {
+        color: rgba(224, 230, 237, 0.7);
+    }
+
+    .incident-modal-body {
+        padding: 2rem;
+    }
+
+    .detail-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .detail-row.full-width {
+        grid-template-columns: 1fr;
+    }
+
+    .detail-col.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .detail-label {
+        font-size: 0.8rem;
+        color: rgba(224, 230, 237, 0.6);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .incident-modal-body p {
+        margin: 0;
+        color: rgba(224, 230, 237, 0.9);
+        font-size: 0.95rem;
+    }
+
+    .modal-footer {
+        border-top: 1px solid rgba(126, 231, 247, 0.15);
+        padding: 1rem 2rem;
+    }
+
+    .incident-modal-content .btn-close {
+        filter: brightness(0.8) invert(1);
+    }
+
+    body.light-mode .incident-modal-content {
+        background: rgba(255, 255, 255, 0.98);
+        border-color: rgba(0, 180, 216, 0.2);
+        color: rgba(35, 42, 61, 0.85);
+    }
+
+    body.light-mode .incident-modal-header {
+        border-bottom-color: rgba(0, 180, 216, 0.15);
+    }
+
+    body.light-mode .incident-modal-header h5 {
+        color: #232a3d;
+    }
+
+    body.light-mode .incident-modal-header small {
+        color: rgba(35, 42, 61, 0.7);
+    }
+
+    body.light-mode .detail-label {
+        color: rgba(35, 42, 61, 0.6);
+    }
+
+    body.light-mode .incident-modal-body p {
+        color: rgba(35, 42, 61, 0.85);
+    }
+
+    .description-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .btn-translate-small {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.4rem 0.8rem;
+        background: rgba(0, 180, 216, 0.15);
+        color: #7ee7f7;
+        border: 1px solid rgba(126, 231, 247, 0.3);
+        border-radius: 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+    }
+
+    .btn-translate-small:hover {
+        background: rgba(0, 180, 216, 0.25);
+        border-color: rgba(126, 231, 247, 0.6);
+        color: #ffffff;
+    }
+
+    .btn-translate-small:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .btn-translate-small.translating {
+        animation: spin 1s linear infinite;
+    }
+
+    @@keyframes spin {
+        from {
+            transform: rotate(0deg);
+        }
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    body.light-mode .btn-translate-small {
+        background: rgba(0, 180, 216, 0.1);
+        color: #0b4d6f;
+        border-color: rgba(0, 180, 216, 0.3);
+    }
+
+    body.light-mode .btn-translate-small:hover {
+        background: rgba(0, 180, 216, 0.2);
+        border-color: rgba(0, 180, 216, 0.5);
+        color: #0b4d6f;
+    }
+
     @@media (max-width: 768px) {
         .status-board {
             padding: 1.25rem;
@@ -350,6 +782,34 @@
 
         .status-summary-card {
             min-width: 145px;
+        }
+
+        .incident-header {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .incident-code-row {
+            flex-wrap: wrap;
+        }
+
+        .incident-actions {
+            width: 100%;
+        }
+
+        .btn-details {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .incident-metadata {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .detail-row {
+            grid-template-columns: 1fr;
+            gap: 1rem;
         }
     }
 </style>
@@ -399,64 +859,9 @@
                             <strong>${formatUtc(service.sourceUpdatedAtUtc)}</strong>
                         </div>
                         <p class="status-summary-copy mt-3 mb-0">${escapeHtml(service.summary)}</p>
-                        <div class="d-flex flex-wrap align-items-center gap-2 mt-3">
-                            <a class="status-source-link" href="${escapeHtml(service.sourceUrl)}" target="_blank" rel="noopener noreferrer">Ver fuente oficial</a>
-                            <button type="button" class="btn btn-sm btn-outline-light" onclick="redirectToLatencyTester('${escapeHtml(service.name)}', '${escapeHtml(service.sourceUrl)}')">Medir latencia</button>
-                        </div>
-                        <div class="latency-result mt-3 text-sm text-white-50" style="min-height:1.2rem"></div>
+                        <a class="status-source-link" href="${escapeHtml(service.sourceUrl)}" target="_blank" rel="noopener noreferrer">Ver fuente oficial</a>
                     </article>
                 </div>`).join('');
-        }
-
-        window.redirectToLatencyTester = function(serviceName, endpointUrl) {
-            const target = `/latency/tester?serviceName=${encodeURIComponent(serviceName)}&endpointUrl=${encodeURIComponent(endpointUrl)}`;
-            window.location.href = target;
-        }
-
-        window.measureLatency = async function(serviceName, endpointUrl, button) {
-            const card = button.closest('.status-service-card');
-            const resultContainer = card.querySelector('.latency-result');
-            button.disabled = true;
-            const originalText = button.textContent;
-            button.textContent = 'Midiendo...';
-            resultContainer.textContent = '';
-
-            try {
-                const response = await fetch('/api/latency/measure', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ serviceName, endpointUrl, protocol: 'Auto' })
-                });
-
-                if (!response.ok) {
-                    let message = 'No se pudo medir la latencia.';
-                    try {
-                        const errorData = await response.json();
-                        if (errorData?.error) {
-                            message += ` ${errorData.error}`;
-                        }
-                    } catch {
-                        // ignore invalid JSON
-                    }
-                    resultContainer.textContent = message;
-                    return;
-                }
-
-                const payload = await response.json();
-                const statusClass = payload.isStable ? 'success' : payload.status === 'Alerta' ? 'warning' : 'danger';
-                resultContainer.innerHTML = `
-                    <div><strong>Total:</strong> ${payload.totalMs} ms — <span class="text-${statusClass}">${payload.status}</span></div>
-                    <div class="latency-detail mt-1">DNS ${payload.dnsMs} ms · TCP ${payload.connectMs} ms · TLS ${payload.tlsMs} ms · Resp. ${payload.responseMs} ms</div>
-                `;
-            } catch (error) {
-                resultContainer.textContent = 'Error al medir la latencia.';
-                console.error(error);
-            } finally {
-                button.disabled = false;
-                button.textContent = originalText;
-            }
         }
 
         async function refreshStatus() {
@@ -484,5 +889,198 @@
         }
 
         window.setInterval(refreshStatus, 3600000);
+
+        // Variables globales para el modal de incidentes
+
+
+        window.openIncidentModal = async function(id) {
+            try {
+                const response = await fetch(`/api/incidentes/${id}`, {
+                    headers: { 'X-Requested-With': 'fetch' }
+                });
+
+                if (!response.ok) {
+                    console.error('No se pudo cargar el incidente');
+                    return;
+                }
+
+                const incidente = await response.json();
+
+                // Traducir severidad
+                const severidadMap = {
+                    'Critica': 'CRÍTICA',
+                    'Alta': 'ALTA',
+                    'Media': 'MEDIA'
+                };
+                const severidadTraducida = severidadMap[incidente.severidad] || incidente.severidad;
+
+
+
+                // Completar datos del modal
+                // Traducir descripción automáticamente
+                let descripcionFinal = incidente.descripcion;
+                try {
+                    const translateResponse = await fetch('/api/incidentes/translate', {
+                        method: 'POST',
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'fetch'
+                        },
+                        body: JSON.stringify({
+                            text: incidente.descripcion,
+                            sourceLanguage: 'en',
+                            targetLanguage: 'es'
+                        })
+                    });
+                    
+                    if (translateResponse.ok) {
+                        const translateData = await translateResponse.json();
+                        descripcionFinal = translateData.translatedText;
+                    }
+                } catch (error) {
+                    console.warn('No se pudo traducir la descripción:', error);
+                    // Se mantiene el texto original
+                }
+
+                document.getElementById('incidentModalLabel').textContent = incidente.titulo;
+                document.getElementById('incidentModalSubtitle').textContent = incidente.codigo;
+                document.getElementById('modalSeveridad').textContent = severidadTraducida;
+                document.getElementById('modalEstado').textContent = 'Abierto';
+                document.getElementById('modalServicio').textContent = incidente.servicio;
+                document.getElementById('modalFecha').textContent = incidente.fecha;
+                document.getElementById('modalDescripcion').textContent = descripcionFinal;
+                
+
+                document.getElementById('modalProveedor').textContent = incidente.proveedor;
+                document.getElementById('modalUrlLink').href = incidente.urlDetalle || '#';
+                document.getElementById('modalUrlLink').style.display = incidente.urlDetalle ? 'inline-block' : 'none';
+
+                // Mostrar modal
+                const modal = new bootstrap.Modal(document.getElementById('incidentModal'));
+                modal.show();
+            } catch (error) {
+                console.error('Error al cargar el incidente:', error);
+            }
+        };
+
+        window.downloadIncidentPDF = async function() {
+            const titulo = document.getElementById('incidentModalLabel').textContent || 'Incidente';
+            const codigo = document.getElementById('incidentModalSubtitle').textContent || '';
+            const severidad = document.getElementById('modalSeveridad').textContent || '';
+            const estado = document.getElementById('modalEstado').textContent || '';
+            const servicio = document.getElementById('modalServicio').textContent || '';
+            const fecha = document.getElementById('modalFecha').textContent || '';
+            const descripcionOriginal = document.getElementById('modalDescripcion').textContent || '';
+            const proveedor = document.getElementById('modalProveedor').textContent || '';
+
+            // Traducir la descripción al descargar el PDF
+            let descripcionFinal = descripcionOriginal;
+            try {
+                const response = await fetch('/api/incidentes/translate', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'fetch'
+                    },
+                    body: JSON.stringify({
+                        text: descripcionOriginal,
+                        sourceLanguage: 'en',
+                        targetLanguage: 'es'
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    descripcionFinal = data.translatedText || descripcionOriginal;
+                }
+            } catch (error) {
+                console.warn('No se pudo traducir la descripción para el PDF:', error);
+                // Mantiene la descripción original si falla la traducción
+            }
+
+            // Crear resumen de descripción para el PDF (primeros 500 caracteres)
+            if (descripcionFinal.length > 500) {
+                descripcionFinal = descripcionFinal.substring(0, 500) + '...';
+            }
+
+            const htmlContent = `
+                <div style="font-family: Arial, sans-serif; padding: 20px;">
+                    <h1 style="color: #000; border-bottom: 2px solid #007bff; padding-bottom: 10px;">${titulo}</h1>
+                    <p style="color: #000; font-size: 12px; margin-bottom: 20px;">Código: ${codigo}</p>
+
+                    <div style="margin-bottom: 20px;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr>
+                                <td style="width: 50%; padding: 10px; border: 1px solid #ddd; color: #000;">
+                                    <strong>Severidad:</strong>
+                                </td>
+                                <td style="width: 50%; padding: 10px; border: 1px solid #ddd; color: #000;">
+                                    ${severidad}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="width: 50%; padding: 10px; border: 1px solid #ddd; color: #000;">
+                                    <strong>Estado:</strong>
+                                </td>
+                                <td style="width: 50%; padding: 10px; border: 1px solid #ddd; color: #000;">
+                                    ${estado}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="width: 50%; padding: 10px; border: 1px solid #ddd; color: #000;">
+                                    <strong>Servicio:</strong>
+                                </td>
+                                <td style="width: 50%; padding: 10px; border: 1px solid #ddd; color: #000;">
+                                    ${servicio}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="width: 50%; padding: 10px; border: 1px solid #ddd; color: #000;">
+                                    <strong>Fecha:</strong>
+                                </td>
+                                <td style="width: 50%; padding: 10px; border: 1px solid #ddd; color: #000;">
+                                    ${fecha}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="width: 50%; padding: 10px; border: 1px solid #ddd; color: #000;">
+                                    <strong>Proveedor:</strong>
+                                </td>
+                                <td style="width: 50%; padding: 10px; border: 1px solid #ddd; color: #000;">
+                                    ${proveedor}
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div style="margin-top: 20px;">
+                        <h3 style="color: #000; margin-bottom: 10px;">Descripción</h3>
+                        <p style="color: #000; line-height: 1.6; white-space: pre-wrap; word-wrap: break-word;">${descripcionResumen}</p>
+                    </div>
+
+                    <div style="margin-top: 30px; padding-top: 10px; border-top: 1px solid #ddd; font-size: 12px; color: #000;">
+                        <p>Generado el: ${new Date().toLocaleString('es-ES')}</p>
+                    </div>
+                </div>
+            `;
+
+            const options = {
+                margin: 10,
+                filename: `incidente_${codigo.replace(/\\s+/g, '_')}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+            };
+
+            if (typeof html2pdf !== 'undefined') {
+                html2pdf().set(options).from(htmlContent).save();
+            } else {
+                alert('Error: Librería de PDF no cargada. Por favor, recarga la página.');
+            }
+        };
     })();
 </script>
+
+@section Scripts {
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+}
