@@ -18,11 +18,11 @@ public class CloudServiceStatusViewModel
     public string DisplayStatus { get; set; } = string.Empty;
     public string Level { get; set; } = "info";
     public string Category { get; set; } = string.Empty;
-    public string Description { get; set; } = string.Empty;
-    public string Accent { get; set; } = string.Empty;
-    public string EnvironmentLabel { get; set; } = string.Empty;
     public string Scope { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
     public string Summary { get; set; } = string.Empty;
+    public string Accent { get; set; } = "neutral";
+    public string EnvironmentLabel { get; set; } = string.Empty;
     public string SourceLabel { get; set; } = string.Empty;
     public string SourceUrl { get; set; } = string.Empty;
     public DateTimeOffset SourceUpdatedAtUtc { get; set; }

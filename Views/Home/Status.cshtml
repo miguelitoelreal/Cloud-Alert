@@ -50,7 +50,45 @@
             <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
                 <div>
                     <h2 class="h3 fw-bold mb-1">Panel global</h2>
-                    <p class="status-muted mb-0">Incidentes activos monitoreados.</p>
+                    <p class="status-muted mb-0">Proveedores en vivo e incidentes activos monitoreados.</p>
+                </div>
+                <span class="status-refresh" id="statusRefresh">Ultimo refresh: @Model.LastUpdatedAtUtc.ToUniversalTime().ToString("yyyy-MM-dd HH:mm:ss") UTC</span>
+            </div>
+
+            <div class="row g-4 mb-5" id="statusCards">
+                @foreach (var servicio in Model.Services)
+                {
+                    <div class="col-md-6 col-xl-4">
+                        <article class="status-service-card">
+                            <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+                                <div>
+                                    <h3 class="h5 mb-1">@servicio.Name</h3>
+                                    <p class="status-muted mb-0">Cobertura: @servicio.Scope</p>
+                                </div>
+                                <span class="status-pill status-@servicio.Level">@servicio.DisplayStatus</span>
+                            </div>
+
+                            <div class="status-metric-row">
+                                <span>Fuente</span>
+                                <strong>@servicio.SourceLabel</strong>
+                            </div>
+                            <div class="status-metric-row">
+                                <span>Actualizado</span>
+                                <strong>@servicio.SourceUpdatedAtUtc.ToUniversalTime().ToString("HH:mm:ss") UTC</strong>
+                            </div>
+                            <p class="status-summary-copy mt-3 mb-0">@servicio.Summary</p>
+                            <div class="d-flex flex-wrap gap-2 mt-3">
+                                <a class="status-source-link" asp-controller="Home" asp-action="ServiceStatus" asp-route-slug="@servicio.Slug">Ver detalles</a>
+                            </div>
+                        </article>
+                    </div>
+                }
+            </div>
+
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+                <div>
+                    <h3 class="h4 fw-bold mb-1">Incidentes activos</h3>
+                    <p class="status-muted mb-0">Eventos registrados internamente para seguimiento operativo.</p>
                 </div>
             </div>
 
@@ -817,6 +855,7 @@
 <script>
     (() => {
         const refreshUrl = '@Url.Action("StatusSnapshot", "Home")';
+        const serviceDetailBaseUrl = '@Url.Action("ServiceStatus", "Home")';
         const statusCards = document.getElementById('statusCards');
         const statusRefresh = document.getElementById('statusRefresh');
         const overviewTime = document.getElementById('overviewTime');
@@ -859,7 +898,7 @@
                             <strong>${formatUtc(service.sourceUpdatedAtUtc)}</strong>
                         </div>
                         <p class="status-summary-copy mt-3 mb-0">${escapeHtml(service.summary)}</p>
-                        <a class="status-source-link" href="${escapeHtml(service.sourceUrl)}" target="_blank" rel="noopener noreferrer">Ver fuente oficial</a>
+                        <a class="status-source-link" href="${serviceDetailBaseUrl}?slug=${encodeURIComponent(service.slug)}">Ver detalles</a>
                     </article>
                 </div>`).join('');
         }
