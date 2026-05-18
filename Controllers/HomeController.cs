@@ -4,6 +4,7 @@ using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using CloudAlertApp.Models;
 using CloudAlertApp.Services;
+using CloudAlertApp.Services.Interfaces;
 using OfficeOpenXml;
 using System.Text.Json;
 
@@ -14,6 +15,7 @@ public class HomeController : Controller
     private readonly ILogger<HomeController> _logger;
     private readonly IWebHostEnvironment _environment;
     private readonly ICloudStatusService _cloudStatusService;
+    private readonly IWhoisLookupService _whoisLookupService;
     private static readonly object ClientesLock = new();
     private static bool _clientesInicializados;
     private static string _clientesStoragePath = string.Empty;
@@ -25,11 +27,12 @@ public class HomeController : Controller
         new Cliente { Id = 3, NombreEmpresa = "Lumina Logistics", ServicioPrincipal = "M365", Servicios = new List<string> { "M365" }, CorreoAdministrador = "j.doe@lumina.com", FechaRegistro = DateTime.Now.AddDays(-5) }
     };
 
-    public HomeController(ILogger<HomeController> logger, IWebHostEnvironment environment, ICloudStatusService cloudStatusService)
+    public HomeController(ILogger<HomeController> logger, IWebHostEnvironment environment, ICloudStatusService cloudStatusService, IWhoisLookupService whoisLookupService)
     {
         _logger = logger;
         _environment = environment;
         _cloudStatusService = cloudStatusService;
+        _whoisLookupService = whoisLookupService;
         InicializarClientesSiEsNecesario();
     }
 
@@ -82,6 +85,33 @@ public class HomeController : Controller
     {
         var snapshot = await _cloudStatusService.GetSnapshotAsync(cancellationToken);
         return Json(snapshot);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Whois(string? domain, CancellationToken cancellationToken)
+    {
+        var model = new WhoisLookupPageViewModel
+        {
+            DomainQuery = domain?.Trim() ?? string.Empty,
+            HasSearched = !string.IsNullOrWhiteSpace(domain)
+        };
+
+        if (!model.HasSearched)
+        {
+            return View(model);
+        }
+
+        try
+        {
+            model.Result = await _whoisLookupService.LookupAsync(model.DomainQuery, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "No se pudo resolver WHOIS para {Domain}", model.DomainQuery);
+            model.ErrorMessage = ex.Message;
+        }
+
+        return View(model);
     }
 
     public IActionResult Cliente()

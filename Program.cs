@@ -19,6 +19,12 @@ builder.Services.AddHttpClient<ITranslationService, GoogleTranslationService>(cl
     client.Timeout = TimeSpan.FromSeconds(10);
 });
 
+builder.Services.AddHttpClient<IWhoisLookupService, WhoisLookupService>(client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(15);
+    client.DefaultRequestHeaders.UserAgent.ParseAdd("CloudAlertHub/1.0");
+});
+
 builder.Services.AddScoped<IRssProcessorService, RssProcessorService>();
 builder.Services.AddScoped<ILatencyProbeService, LatencyProbeService>();
 builder.Services.AddHttpClient<RssProcessorService>();
