@@ -1,0 +1,39 @@
+@model List<CloudAlertApp.Models.DnsRecordItem>
+
+@{
+    var title = ViewData["Title"]?.ToString();
+}
+
+@if (Model.Any())
+{
+    <div class="record-section">
+
+        <h3>@title</h3>
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>Record</th>
+                    <th>Value</th>
+                    <th>TTL</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Type</td>
+                        <td>@item.Value</td>
+                        <td>@item.Ttl</td>
+                    </tr>
+                }
+
+            </tbody>
+
+        </table>
+
+    </div>
+}
