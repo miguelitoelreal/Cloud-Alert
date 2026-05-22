@@ -23,9 +23,29 @@ namespace CloudAlertApp.Controllers
         [HttpPost("measure")]
         public async Task<IActionResult> MeasureLatency([FromBody] LatencyProbeRequest request, CancellationToken cancellationToken)
         {
-            if (string.IsNullOrWhiteSpace(request.ServiceName) || string.IsNullOrWhiteSpace(request.EndpointUrl))
+            if (string.IsNullOrWhiteSpace(request.EndpointUrl))
             {
-                return BadRequest(new { error = "ServiceName y EndpointUrl son obligatorios." });
+                return BadRequest(new { error = "EndpointUrl es obligatorio." });
+            }
+
+            // Si no se proporciona ServiceName, usar el host o la URL como identificador
+            if (string.IsNullOrWhiteSpace(request.ServiceName))
+            {
+                try
+                {
+                    if (Uri.TryCreate(request.EndpointUrl, UriKind.Absolute, out var u) && !string.IsNullOrWhiteSpace(u.Host))
+                    {
+                        request.ServiceName = u.Host;
+                    }
+                    else
+                    {
+                        request.ServiceName = request.EndpointUrl;
+                    }
+                }
+                catch
+                {
+                    request.ServiceName = request.EndpointUrl;
+                }
             }
 
             try
