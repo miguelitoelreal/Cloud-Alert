@@ -2,9 +2,11 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Text;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using CloudAlertApp.Models;
 using CloudAlertApp.Services;
 using CloudAlertApp.Services.Interfaces;
+using CloudAlertApp.Data;
 using OfficeOpenXml;
 using System.Text.Json;
 
@@ -14,6 +16,7 @@ public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
     private readonly IWebHostEnvironment _environment;
+    private readonly AppDbContext _dbContext;
     private readonly ICloudStatusService _cloudStatusService;
     private readonly IWhoisLookupService _whoisLookupService;
     private static readonly object ClientesLock = new();
@@ -27,10 +30,11 @@ public class HomeController : Controller
         new Cliente { Id = 3, NombreEmpresa = "Lumina Logistics", ServicioPrincipal = "M365", Servicios = new List<string> { "M365" }, CorreoAdministrador = "j.doe@lumina.com", FechaRegistro = DateTime.Now.AddDays(-5) }
     };
 
-    public HomeController(ILogger<HomeController> logger, IWebHostEnvironment environment, ICloudStatusService cloudStatusService, IWhoisLookupService whoisLookupService)
+    public HomeController(ILogger<HomeController> logger, IWebHostEnvironment environment, AppDbContext dbContext, ICloudStatusService cloudStatusService, IWhoisLookupService whoisLookupService)
     {
         _logger = logger;
         _environment = environment;
+        _dbContext = dbContext;
         _cloudStatusService = cloudStatusService;
         _whoisLookupService = whoisLookupService;
         InicializarClientesSiEsNecesario();
@@ -120,7 +124,62 @@ public class HomeController : Controller
     }
 
     [HttpGet]
-    public IActionResult Notificar()
+    public async Task<IActionResult> Comparar(string? left, string? right, CancellationToken cancellationToken)
+    {
+        var snapshot = await _cloudStatusService.GetSnapshotAsync(cancellationToken);
+        var services = snapshot.Services
+            .OrderBy(service => service.SortOrder)
+            .ThenBy(service => service.Name)
+            .ToList();
+
+        var model = new CompareServicesPageViewModel
+        {
+            LastCheckedAtUtc = snapshot.LastCheckedAtUtc,
+            LastUpdatedAtUtc = snapshot.LastUpdatedAtUtc,
+            Services = services
+        };
+
+        if (services.Count < 2)
+        {
+            model.ErrorMessage = "Se necesitan al menos dos servicios disponibles para comparar.";
+            return View(model);
+        }
+
+        var selectedLeftSlug = string.IsNullOrWhiteSpace(left) ? services[0].Slug : left.Trim();
+        var selectedRightSlug = string.IsNullOrWhiteSpace(right)
+            ? services.FirstOrDefault(service => !string.Equals(service.Slug, selectedLeftSlug, StringComparison.OrdinalIgnoreCase))?.Slug ?? services[1].Slug
+            : right.Trim();
+
+        model.SelectedLeftSlug = selectedLeftSlug;
+        model.SelectedRightSlug = selectedRightSlug;
+        model.LeftService = services.FirstOrDefault(service => string.Equals(service.Slug, selectedLeftSlug, StringComparison.OrdinalIgnoreCase));
+        model.RightService = services.FirstOrDefault(service => string.Equals(service.Slug, selectedRightSlug, StringComparison.OrdinalIgnoreCase));
+
+        if (model.LeftService is null || model.RightService is null)
+        {
+            model.ErrorMessage = "No se pudo encontrar uno de los servicios seleccionados.";
+            return View(model);
+        }
+
+        if (string.Equals(model.LeftService.Slug, model.RightService.Slug, StringComparison.OrdinalIgnoreCase))
+        {
+            model.ErrorMessage = "Selecciona dos servicios distintos para compararlos.";
+            return View(model);
+        }
+
+        var incidents = await _dbContext.Incidentes
+            .Include(incident => incident.Proveedor)
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+
+        model.LeftMetrics = BuildComparisonMetrics(model.LeftService, incidents);
+        model.RightMetrics = BuildComparisonMetrics(model.RightService, incidents);
+
+        return View(model);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Notificar(CancellationToken cancellationToken)
     {
         var availableServices = clientesData
             .SelectMany(GetClientServices)
@@ -130,9 +189,16 @@ public class HomeController : Controller
             .OrderBy(servicio => servicio)
             .ToList();
 
+        var snapshot = await _cloudStatusService.GetSnapshotAsync(cancellationToken);
+        var serviceStatuses = availableServices.ToDictionary(
+            service => service,
+            service => ResolveNotificationServiceStatus(snapshot.Services, service),
+            StringComparer.OrdinalIgnoreCase);
+
         var model = new ServiceNotificationsPageViewModel
         {
             AvailableServices = availableServices,
+            ServiceStatuses = serviceStatuses,
             RegisteredClientsCount = clientesData.Count
         };
 
@@ -159,6 +225,133 @@ public class HomeController : Controller
             "M365" => "M365",
             "GCP" => "GCP",
             var value => value
+        };
+    }
+
+    private static ServiceNotificationStatusViewModel ResolveNotificationServiceStatus(
+        IEnumerable<CloudServiceStatusViewModel> services,
+        string serviceName)
+    {
+        var matchedService = services.FirstOrDefault(service =>
+            GetNotificationServiceKeys(service.Name)
+                .Overlaps(GetNotificationServiceKeys(serviceName)));
+
+        if (matchedService is null)
+        {
+            return new ServiceNotificationStatusViewModel();
+        }
+
+        return new ServiceNotificationStatusViewModel
+        {
+            DisplayStatus = matchedService.DisplayStatus,
+            Level = matchedService.Level
+        };
+    }
+
+    private static HashSet<string> GetNotificationServiceKeys(string serviceName)
+    {
+        var normalizedName = NormalizeServiceName(serviceName);
+        var normalizedKey = NormalizeNotificationServiceKey(normalizedName);
+        var keys = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            normalizedKey
+        };
+
+        switch (normalizedKey)
+        {
+            case "GCP":
+                keys.Add("GOOGLECLOUD");
+                break;
+            case "GOOGLECLOUD":
+                keys.Add("GCP");
+                break;
+            case "M365":
+                keys.Add("MICROSOFT365");
+                break;
+            case "MICROSOFT365":
+                keys.Add("M365");
+                break;
+        }
+
+        return keys;
+    }
+
+    private static string NormalizeNotificationServiceKey(string serviceName)
+    {
+        return new string(serviceName
+            .Where(char.IsLetterOrDigit)
+            .Select(char.ToUpperInvariant)
+            .ToArray());
+    }
+
+    private static ServiceComparisonMetricsViewModel BuildComparisonMetrics(
+        CloudServiceStatusViewModel service,
+        IEnumerable<Incidente> incidents)
+    {
+        var matchedIncidents = incidents
+            .Where(incident => IncidentMatchesService(incident, service))
+            .OrderByDescending(incident => incident.Fecha)
+            .ToList();
+
+        var totalIncidents = matchedIncidents.Count;
+        var daysWithIncidents = matchedIncidents
+            .Select(incident => incident.Fecha.Date)
+            .Distinct()
+            .Count();
+
+        var uptimePercentage = GetUptimePercentage(service.Level);
+        var downtimeMinutes = (int)Math.Round(30 * 24 * 60 * (100m - uptimePercentage) / 100m, MidpointRounding.AwayFromZero);
+        var activeHours = 720m - (downtimeMinutes / 60m);
+
+        return new ServiceComparisonMetricsViewModel
+        {
+            UptimePercentage = uptimePercentage,
+            CurrentSlaPercentage = uptimePercentage,
+            DaysWithIncidents = daysWithIncidents,
+            DaysWithoutIncidents = service.DaysWithoutIncidents,
+            TotalIncidents = totalIncidents,
+            DowntimeMinutes = downtimeMinutes,
+            ActiveHours = Math.Round(activeHours, 2, MidpointRounding.AwayFromZero),
+            CurrentStatus = service.DisplayStatus,
+            CurrentStatusLevel = service.Level,
+            LastIncidentLabel = FormatLastIncidentLabel(matchedIncidents.FirstOrDefault()?.Fecha)
+        };
+    }
+
+    private static bool IncidentMatchesService(Incidente incident, CloudServiceStatusViewModel service)
+    {
+        var serviceKeys = GetNotificationServiceKeys(service.Name);
+        var incidentService = NormalizeNotificationServiceKey(incident.Servicio);
+        var providerName = NormalizeNotificationServiceKey(incident.Proveedor?.Nombre ?? string.Empty);
+
+        return serviceKeys.Contains(incidentService) || serviceKeys.Contains(providerName);
+    }
+
+    private static decimal GetUptimePercentage(string level)
+    {
+        return level switch
+        {
+            "success" => 99.95m,
+            "warning" => 98.50m,
+            "danger" => 97.00m,
+            _ => 96.50m
+        };
+    }
+
+    private static string FormatLastIncidentLabel(DateTime? incidentDate)
+    {
+        if (!incidentDate.HasValue)
+        {
+            return "Sin incidentes registrados";
+        }
+
+        var daysAgo = Math.Max(0, (DateTime.UtcNow.Date - incidentDate.Value.Date).Days);
+
+        return daysAgo switch
+        {
+            0 => "Hoy",
+            1 => "Hace 1 dia",
+            _ => $"Hace {daysAgo} dias"
         };
     }
 

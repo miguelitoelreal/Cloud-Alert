@@ -204,6 +204,60 @@
         font-size: 0.92rem;
     }
 
+    .notify-status-row {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        margin-top: 0.65rem;
+        flex-wrap: wrap;
+    }
+
+    .notify-status-label {
+        color: var(--notify-text-muted);
+        font-size: 0.88rem;
+        letter-spacing: 0.01em;
+    }
+
+    .notify-status-pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 1.9rem;
+        padding: 0.2rem 0.75rem;
+        border-radius: 999px;
+        border: 1px solid rgba(148, 163, 184, 0.2);
+        background: rgba(148, 163, 184, 0.16);
+        color: #e2e8f0;
+        font-size: 0.84rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    .notify-status-pill.notify-status-success {
+        background: rgba(34, 197, 94, 0.18);
+        border-color: rgba(34, 197, 94, 0.32);
+        color: #86efac;
+    }
+
+    .notify-status-pill.notify-status-warning {
+        background: rgba(245, 158, 11, 0.18);
+        border-color: rgba(245, 158, 11, 0.32);
+        color: #fcd34d;
+    }
+
+    .notify-status-pill.notify-status-danger {
+        background: rgba(248, 113, 113, 0.18);
+        border-color: rgba(248, 113, 113, 0.32);
+        color: #fda4af;
+    }
+
+    .notify-status-pill.notify-status-info {
+        background: rgba(56, 189, 248, 0.16);
+        border-color: rgba(56, 189, 248, 0.26);
+        color: #7dd3fc;
+    }
+
     .notify-config-grid {
         display: grid;
         grid-template-columns: minmax(0, 1fr) minmax(220px, 0.92fr);
@@ -443,6 +497,36 @@
         color: #0f172a;
     }
 
+    body.light-mode .notify-status-pill {
+        background: rgba(148, 163, 184, 0.12);
+        border-color: rgba(148, 163, 184, 0.18);
+        color: #334155;
+    }
+
+    body.light-mode .notify-status-pill.notify-status-success {
+        background: rgba(34, 197, 94, 0.12);
+        border-color: rgba(34, 197, 94, 0.22);
+        color: #15803d;
+    }
+
+    body.light-mode .notify-status-pill.notify-status-warning {
+        background: rgba(245, 158, 11, 0.12);
+        border-color: rgba(245, 158, 11, 0.22);
+        color: #b45309;
+    }
+
+    body.light-mode .notify-status-pill.notify-status-danger {
+        background: rgba(248, 113, 113, 0.12);
+        border-color: rgba(248, 113, 113, 0.22);
+        color: #be123c;
+    }
+
+    body.light-mode .notify-status-pill.notify-status-info {
+        background: rgba(56, 189, 248, 0.12);
+        border-color: rgba(56, 189, 248, 0.22);
+        color: #0369a1;
+    }
+
     @@media (max-width: 767.98px) {
         .notify-card {
             padding: 1.35rem;
@@ -510,7 +594,13 @@
                     <option value="">Seleccionar servicio...</option>
                     @foreach (var service in Model.AvailableServices)
                     {
-                        <option value="@service">@service</option>
+                        var serviceStatus = Model.ServiceStatuses.TryGetValue(service, out var currentStatus)
+                            ? currentStatus
+                            : new CloudAlertApp.Models.ServiceNotificationStatusViewModel();
+
+                        <option value="@service"
+                                data-status="@serviceStatus.DisplayStatus"
+                                data-level="@serviceStatus.Level">@service</option>
                     }
                 </select>
 
@@ -623,11 +713,13 @@
             summary.textContent = `Recibiras notificaciones ${frequencyText} sobre ${incidentsText}.`;
         }
 
-        function buildServiceItem(serviceName) {
+        function buildServiceItem(serviceName, serviceStatus, serviceLevel) {
             const item = document.createElement('div');
             item.className = 'notify-service-item';
             item.dataset.service = serviceName;
             const serviceId = slugifyServiceName(serviceName);
+            const badgeLevel = serviceLevel || 'info';
+            const badgeStatus = serviceStatus || 'Sin estado disponible';
             item.innerHTML = `
                 <div class="notify-service-top">
                     <div class="notify-service-head">
@@ -641,6 +733,10 @@
                         <div>
                             <strong>${serviceName}</strong>
                             <span class="notify-service-id">ID: ${serviceId}</span>
+                            <div class="notify-status-row">
+                                <span class="notify-status-label">Estado actual:</span>
+                                <span class="notify-status-pill notify-status-${badgeLevel}">${badgeStatus}</span>
+                            </div>
                         </div>
                     </div>
                     <button type="button" class="notify-remove-btn" aria-label="Quitar ${serviceName}">
@@ -736,8 +832,12 @@
                 return;
             }
 
+            const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
+            const serviceStatus = selectedOption?.dataset.status || 'Sin estado disponible';
+            const serviceLevel = selectedOption?.dataset.level || 'info';
+
             selected.add(serviceName);
-            selectedServices.appendChild(buildServiceItem(serviceName));
+            selectedServices.appendChild(buildServiceItem(serviceName, serviceStatus, serviceLevel));
             serviceSelect.value = '';
             saveFeedback.style.display = 'none';
             refreshActions();
