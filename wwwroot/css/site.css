@@ -406,6 +406,55 @@
   text-shadow: 0 0 8px #00e6fbcc, 0 0 2px #fff;
   transform: translateY(-1px);
 }
+.tools-dropdown {
+  position: relative;
+}
+
+.tools-dropdown-menu {
+  min-width: 15rem;
+  margin-top: 0.7rem !important;
+  padding: 0.55rem;
+  border: 1px solid rgba(0, 230, 251, 0.22) !important;
+  border-radius: 1rem;
+  background: rgba(13, 17, 28, 0.96) !important;
+  box-shadow: 0 24px 44px -24px rgba(0, 0, 0, 0.7), 0 0 18px rgba(0, 230, 251, 0.12) !important;
+  backdrop-filter: blur(14px);
+}
+
+.tools-dropdown-item {
+  border-radius: 0.8rem;
+  color: #e0e6ed !important;
+  padding: 0.7rem 0.9rem;
+  transition: background-color 0.2s, color 0.2s, transform 0.2s;
+}
+
+.tools-dropdown-item:hover,
+.tools-dropdown-item:focus,
+.tools-dropdown-item:active {
+  background: rgba(0, 230, 251, 0.12) !important;
+  color: #00e6fb !important;
+  transform: translateX(2px);
+}
+
+.tools-dropdown .dropdown-toggle::after {
+  margin-left: 0.55rem;
+  vertical-align: 0.15em;
+}
+
+@media (min-width: 992px) {
+  .tools-dropdown:hover .tools-dropdown-menu,
+  .tools-dropdown:focus-within .tools-dropdown-menu {
+    display: block;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .tools-dropdown-menu {
+    margin-top: 0.4rem !important;
+    width: 100%;
+  }
+}
+
 .navbar {
   border-radius: 0 0 1.5rem 1.5rem;
 }
@@ -490,6 +539,22 @@ body.light-mode {
 .light-mode .nav-link-neon:hover {
   color: #00b4d8 !important;
   text-shadow: 0 0 8px #00b4d8cc, 0 0 2px #fff;
+}
+.light-mode .tools-dropdown-menu {
+  background: rgba(255, 255, 255, 0.97) !important;
+  border-color: rgba(0, 180, 216, 0.18) !important;
+  box-shadow: 0 24px 44px -24px rgba(0, 119, 204, 0.28), 0 0 18px rgba(0, 180, 216, 0.12) !important;
+}
+
+.light-mode .tools-dropdown-item {
+  color: #31415f !important;
+}
+
+.light-mode .tools-dropdown-item:hover,
+.light-mode .tools-dropdown-item:focus,
+.light-mode .tools-dropdown-item:active {
+  background: rgba(0, 180, 216, 0.1) !important;
+  color: #00b4d8 !important;
 }
 .light-mode .form-control {
   background: #fff !important;

@@ -34,17 +34,16 @@
                         <li class="nav-item">
                             <a class="nav-link nav-link-neon" asp-area="" asp-controller="Home" asp-action="Cliente">Cliente</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link nav-link-neon" asp-controller="LatencyPage" asp-action="ResponseTester">Latencia</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link nav-link-neon" asp-area="" asp-controller="Home" asp-action="Notificar">Notificar</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link nav-link-neon" asp-area="" asp-controller="Home" asp-action="Whois">WHOIS</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link nav-link-neon" asp-controller="DnsLookup" asp-action="Index">🌐 DNS lookup</a>
+                        <li class="nav-item dropdown tools-dropdown">
+                            <a class="nav-link nav-link-neon dropdown-toggle" href="#" id="toolsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Herramientas
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end tools-dropdown-menu" aria-labelledby="toolsDropdown">
+                                <li><a class="dropdown-item tools-dropdown-item" asp-controller="LatencyPage" asp-action="ResponseTester">Latencia</a></li>
+                                <li><a class="dropdown-item tools-dropdown-item" asp-area="" asp-controller="Home" asp-action="Notificar">Notificar</a></li>
+                                <li><a class="dropdown-item tools-dropdown-item" asp-area="" asp-controller="Home" asp-action="Whois">WHOIS</a></li>
+                                <li><a class="dropdown-item tools-dropdown-item" asp-controller="DnsLookup" asp-action="Index">DNS lookup</a></li>
+                            </ul>
                         </li>
                     </ul>
                     <div class="navbar-actions ms-lg-3 mt-3 mt-lg-0">
