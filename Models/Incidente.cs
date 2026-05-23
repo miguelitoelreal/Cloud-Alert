@@ -17,6 +17,8 @@ namespace CloudAlertApp.Models
 
         public Severidad Severidad { get; set; }
 
+        public EstadoIncidente Estado { get; set; } = EstadoIncidente.Abierto;
+
         public string Servicio { get; set; } = string.Empty;
 
         public string Region { get; set; } = string.Empty;
