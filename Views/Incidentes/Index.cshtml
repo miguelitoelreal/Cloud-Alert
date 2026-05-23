@@ -1,0 +1,243 @@
+@model IEnumerable<CloudAlertApp.Models.Incidente>
+@{
+    ViewData["Title"] = "Gestión de Incidencias";
+}
+
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-start mb-5">
+        <div>
+            <h1 class="display-5 fw-bold mb-2">Gestión de Incidencias</h1>
+            <p class="text-muted fs-5">Monitoreo y resolución de problemas en servicios cloud</p>
+        </div>
+
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm" style="border-left: 4px solid #dc3545;">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <i class="bi bi-exclamation-circle text-danger" style="font-size: 2rem;"></i>
+                        </div>
+                        <div>
+                            <p class="text-muted mb-0">Abiertos</p>
+                            <h3 class="fw-bold mb-0">@ViewBag.Abiertos</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm" style="border-left: 4px solid #0d6efd;">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <i class="bi bi-clock-history text-primary" style="font-size: 2rem;"></i>
+                        </div>
+                        <div>
+                            <p class="text-muted mb-0">En Progreso</p>
+                            <h3 class="fw-bold mb-0">@ViewBag.EnProgreso</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm" style="border-left: 4px solid #198754;">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <i class="bi bi-check-circle text-success" style="font-size: 2rem;"></i>
+                        </div>
+                        <div>
+                            <p class="text-muted mb-0">Resueltos</p>
+                            <h3 class="fw-bold mb-0">@ViewBag.Resueltos</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm" style="border-left: 4px solid #6c757d;">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <i class="bi bi-info-circle text-muted" style="font-size: 2rem;"></i>
+                        </div>
+                        <div>
+                            <p class="text-muted mb-0">Total</p>
+                            <h3 class="fw-bold mb-0">@ViewBag.Total</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros y búsqueda -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-6">
+                    <input type="text" class="form-control form-control-lg" placeholder="Buscar incidencias..." id="buscarInput" name="buscar">
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select form-select-lg" name="estado">
+                        <option value="">Todos los estados</option>
+                        <option value="Abierto">Abiertos</option>
+                        <option value="EnProgreso">En Progreso</option>
+                        <option value="Resuelto">Resueltos</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <div class="d-flex gap-2">
+                        <select class="form-select form-select-lg" name="severidad">
+                            <option value="">Todas las severidades</option>
+                            <option value="Critica">Crítica</option>
+                            <option value="Alta">Alta</option>
+                            <option value="Media">Media</option>
+                        </select>
+                        <button type="submit" class="btn btn-primary">Filtrar</button>
+                        <a href="/incidencias/exportar-todos" class="btn btn-warning" title="Exportar todos a PDF">
+                            <i class="bi bi-download"></i> Exportar
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Lista de incidencias -->
+    <div class="row">
+        <div class="col-12">
+            @if (Model.Any())
+            {
+                @foreach (var incidente in Model)
+                {
+                    <div class="card border-0 shadow-sm mb-3">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <div class="d-flex align-items-start mb-2">
+                                        <span class="badge bg-danger me-2">@incidente.Codigo</span>
+                                        <span class="badge bg-warning text-dark me-2">@incidente.Severidad.ToString().ToUpper()</span>
+                                        @{
+                                            var estadoClass = incidente.Estado switch
+                                            {
+                                                CloudAlertApp.Models.EstadoIncidente.Abierto => "bg-danger",
+                                                CloudAlertApp.Models.EstadoIncidente.EnProgreso => "bg-info",
+                                                CloudAlertApp.Models.EstadoIncidente.Resuelto => "bg-success",
+                                                _ => "bg-secondary"
+                                            };
+                                            var estadoTexto = incidente.Estado switch
+                                            {
+                                                CloudAlertApp.Models.EstadoIncidente.Abierto => "Abierto",
+                                                CloudAlertApp.Models.EstadoIncidente.EnProgreso => "En Progreso",
+                                                CloudAlertApp.Models.EstadoIncidente.Resuelto => "Resuelto",
+                                                _ => "Desconocido"
+                                            };
+                                        }
+                                        <span class="badge @estadoClass">@estadoTexto</span>
+                                    </div>
+                                    <h5 class="fw-bold mb-2">@incidente.Titulo</h5>
+                                    <p class="text-muted mb-2">@incidente.Descripcion</p>
+                                    <div class="small text-muted">
+                                        <i class="bi bi-calendar-event"></i> @incidente.Fecha.ToString("yyyy-MM-dd HH:mm")
+                                        <span class="ms-3"><i class="bi bi-cloud"></i> Servicio: @incidente.Servicio</span>
+                                        <span class="ms-3"><i class="bi bi-person"></i> Asignado: @incidente.Proveedor?.Nombre</span>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="alert alert-info" role="alert">
+                    No hay incidencias registradas.
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .container-fluid {
+        background-color: transparent;
+    }
+
+    .card {
+        transition: box-shadow 0.3s ease;
+        background-color: transparent !important;
+    }
+
+    .card:hover {
+        box-shadow: none !important;
+    }
+
+    .badge {
+        font-size: 0.75rem;
+        padding: 0.35rem 0.65rem;
+    }
+
+    /* Mejorar legibilidad de los números de estadísticas */
+    h3.fw-bold {
+        color: #1a1a1a;
+        font-weight: 700 !important;
+        font-size: 2.5rem;
+        letter-spacing: -0.02em;
+    }
+
+    /* Mejorar el contraste de los títulos */
+    h1.display-5 {
+        color: #0f1419;
+        font-weight: 800;
+    }
+
+    /* Mejorar legibilidad de subtítulos */
+    p.text-muted {
+        color: #495057 !important;
+        font-size: 1rem;
+    }
+
+    /* Mejorar estilos de las tarjetas de estadísticas */
+    .card-body {
+        padding: 1.5rem;
+        background-color: transparent !important;
+    }
+
+    .card-body h3 {
+        margin: 0;
+        color: #0d1b2a;
+    }
+
+    /* Mejorar estilos de títulos de incidencias */
+    h5.fw-bold {
+        color: #1a1a1a;
+        font-size: 1.25rem;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Mejorar descripción */
+    .card-body p.text-muted {
+        color: #ffffff !important;
+        font-size: 0.95rem;
+    }
+
+    /* Mejorar labels y selects */
+    .form-control, .form-select {
+        color: #1a1a1a;
+        background-color: #fff;
+        border: 1px solid #dee2e6;
+        font-size: 1rem;
+    }
+
+    .form-control::placeholder {
+        color: #6c757d;
+    }
+</style>
