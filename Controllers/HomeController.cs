@@ -114,6 +114,45 @@ public class HomeController : Controller
         return View(model);
     }
 
+    [HttpGet]
+    public IActionResult CostImpact()
+    {
+        var model = new CostImpactViewModel
+        {
+            InterruptionType = "Total",
+            IndustrySector = "SaaS/Tecnología"
+        };
+
+        return View(model);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult CostImpact(CostImpactViewModel model, string submitAction)
+    {
+        if (submitAction == "Limpiar")
+        {
+            return RedirectToAction(nameof(CostImpact));
+        }
+
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        var industryMultiplier = model.GetIndustryMultiplier();
+        var interruptionFactor = string.Equals(model.InterruptionType, "Parcial", StringComparison.OrdinalIgnoreCase) ? 0.60m : 1.00m;
+        var incidentHours = model.IncidentDurationMinutes / 60m;
+
+        model.RevenueLoss = Math.Round((model.AnnualRevenue / CostImpactViewModel.HoursPerYear) * model.IncidentDurationMinutes * industryMultiplier * interruptionFactor, 2);
+        model.OpportunityLoss = Math.Round(model.EmployeeCount * model.AverageHourlyCost * incidentHours * interruptionFactor, 2);
+        model.TotalIncidentCost = Math.Round(model.RevenueLoss + model.OpportunityLoss, 2);
+        model.AnnualRiskProjection = model.TotalIncidentCost > 0 ? Math.Round(model.TotalIncidentCost * 12m, 2) : 0;
+        model.ShowResults = model.TotalIncidentCost > 0;
+
+        return View(model);
+    }
+
     public IActionResult Cliente()
     {
         return View("Cliente", clientesData);

@@ -23,6 +23,7 @@
                 </div>
                 <div class="home-status-actions">
                     <a asp-controller="Home" asp-action="Status" class="btn btn-info btn-lg text-white fw-bold">Ver estado global</a>
+                    
                     <span class="home-status-note">Ultima lectura segun el refresh programado del servidor</span>
                 </div>
             </section>
@@ -53,7 +54,7 @@
                         };
 
                         <div class="col-md-6">
-                            <a asp-controller="Home" asp-action="ServiceStatus" asp-route-slug="@servicio.Slug" class="home-service-button">
+                            <div class="home-service-button">
                                 <span class="home-service-icon" aria-hidden="true">
                                     <span></span>
                                     <span></span>
@@ -68,7 +69,11 @@
                                         <span class="home-service-status-text">@servicio.DisplayStatus</span>
                                     </span>
                                 </span>
-                            </a>
+                                <div class="d-flex align-items-center gap-2 mt-3">
+                                    <a asp-controller="Home" asp-action="ServiceStatus" asp-route-slug="@servicio.Slug" class="btn btn-sm btn-outline-light">Ver detalles</a>
+                                    <a asp-controller="LatencyPage" asp-action="ResponseTester" asp-route-serviceName="@servicio.Name" asp-route-endpointUrl="@servicio.SourceUrl" class="btn btn-sm btn-primary">Medir latencia</a>
+                                </div>
+                            </div>
                         </div>
                     }
                 </div>
