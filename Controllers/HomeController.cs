@@ -144,12 +144,16 @@ public class HomeController : Controller
             return View(model);
         }
 
+        var annualRevenue = model.AnnualRevenue.GetValueOrDefault();
+        var employeeCount = model.EmployeeCount.GetValueOrDefault();
+        var averageHourlyCost = model.AverageHourlyCost.GetValueOrDefault();
+        var incidentDurationMinutes = model.IncidentDurationMinutes.GetValueOrDefault();
         var industryMultiplier = model.GetIndustryMultiplier();
         var interruptionFactor = string.Equals(model.InterruptionType, "Parcial", StringComparison.OrdinalIgnoreCase) ? 0.60m : 1.00m;
-        var incidentHours = model.IncidentDurationMinutes / 60m;
+        var incidentHours = incidentDurationMinutes / 60m;
 
-        model.RevenueLoss = Math.Round((model.AnnualRevenue / CostImpactViewModel.HoursPerYear) * model.IncidentDurationMinutes * industryMultiplier * interruptionFactor, 2);
-        model.OpportunityLoss = Math.Round(model.EmployeeCount * model.AverageHourlyCost * incidentHours * interruptionFactor, 2);
+        model.RevenueLoss = Math.Round((annualRevenue / CostImpactViewModel.HoursPerYear) * incidentDurationMinutes * industryMultiplier * interruptionFactor, 2);
+        model.OpportunityLoss = Math.Round(employeeCount * averageHourlyCost * incidentHours * interruptionFactor, 2);
         model.TotalIncidentCost = Math.Round(model.RevenueLoss + model.OpportunityLoss, 2);
         model.AnnualRiskProjection = model.TotalIncidentCost > 0 ? Math.Round(model.TotalIncidentCost * 12m, 2) : 0;
         model.ShowResults = model.TotalIncidentCost > 0;
