@@ -7,7 +7,6 @@ import { CloudDisplayStatusBadge } from "../components/CloudDisplayStatusBadge";
 import { CloudIncidentSeverityBadge } from "../components/CloudIncidentSeverityBadge";
 import { CloudIncidentStatusBadge } from "../components/CloudIncidentStatusBadge";
 import { CloudProviderAvatar } from "../components/CloudProviderAvatar";
-import { StatCard } from "../components/StatCard";
 import { usePolling } from "../hooks/usePolling";
 import {
   getCloudStatusOverview,
@@ -484,26 +483,27 @@ export function CloudStatusPage() {
             en tiempo casi real para proveedores críticos.
           </p>
         </div>
-        <div className="flex flex-col items-start gap-3 text-xs text-slate-400 sm:items-end sm:text-right">
-          <div>
-            <div>Refresco automático</div>
+        <div className="flex flex-col items-start gap-3 sm:items-end">
+          <Clock />
+          <div className="flex items-center gap-2 text-xs text-slate-400">
             <select
-              className="mt-1 rounded-md border border-slate-700 bg-slate-950 px-2 py-1 text-xs text-slate-300"
+              className="rounded-md border border-slate-700 bg-slate-950 px-2 py-1 text-xs text-slate-300"
               value={refreshInterval}
               onChange={(e) => setRefreshInterval(Number(e.target.value))}
+              title="Refresco automático"
             >
               {REFRESH_OPTIONS.map((opt) => (
                 <option key={opt.value} value={opt.value}>{opt.label}</option>
               ))}
             </select>
+            <Button
+              variant="secondary"
+              onClick={handleManualRefresh}
+              isLoading={isManualRefreshing}
+            >
+              Actualizar
+            </Button>
           </div>
-          <Button
-            variant="secondary"
-            onClick={handleManualRefresh}
-            isLoading={isManualRefreshing}
-          >
-            Actualizar ahora
-          </Button>
         </div>
       </div>
 
@@ -528,153 +528,94 @@ export function CloudStatusPage() {
         </div>
       ) : null}
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard
-          title="Total de proveedores"
-          value={isLoading ? "—" : (summary?.totalProviders ?? 0)}
-          subtitle="Feeds cloud activos"
-          tone="neutral"
-        />
-        <StatCard
-          title="Incidentes activos"
-          value={isLoading ? "—" : (summary?.activeIncidents ?? 0)}
-          subtitle="Eventos abiertos o en monitoreo"
-          tone={(summary?.activeIncidents ?? 0) > 0 ? "warning" : "success"}
-        />
-        <StatCard
-          title="Caídas críticas"
-          value={isLoading ? "—" : (summary?.criticalOutages ?? 0)}
-          subtitle="Impacto severo detectado"
-          tone={(summary?.criticalOutages ?? 0) > 0 ? "danger" : "success"}
-        />
-        <StatCard
-          title="Servicios operativos"
-          value={isLoading ? "—" : (summary?.operationalServices ?? 0)}
-          subtitle={
-            summary?.lastUpdatedAt
-              ? relativeFreshness(summary.lastUpdatedAt)
-              : "Esperando primera sincronización"
-          }
-          tone="success"
-        />
-      </div>
-
-      {/* Resumen operativo NOC */}
-      <div className="rounded-2xl border border-slate-800 bg-slate-950 p-5">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-sm font-semibold uppercase tracking-widest text-slate-500">Resumen operativo NOC</h2>
-          <Clock />
+      {/* KPIs compactos */}
+      <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
+        <div className="rounded-lg border border-slate-800 bg-slate-950 p-3 text-center">
+          <p className="text-[10px] uppercase tracking-wider text-slate-500">Proveedores</p>
+          <p className="mt-1 text-xl font-bold text-slate-200">{isLoading ? "—" : (summary?.totalProviders ?? 0)}</p>
         </div>
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
-          <div className="rounded-xl bg-slate-900/60 p-4 text-center ring-1 ring-slate-800">
-            <p className="text-xs uppercase tracking-wider text-slate-500">Operatividad actual</p>
-            <p className={`mt-2 text-3xl font-bold ${(summary?.operationalServices ?? 0) > 0 ? "text-emerald-400" : "text-slate-400"}`}>
-              {isLoading ? "—" : `${Math.round(((summary?.operationalServices ?? 0) / Math.max((summary?.totalProviders ?? 1), 1)) * 100)}%`}
-            </p>
-          </div>
-          <div className="rounded-xl bg-slate-900/60 p-4 text-center ring-1 ring-slate-800">
-            <p className="text-xs uppercase tracking-wider text-slate-500">Crítico</p>
-            <p className="mt-2 text-3xl font-bold text-red-400">
-              {isLoading ? "—" : (overview?.incidents ?? []).filter((i) => i.severity === 3 && i.isActive).length}
-            </p>
-          </div>
-          <div className="rounded-xl bg-slate-900/60 p-4 text-center ring-1 ring-slate-800">
-            <p className="text-xs uppercase tracking-wider text-slate-500">Mayor</p>
-            <p className="mt-2 text-3xl font-bold text-orange-400">
-              {isLoading ? "—" : (overview?.incidents ?? []).filter((i) => i.severity === 2 && i.isActive).length}
-            </p>
-          </div>
-          <div className="rounded-xl bg-slate-900/60 p-4 text-center ring-1 ring-slate-800">
-            <p className="text-xs uppercase tracking-wider text-slate-500">Menor</p>
-            <p className="mt-2 text-3xl font-bold text-yellow-400">
-              {isLoading ? "—" : (overview?.incidents ?? []).filter((i) => i.severity === 1 && i.isActive).length}
-            </p>
-          </div>
-          <div className="rounded-xl bg-slate-900/60 p-4 text-center ring-1 ring-slate-800">
-            <p className="text-xs uppercase tracking-wider text-slate-500">Providers afectados</p>
-            <p className="mt-2 text-3xl font-bold text-blue-400">
-              {isLoading ? "—" : new Set((overview?.incidents ?? []).filter((i) => i.isActive).map((i) => i.providerName)).size}
-            </p>
-          </div>
+        <div className="rounded-lg border border-slate-800 bg-slate-950 p-3 text-center">
+          <p className="text-[10px] uppercase tracking-wider text-slate-500">Activos</p>
+          <p className={`mt-1 text-xl font-bold ${(summary?.activeIncidents ?? 0) > 0 ? "text-amber-400" : "text-emerald-400"}`}>
+            {isLoading ? "—" : (summary?.activeIncidents ?? 0)}
+          </p>
+        </div>
+        <div className="rounded-lg border border-slate-800 bg-slate-950 p-3 text-center">
+          <p className="text-[10px] uppercase tracking-wider text-slate-500">Crítico</p>
+          <p className={`mt-1 text-xl font-bold ${(summary?.criticalOutages ?? 0) > 0 ? "text-red-400" : "text-slate-400"}`}>
+            {isLoading ? "—" : (summary?.criticalOutages ?? 0)}
+          </p>
+        </div>
+        <div className="rounded-lg border border-slate-800 bg-slate-950 p-3 text-center">
+          <p className="text-[10px] uppercase tracking-wider text-slate-500">Mayor</p>
+          <p className="mt-1 text-xl font-bold text-orange-400">
+            {isLoading ? "—" : (overview?.incidents ?? []).filter((i) => i.severity === 2 && i.isActive).length}
+          </p>
+        </div>
+        <div className="rounded-lg border border-slate-800 bg-slate-950 p-3 text-center">
+          <p className="text-[10px] uppercase tracking-wider text-slate-500">Menor</p>
+          <p className="mt-1 text-xl font-bold text-yellow-400">
+            {isLoading ? "—" : (overview?.incidents ?? []).filter((i) => i.severity === 1 && i.isActive).length}
+          </p>
+        </div>
+        <div className="rounded-lg border border-slate-800 bg-slate-950 p-3 text-center">
+          <p className="text-[10px] uppercase tracking-wider text-slate-500">Operatividad</p>
+          <p className={`mt-1 text-xl font-bold ${(summary?.operationalServices ?? 0) > 0 ? "text-emerald-400" : "text-slate-400"}`}>
+            {isLoading ? "—" : `${Math.round(((summary?.operationalServices ?? 0) / Math.max((summary?.totalProviders ?? 1), 1)) * 100)}%`}
+          </p>
         </div>
       </div>
 
-      <Card title="Filtros" className="border-slate-800">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-          <label className="space-y-1 text-sm">
-            <span className="font-medium text-slate-300">Proveedor</span>
-            <select
-              className="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100"
-              value={providerFilter}
-              onChange={(e) => setProviderFilter(e.target.value)}
-            >
-              <option value="">Todos los proveedores</option>
-              {providers.map((provider) => (
-                <option key={provider.id} value={provider.slug}>
-                  {provider.name}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label className="space-y-1 text-sm">
-            <span className="font-medium text-slate-300">Severidad</span>
-            <select
-              className="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100"
-              value={severityFilter}
-              onChange={(e) => setSeverityFilter(e.target.value)}
-            >
-              {severityFilterOptions().map((option) => (
-                <option key={option.label} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label className="space-y-1 text-sm">
-            <span className="font-medium text-slate-300">Desde</span>
-            <input
-              type="date"
-              className="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100"
-              value={dateFrom}
-              onChange={(e) => setDateFrom(e.target.value)}
-            />
-          </label>
-
-          <label className="space-y-1 text-sm">
-            <span className="font-medium text-slate-300">Hasta</span>
-            <input
-              type="date"
-              className="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100"
-              value={dateTo}
-              onChange={(e) => setDateTo(e.target.value)}
-            />
-          </label>
-
-          <label className="flex items-end gap-3 rounded-md border border-slate-800 bg-slate-900/40 px-3 py-2 text-sm text-slate-300">
-            <input
-              type="checkbox"
-              className="mt-0.5 h-4 w-4 rounded border-slate-700"
-              checked={activeOnly}
-              onChange={(e) => setActiveOnly(e.target.checked)}
-            />
-            <span>
-              <span className="block font-medium">Solo activos</span>
-              <span className="text-xs text-slate-400">
-                Oculta incidentes resueltos
-              </span>
-            </span>
-          </label>
-
-          <div className="rounded-md border border-slate-800 bg-slate-900/40 px-3 py-2 text-sm text-slate-300">
-            <div className="font-medium">Contexto actual</div>
-            <div className="mt-1 text-xs text-slate-500">
-              {unifiedIncidents.length} incidencias en la vista actual
-            </div>
-          </div>
-        </div>
-      </Card>
+      {/* Barra de filtros compacta */}
+      <div className="flex flex-wrap items-end gap-2 rounded-lg border border-slate-800 bg-slate-950 p-2">
+        <select
+          className="rounded-md border border-slate-700 bg-slate-900 px-2 py-1.5 text-xs text-slate-200"
+          value={providerFilter}
+          onChange={(e) => setProviderFilter(e.target.value)}
+          title="Proveedor"
+        >
+          <option value="">Todos los proveedores</option>
+          {providers.map((p) => (
+            <option key={p.id} value={p.slug}>{p.name}</option>
+          ))}
+        </select>
+        <select
+          className="rounded-md border border-slate-700 bg-slate-900 px-2 py-1.5 text-xs text-slate-200"
+          value={severityFilter}
+          onChange={(e) => setSeverityFilter(e.target.value)}
+          title="Severidad"
+        >
+          {severityFilterOptions().map((o) => (
+            <option key={o.label} value={o.value}>{o.label}</option>
+          ))}
+        </select>
+        <input
+          type="date"
+          className="rounded-md border border-slate-700 bg-slate-900 px-2 py-1.5 text-xs text-slate-200"
+          value={dateFrom}
+          onChange={(e) => setDateFrom(e.target.value)}
+          title="Desde"
+        />
+        <input
+          type="date"
+          className="rounded-md border border-slate-700 bg-slate-900 px-2 py-1.5 text-xs text-slate-200"
+          value={dateTo}
+          onChange={(e) => setDateTo(e.target.value)}
+          title="Hasta"
+        />
+        <label className="flex items-center gap-1.5 rounded-md border border-slate-700 bg-slate-900 px-2 py-1.5 text-xs text-slate-300">
+          <input
+            type="checkbox"
+            className="h-3.5 w-3.5 rounded border-slate-600"
+            checked={activeOnly}
+            onChange={(e) => setActiveOnly(e.target.checked)}
+          />
+          Solo activos
+        </label>
+        <span className="ml-auto text-xs text-slate-500">
+          {unifiedIncidents.length} resultados
+        </span>
+      </div>
 
       <Card
         title="Proveedores cloud"
@@ -1129,15 +1070,24 @@ function IncidentCard({
     </span>
   ) : null;
 
+  const severityBorder =
+    incident.severity === 3
+      ? "border-l-red-500"
+      : incident.severity === 2
+        ? "border-l-orange-500"
+        : incident.severity === 1
+          ? "border-l-yellow-500"
+          : "border-l-slate-600";
+
   return (
-    <article className="rounded-2xl border border-slate-800 bg-slate-950 p-5 shadow-sm">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+    <article className={`rounded-xl border border-slate-800 bg-slate-950 p-4 shadow-sm ${severityBorder} border-l-4`}>
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2">
             <CloudProviderAvatar
               name={incident.providerName}
               logoUrl={incident.providerLogoUrl}
-              sizeClassName="h-9 w-9"
+              sizeClassName="h-8 w-8"
             />
             <div className="min-w-0">
               <div className="truncate text-sm font-semibold text-slate-100">
@@ -1151,69 +1101,63 @@ function IncidentCard({
             <CloudIncidentSeverityBadge severity={incident.severity} />
             <CloudIncidentStatusBadge status={incident.status} />
             {isNew ? (
-              <span className="rounded-full border border-violet-900/30 bg-violet-900/20 px-3 py-1 text-xs font-semibold text-violet-300 animate-pulse">
+              <span className="rounded-full border border-violet-900/30 bg-violet-900/20 px-2 py-0.5 text-[10px] font-semibold text-violet-300 animate-pulse">
                 Nuevo
               </span>
             ) : null}
           </div>
 
-          <h3 className="mt-4 text-lg font-semibold text-slate-100">
+          <h3 className="mt-3 text-base font-semibold text-slate-100">
             {incident.title}
           </h3>
-          <p className="mt-2 whitespace-pre-line text-sm leading-6 text-slate-400">
+          <p className="mt-1.5 whitespace-pre-line text-sm leading-5 text-slate-400">
             {incident.description}
           </p>
         </div>
 
-        <div className="w-full max-w-xs rounded-xl border border-slate-800 bg-slate-900/40 p-4">
-          <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-            Incident intelligence
+        <div className="w-full max-w-[11rem] rounded-lg border border-slate-800 bg-slate-900/40 p-3">
+          <div className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">
+            Inteligencia
           </div>
-          <dl className="mt-3 space-y-2 text-sm">
-            <MetaItem
-              label="Región"
-              value={incident.region ?? "No especificada"}
-            />
+          <dl className="mt-2 space-y-1.5 text-xs">
+            <MetaItem label="Región" value={incident.region ?? "—"} />
             <MetaItem label="Fuente" value={incident.source} />
             <MetaItem label="Activo" value={incident.isActive ? "Sí" : "No"} />
-            <MetaItem
-              label="Inicio"
-              value={formatDateTime(incident.occurredAt)}
-            />
+            <MetaItem label="Inicio" value={formatDateTime(incident.occurredAt)} />
           </dl>
         </div>
       </div>
 
-      <div className="mt-4 flex flex-wrap gap-2">
+      <div className="mt-3 flex flex-wrap gap-1.5">
         {incident.affectedServices.length > 0 ? (
           incident.affectedServices.map((service) => (
             <span
               key={service}
-              className="rounded-full bg-slate-800 px-3 py-1 text-xs font-medium text-slate-300"
+              className="rounded-full bg-slate-800 px-2 py-0.5 text-[10px] font-medium text-slate-300"
             >
               {service}
             </span>
           ))
         ) : (
-          <span className="rounded-full bg-slate-800 px-3 py-1 text-xs font-medium text-slate-500">
-            Sin servicios afectados especificados
+          <span className="rounded-full bg-slate-800 px-2 py-0.5 text-[10px] font-medium text-slate-500">
+            Sin servicios afectados
           </span>
         )}
       </div>
 
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-800 pt-4 text-sm">
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-slate-800 pt-3 text-xs">
         <div className="text-slate-400">
           {incident.resolvedAt
             ? `Resuelto: ${formatDateTime(incident.resolvedAt)}`
             : "En seguimiento"}
         </div>
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-1.5">
           {translationStatusBadge}
           <Button
             variant="secondary"
             onClick={() => setDetailsOpen((current) => !current)}
           >
-            {detailsOpen ? "Ocultar detalles" : "Ver detalles"}
+            {detailsOpen ? "Ocultar" : "Detalles"}
           </Button>
           <Button
             variant="secondary"
@@ -1228,7 +1172,7 @@ function IncidentCard({
             rel="noreferrer"
             className="font-medium text-blue-600 hover:text-blue-300"
           >
-            Abrir fuente oficial →
+            Fuente →
           </a>
         </div>
       </div>
@@ -1445,15 +1389,24 @@ function MicrosoftIncidentCard({ incident, isNew }: MicrosoftIncidentCardProps) 
     </span>
   ) : null;
 
+  const msSeverityBorder =
+    incident.severity === 3
+      ? "border-l-red-500"
+      : incident.severity === 2
+        ? "border-l-orange-500"
+        : incident.severity === 1
+          ? "border-l-yellow-500"
+          : "border-l-slate-600";
+
   return (
-    <article className="rounded-2xl border border-slate-800 bg-slate-950 p-5 shadow-sm">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+    <article className={`rounded-xl border border-slate-800 bg-slate-950 p-4 shadow-sm ${msSeverityBorder} border-l-4`}>
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2">
             <CloudProviderAvatar
               name="Microsoft 365"
               logoUrl="https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg"
-              sizeClassName="h-9 w-9"
+              sizeClassName="h-8 w-8"
             />
             <div className="min-w-0">
               <div className="truncate text-sm font-semibold text-slate-100">
@@ -1470,69 +1423,63 @@ function MicrosoftIncidentCard({ incident, isNew }: MicrosoftIncidentCardProps) 
               status={incident.status as CloudIncidentStatus}
             />
             {isNew ? (
-              <span className="rounded-full border border-violet-900/30 bg-violet-900/20 px-3 py-1 text-xs font-semibold text-violet-300 animate-pulse">
+              <span className="rounded-full border border-violet-900/30 bg-violet-900/20 px-2 py-0.5 text-[10px] font-semibold text-violet-300 animate-pulse">
                 Nuevo
               </span>
             ) : null}
           </div>
 
-          <h3 className="mt-4 text-lg font-semibold text-slate-100">
+          <h3 className="mt-3 text-base font-semibold text-slate-100">
             {incident.title}
           </h3>
-          <p className="mt-2 whitespace-pre-line text-sm leading-6 text-slate-400">
+          <p className="mt-1.5 whitespace-pre-line text-sm leading-5 text-slate-400">
             {incident.description}
           </p>
         </div>
 
-        <div className="w-full max-w-xs rounded-xl border border-slate-800 bg-slate-900/40 p-4">
-          <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-            Incident intelligence
+        <div className="w-full max-w-[11rem] rounded-lg border border-slate-800 bg-slate-900/40 p-3">
+          <div className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">
+            Inteligencia
           </div>
-          <dl className="mt-3 space-y-2 text-sm">
-            <MetaItem
-              label="Región"
-              value={incident.region ?? "No especificada"}
-            />
-            <MetaItem label="Fuente" value="Microsoft Graph Service Health" />
+          <dl className="mt-2 space-y-1.5 text-xs">
+            <MetaItem label="Región" value={incident.region ?? "—"} />
+            <MetaItem label="Fuente" value="Microsoft Graph" />
             <MetaItem label="Activo" value={incident.isActive ? "Sí" : "No"} />
-            <MetaItem
-              label="Inicio"
-              value={formatDateTime(incident.occurredAt)}
-            />
+            <MetaItem label="Inicio" value={formatDateTime(incident.occurredAt)} />
           </dl>
         </div>
       </div>
 
-      <div className="mt-4 flex flex-wrap gap-2">
+      <div className="mt-3 flex flex-wrap gap-1.5">
         {incident.affectedServices.length > 0 ? (
           incident.affectedServices.map((service) => (
             <span
               key={service}
-              className="rounded-full bg-slate-800 px-3 py-1 text-xs font-medium text-slate-300"
+              className="rounded-full bg-slate-800 px-2 py-0.5 text-[10px] font-medium text-slate-300"
             >
               {service}
             </span>
           ))
         ) : (
-          <span className="rounded-full bg-slate-800 px-3 py-1 text-xs font-medium text-slate-500">
-            Sin servicios afectados especificados
+          <span className="rounded-full bg-slate-800 px-2 py-0.5 text-[10px] font-medium text-slate-500">
+            Sin servicios afectados
           </span>
         )}
       </div>
 
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-800 pt-4 text-sm">
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-slate-800 pt-3 text-xs">
         <div className="text-slate-400">
           {incident.resolvedAt
             ? `Resuelto: ${formatDateTime(incident.resolvedAt)}`
             : "En seguimiento"}
         </div>
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-1.5">
           {translationStatusBadge}
           <Button
             variant="secondary"
             onClick={() => setDetailsOpen((current) => !current)}
           >
-            {detailsOpen ? "Ocultar detalles" : "Ver detalles"}
+            {detailsOpen ? "Ocultar" : "Detalles"}
           </Button>
           <Button
             variant="secondary"
@@ -1547,7 +1494,7 @@ function MicrosoftIncidentCard({ incident, isNew }: MicrosoftIncidentCardProps) 
             rel="noreferrer"
             className="font-medium text-blue-600 hover:text-blue-300"
           >
-            Abrir fuente oficial →
+            Fuente →
           </a>
         </div>
       </div>
