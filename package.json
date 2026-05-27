@@ -1,0 +1,14 @@
+{
+  "name": "cloud-alert-hub-root",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"dotnet watch --project ./src/MonitoringPlatform.API/MonitoringPlatform.API.csproj\" \"npm --prefix ./frontend run dev\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "dependencies": {
+    "d3-scale": "^4.0.2",
+    "react-simple-maps": "^3.0.0"
+  }
+}
