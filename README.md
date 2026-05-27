@@ -15,7 +15,7 @@ Si quieres probar la plataforma como un usuario normal (no administrador):
 2. Regístrate con un nuevo correo/usuario.
 3. Esta nueva cuenta será un usuario normal y podrá ver las funcionalidades estándar de la plataforma.
 
-Esto es útil para desarrollo y pruebas, ya que el primer usuario siempre será administrador por defecto.
+Esto es útil para desarrollo y pruebas, ya que el primer usuario siempre será administrador por defecto, Gracias.
 
 ---
 
