@@ -90,7 +90,17 @@
                                     description: '@servicio.Description.Replace("'", "\\'").Replace("\n", " ").Replace("\r", "")',
                                     category: '@servicio.Category',
                                     daysWithoutIncidents: @servicio.DaysWithoutIncidents
-                                })">Ver detalles</button>
+                                })"><span>📋</span> Ver detalles</button>
+                                <button type="button" class="status-source-link" onclick="openReportModal({
+                                    name: '@servicio.Name',
+                                    displayStatus: '@servicio.DisplayStatus',
+                                    severity: 'CRITICA',
+                                    state: 'Abierto',
+                                    service: '@servicio.Name',
+                                    date: '@servicio.SourceUpdatedAtUtc.ToUniversalTime().ToString("yyyy-MM-dd HH:mm:ss")',
+                                    assigned: 'Sin Asignar',
+                                    incidentId: 'INC-001'
+                                })"><span>📧</span> Reporte</button>
                             </div>
                         </article>
                     </div>
@@ -227,6 +237,69 @@
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                 <button type="button" class="btn btn-primary" onclick="downloadServicePDF()">📥 Compartir</button>
                 <a href="#" id="modalServiceUrlLink" class="btn btn-info" target="_blank">Ver fuente oficial</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Envío de Reporte -->
+<div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content incident-modal-content">
+            <div class="modal-header incident-modal-header">
+                <h5 class="modal-title" id="reportModalLabel">Envío de Reporte</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body incident-modal-body">
+                <!-- Mensaje de información -->
+                <div class="alert alert-info mb-4">
+                    <strong>Envío de Reporte:</strong> Se enviará un correo con los detalles del incidente <span id="reportIncidentId"></span>.
+                </div>
+
+                <!-- Campo Destinatario -->
+                <div class="mb-3">
+                    <label for="reportRecipient" class="form-label"><strong>Destinatario *</strong></label>
+                    <input type="email" class="form-control" id="reportRecipient" placeholder="correo@ejemplo.com" value="correo@ejemplo.com">
+                </div>
+
+                <!-- Campo Mensaje Adicional -->
+                <div class="mb-3">
+                    <label for="reportMessage" class="form-label"><strong>Mensaje Adicional</strong></label>
+                    <textarea class="form-control" id="reportMessage" rows="4" placeholder="Escribe un mensaje adicional para incluir en el reporte (opcional)"></textarea>
+                </div>
+
+                <!-- Vista Previa del Reporte -->
+                <div class="card mt-4">
+                    <div class="card-header bg-light">
+                        <strong>Vista Previa del Reporte</strong>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-2">
+                            <strong>Incidente:</strong> <span id="reportPreviewIncident"></span>
+                        </div>
+                        <div class="mb-2">
+                            <strong>Severidad:</strong> <span id="reportPreviewSeverity"></span>
+                        </div>
+                        <div class="mb-2">
+                            <strong>Estado:</strong> <span id="reportPreviewState"></span>
+                        </div>
+                        <div class="mb-2">
+                            <strong>Servicio:</strong> <span id="reportPreviewService"></span>
+                        </div>
+                        <div class="mb-2">
+                            <strong>Fecha:</strong> <span id="reportPreviewDate"></span>
+                        </div>
+                        <div>
+                            <strong>Asignado:</strong> <span id="reportPreviewAssigned"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary">
+                    <span>✉️</span> Enviar Reporte
+                </button>
             </div>
         </div>
     </div>
@@ -408,14 +481,32 @@
 
     .status-source-link {
         display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.625rem 1.25rem;
         margin-top: 1rem;
+        border: 2px solid #7ee7f7;
+        background-color: transparent;
         color: #7ee7f7;
         text-decoration: none;
         font-weight: 600;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        font-size: 0.95rem;
     }
 
     .status-source-link:hover {
         color: #ffffff;
+        background-color: rgba(126, 231, 247, 0.1);
+        border-color: #ffffff;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(126, 231, 247, 0.2);
+    }
+
+    .status-source-link:active {
+        transform: translateY(0);
     }
 
     body.light-mode .status-lead,
@@ -1298,6 +1389,27 @@
                 html2pdf().set(options).from(htmlContent).save();
             } else {
                 alert('Error: Librería de PDF no cargada. Por favor, recarga la página.');
+            }
+        };
+
+        // Función para abrir el modal de reporte
+        window.openReportModal = function(incident) {
+            try {
+                // Llenar los campos del modal de reporte
+                document.getElementById('reportIncidentId').textContent = incident.incidentId || 'INC-001';
+                document.getElementById('reportPreviewIncident').textContent = incident.incidentId + ' - ' + incident.name;
+                document.getElementById('reportPreviewSeverity').textContent = incident.severity || 'CRÍTICA';
+                document.getElementById('reportPreviewState').textContent = incident.state || 'Abierto';
+                document.getElementById('reportPreviewService').textContent = incident.service || 'AWS';
+                document.getElementById('reportPreviewDate').textContent = incident.date || new Date().toISOString().replace('T', ' ').slice(0, 19);
+                document.getElementById('reportPreviewAssigned').textContent = incident.assigned || 'Sin Asignar';
+
+                // Mostrar modal
+                const modal = new bootstrap.Modal(document.getElementById('reportModal'));
+                modal.show();
+            } catch (error) {
+                console.error('Error al abrir el modal de reporte:', error);
+                alert('No se pudo abrir el formulario de reporte');
             }
         };
     })();
