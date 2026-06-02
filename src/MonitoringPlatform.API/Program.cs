@@ -248,6 +248,8 @@ builder.Services.AddScoped<ICloudStatusSourceAdapter, OpenAiJsonCloudStatusSourc
 builder.Services.AddScoped<ICloudStatusSourceAdapter, RssCloudStatusSourceAdapter>();
 builder.Services.AddScoped<ICloudStatusSourceAdapter, AtomCloudStatusSourceAdapter>();
 builder.Services.AddScoped<ICloudStatusSourceAdapter, MicrosoftGraphCloudStatusSourceAdapter>();
+builder.Services.AddScoped<ICloudStatusSourceAdapter, AzureCloudStatusSourceAdapter>();
+builder.Services.AddScoped<ICloudStatusSourceAdapter, GcpCloudStatusSourceAdapter>();
 builder.Services.AddScoped<MonitorService>();
 builder.Services.AddScoped<MonitorLogService>();
 builder.Services.AddScoped<DashboardService>();

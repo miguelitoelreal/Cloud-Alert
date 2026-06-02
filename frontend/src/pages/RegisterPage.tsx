@@ -17,6 +17,8 @@ export function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -90,11 +92,23 @@ export function RegisterPage() {
       const target = isAdmin ? "/admin" : "/centro-estado-cloud";
       navigate(target, { replace: true });
     } catch (submissionError) {
-      setError(
-        submissionError instanceof Error
-          ? submissionError.message
-          : "No se pudo crear la cuenta.",
-      );
+      const raw = submissionError instanceof Error ? submissionError.message : "";
+      const msg = raw.toLowerCase();
+      let friendly: string;
+      if (msg.includes("already exists") || msg.includes("taken") || msg.includes("registered") || msg.includes("ya existe") || msg.includes("ya registrado") || msg.includes("duplicado") || msg.includes("duplicate")) {
+        friendly = "Este correo ya está registrado. Inicia sesión en su lugar.";
+      } else if (msg.includes("password") && (msg.includes("weak") || msg.includes("débil") || msg.includes("short") || msg.includes("corta"))) {
+        friendly = "La contraseña es demasiado débil. Usa al menos 8 caracteres con letras y números.";
+      } else if (msg.includes("lock") || msg.includes("bloque")) {
+        friendly = "Tu cuenta ha sido bloqueada. Contacta al administrador.";
+      } else if (msg.includes("network") || msg.includes("fetch") || msg.includes("internet") || msg.includes("conexión")) {
+        friendly = "Problema de conexión. Verifica tu red e intenta de nuevo.";
+      } else if (raw && raw !== "Unexpected API error") {
+        friendly = raw;
+      } else {
+        friendly = "No se pudo crear la cuenta. Intenta de nuevo.";
+      }
+      setError(friendly);
     } finally {
       setIsSubmitting(false);
     }
@@ -137,7 +151,7 @@ export function RegisterPage() {
         {
           id: "register-password",
           label: "Contraseña",
-          type: "password",
+          type: showPassword ? "text" : "password",
           value: password,
           placeholder: "••••••••",
           autoComplete: "new-password",
@@ -146,11 +160,13 @@ export function RegisterPage() {
           onChange: setPassword,
           onBlur: () =>
             setTouched((current) => ({ ...current, password: true })),
+          togglePassword: () => setShowPassword((v) => !v),
+          passwordVisible: showPassword,
         },
         {
           id: "register-confirm-password",
           label: "Confirmar contraseña",
-          type: "password",
+          type: showConfirmPassword ? "text" : "password",
           value: confirmPassword,
           placeholder: "••••••••",
           autoComplete: "new-password",
@@ -161,6 +177,8 @@ export function RegisterPage() {
               ...current,
               confirmPassword: true,
             })),
+          togglePassword: () => setShowConfirmPassword((v) => !v),
+          passwordVisible: showConfirmPassword,
         },
       ]}
     />

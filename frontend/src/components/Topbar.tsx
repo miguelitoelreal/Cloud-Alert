@@ -4,6 +4,7 @@ import { useAuth } from "../hooks/useAuth";
 import { useTheme } from "../hooks/useTheme";
 import { getAlertsSummary, type AlertsSummary } from "../services/alertsSummary";
 import { NotificationDropdown } from "./NotificationDropdown";
+import { CloudAlertLogo } from "./CloudAlertLogo";
 
 function IconMenu(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -229,13 +230,20 @@ export function Topbar({ title, onMenuClick }: TopbarProps) {
           >
             <IconMenu className="h-5 w-5" />
           </button>
-          <div>
-            <div className="text-sm font-bold tracking-tight text-slate-900 dark:text-white">
-              Cloud Alert Hub
+          <div className="flex items-center gap-2.5">
+            <CloudAlertLogo className="h-7 w-7" />
+            <div>
+              <div className="text-sm font-black tracking-tight text-slate-900 dark:text-white">
+                Cloud Alert
+              </div>
+              {title ? (
+                <div className="text-xs font-medium text-slate-500">{title}</div>
+              ) : (
+                <div className="text-[10px] font-semibold uppercase tracking-[0.15em] text-slate-400">
+                  Hub
+                </div>
+              )}
             </div>
-            {title ? (
-              <div className="text-xs font-medium text-slate-500">{title}</div>
-            ) : null}
           </div>
         </div>
 

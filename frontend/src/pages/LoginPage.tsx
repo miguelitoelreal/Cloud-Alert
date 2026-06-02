@@ -14,6 +14,7 @@ export function LoginPage() {
   useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -66,11 +67,23 @@ export function LoginPage() {
       const target = isAdmin && fromPath === "/centro-estado-cloud" ? "/admin" : fromPath;
       navigate(target, { replace: true });
     } catch (submissionError) {
-      setError(
-        submissionError instanceof Error
-          ? submissionError.message
-          : "No se pudo iniciar sesión.",
-      );
+      const raw = submissionError instanceof Error ? submissionError.message : "";
+      const msg = raw.toLowerCase();
+      let friendly: string;
+      if (msg.includes("invalid") || msg.includes("incorrect") || msg.includes("wrong") || msg.includes("credentials") || msg.includes("password") || msg.includes("email") || msg.includes("correo") || msg.includes("contraseña")) {
+        friendly = "Correo o contraseña incorrectos. Verifica tus datos.";
+      } else if (msg.includes("lock") || msg.includes("bloque") || msg.includes("suspend")) {
+        friendly = "Tu cuenta ha sido bloqueada. Contacta al administrador.";
+      } else if (msg.includes("not found") || msg.includes("no existe") || msg.includes("no encontrado")) {
+        friendly = "No existe una cuenta con ese correo. Regístrate primero.";
+      } else if (msg.includes("network") || msg.includes("fetch") || msg.includes("internet") || msg.includes("conexión")) {
+        friendly = "Problema de conexión. Verifica tu red e intenta de nuevo.";
+      } else if (raw && raw !== "Unexpected API error") {
+        friendly = raw;
+      } else {
+        friendly = "No se pudo iniciar sesión. Intenta de nuevo.";
+      }
+      setError(friendly);
     } finally {
       setIsSubmitting(false);
     }
@@ -104,7 +117,7 @@ export function LoginPage() {
         {
           id: "login-password",
           label: "Contraseña",
-          type: "password",
+          type: showPassword ? "text" : "password",
           value: password,
           placeholder: "••••••••",
           autoComplete: "current-password",
@@ -112,6 +125,8 @@ export function LoginPage() {
           onChange: setPassword,
           onBlur: () =>
             setTouched((current) => ({ ...current, password: true })),
+          togglePassword: () => setShowPassword((v) => !v),
+          passwordVisible: showPassword,
         },
       ]}
     />

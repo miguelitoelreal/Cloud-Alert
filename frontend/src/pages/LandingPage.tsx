@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import { CloudAlertLogo } from "../components/CloudAlertLogo";
 
 /* ── inline SVG icons ── */
 function IconActivity(props: React.SVGProps<SVGSVGElement>) {
@@ -148,21 +149,6 @@ function IconPlug(props: React.SVGProps<SVGSVGElement>) {
     </svg>
   );
 }
-function IconSliders(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <line x1="4" y1="21" x2="4" y2="14" />
-      <line x1="4" y1="10" x2="4" y2="3" />
-      <line x1="12" y1="21" x2="12" y2="12" />
-      <line x1="12" y1="8" x2="12" y2="3" />
-      <line x1="20" y1="21" x2="20" y2="16" />
-      <line x1="20" y1="12" x2="20" y2="3" />
-      <line x1="1" y1="14" x2="7" y2="14" />
-      <line x1="9" y1="8" x2="15" y2="8" />
-      <line x1="17" y1="16" x2="23" y2="16" />
-    </svg>
-  );
-}
 
 /* ── data ── */
 const featureCards = [
@@ -271,19 +257,16 @@ const providerBadges = [
   { name: "AWS", color: "border-amber-500/30 text-amber-200 bg-amber-500/10" },
   { name: "Microsoft 365", color: "border-blue-500/30 text-blue-200 bg-blue-500/10" },
   { name: "Power Platform", color: "border-sky-500/30 text-sky-200 bg-sky-500/10" },
-  { name: "Google Cloud", color: "border-red-500/30 text-red-200 bg-red-500/10" },
+  { name: "Google Cloud", color: "border-blue-500/30 text-blue-200 bg-blue-500/10" },
   { name: "Azure", color: "border-cyan-500/30 text-cyan-200 bg-cyan-500/10" },
+  { name: "Oracle Cloud", color: "border-red-500/30 text-red-200 bg-red-500/10" },
   { name: "Salesforce", color: "border-indigo-500/30 text-indigo-200 bg-indigo-500/10" },
   { name: "Datadog", color: "border-violet-500/30 text-violet-200 bg-violet-500/10" },
-];
-
-const benefits = [
-  "Visibilidad consolidada de uptime, cloud y SLA en un solo dashboard",
-  "Datos aislados por tenant: cada equipo ve solo su información",
-  "Análisis financiero de downtime con calculadora de impacto integrada",
-  "Herramientas de red (DNS Lookup) directamente en la plataforma",
-  "Historial de incidentes útil para análisis post-mortem",
-  "Arquitectura preparada para crecer hacia integraciones enterprise",
+  { name: "Heroku", color: "border-purple-500/30 text-purple-200 bg-purple-500/10" },
+  { name: "Netlify", color: "border-teal-500/30 text-teal-200 bg-teal-500/10" },
+  { name: "Render", color: "border-emerald-500/30 text-emerald-200 bg-emerald-500/10" },
+  { name: "GitLab", color: "border-orange-600/30 text-orange-200 bg-orange-600/10" },
+  { name: "DigitalOcean", color: "border-sky-500/30 text-sky-200 bg-sky-500/10" },
 ];
 
 const details = [
@@ -397,31 +380,41 @@ export function LandingPage() {
           0%,100% { transform: translateY(0px); }
           50% { transform: translateY(-18px); }
         }
-        @keyframes floatSlow {
-          0%,100% { transform: translateY(0px) rotate(0deg); }
-          50% { transform: translateY(-10px) rotate(3deg); }
-        }
         @keyframes blob {
           0%,100% { transform: translate(0,0) scale(1); }
           33% { transform: translate(30px,-50px) scale(1.1); }
           66% { transform: translate(-20px,20px) scale(0.95); }
         }
-        @keyframes shimmer {
-          0% { background-position: -200% center; }
-          100% { background-position: 200% center; }
+        @keyframes aurora {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        @keyframes scan {
+          0% { transform: translateY(-100%); opacity: 0; }
+          50% { opacity: 1; }
+          100% { transform: translateY(100vh); opacity: 0; }
+        }
+        @keyframes pulse-glow {
+          0%,100% { box-shadow: 0 0 20px rgba(0,212,255,0.15), 0 0 60px rgba(124,58,237,0.08); }
+          50% { box-shadow: 0 0 30px rgba(0,212,255,0.25), 0 0 80px rgba(124,58,237,0.15); }
         }
         @keyframes marquee {
           0% { transform: translateX(0); }
           100% { transform: translateX(-50%); }
         }
+        @keyframes ring-spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
         .animate-float { animation: float 6s ease-in-out infinite; }
-        .animate-float-delay { animation: float 7s ease-in-out infinite 1s; }
         .animate-blob { animation: blob 10s ease-in-out infinite; }
         .animate-blob-delay { animation: blob 12s ease-in-out infinite 3s; }
-        .animate-shimmer {
-          background-size: 200% auto;
-          animation: shimmer 4s linear infinite;
+        .animate-aurora {
+          background-size: 400% 400%;
+          animation: aurora 8s ease-in-out infinite;
         }
+        .animate-pulse-glow { animation: pulse-glow 4s ease-in-out infinite; }
         .animate-marquee { animation: marquee 25s linear infinite; }
         .glass-card {
           background: rgba(15,23,42,0.55);
@@ -450,148 +443,179 @@ export function LandingPage() {
       `}</style>
 
       {/* ── HERO ── */}
-      <section className="relative overflow-hidden border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950">
-        {/* animated background blobs */}
-        <div className="absolute -top-20 -left-20 h-[500px] w-[500px] rounded-full bg-blue-600/20 blur-[120px] animate-blob" />
-        <div className="absolute top-40 -right-20 h-[400px] w-[400px] rounded-full bg-cyan-500/15 blur-[100px] animate-blob-delay" />
-        <div className="absolute -bottom-20 left-1/3 h-[300px] w-[300px] rounded-full bg-indigo-500/12 blur-[90px] animate-blob" style={{ animationDelay: "5s" }} />
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,#000_40%,transparent_100%)]" />
+      <section className="relative overflow-hidden border-b border-slate-800 bg-slate-950">
+        {/* Aurora background */}
+        <div className="absolute inset-0 animate-aurora bg-[linear-gradient(135deg,rgba(0,212,255,0.08),rgba(124,58,237,0.06),rgba(0,212,255,0.04),rgba(124,58,237,0.08))]" />
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:72px_72px] [mask-image:radial-gradient(ellipse_70%_70%_at_50%_40%,#000_30%,transparent_100%)]" />
+        <div className="absolute top-1/4 left-1/4 h-[600px] w-[600px] rounded-full bg-cyan-500/10 blur-[140px] animate-blob" />
+        <div className="absolute bottom-1/4 right-1/4 h-[500px] w-[500px] rounded-full bg-violet-500/10 blur-[120px] animate-blob-delay" />
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-500/40 to-transparent" />
 
-        <div className="relative mx-auto grid max-w-7xl gap-12 px-6 py-20 lg:grid-cols-[1.15fr_0.85fr] lg:items-center lg:py-28">
-          <div className="animate-[fadeIn_0.8s_ease-out]">
-            <div className="inline-flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-blue-200">
-              <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
-              Plataforma SaaS de observabilidad
-            </div>
-            <h1 className="mt-6 max-w-4xl text-5xl font-semibold tracking-tight text-white md:text-6xl">
-              Monitorea uptime, estado cloud e incidentes SaaS desde un{" "}
-              <span className="bg-gradient-to-r from-blue-400 via-cyan-300 to-sky-400 bg-clip-text text-transparent animate-shimmer">
-                único centro operativo
-              </span>
-              .
-            </h1>
-            <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-700 dark:text-slate-300">
-              Cloud Alert Hub centraliza disponibilidad, proveedores cloud,
-              timeline de incidentes con paginación, mapa geográfico interactivo,
-              traducción automática y eventos realtime para que tu equipo
-              reaccione más rápido y con mejor contexto.
-            </p>
+        <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-28">
+          <div className="grid gap-12 lg:grid-cols-2 lg:items-center lg:gap-16">
+            {/* Left: Copy */}
+            <div className="max-w-xl lg:max-w-none">
+              <div className="flex items-center gap-3">
+                <CloudAlertLogo className="h-10 w-10" />
+                <div className="inline-flex items-center gap-2 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-cyan-300">
+                  <span className="relative flex h-2 w-2">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-cyan-400 opacity-75" />
+                    <span className="relative inline-flex h-2 w-2 rounded-full bg-cyan-400" />
+                  </span>
+                  Plataforma de Observabilidad Cloud
+                </div>
+              </div>
 
-            <div className="mt-8 flex flex-wrap gap-3">
-              {isAuthenticated ? (
-                <Link
-                  to="/centro-estado-cloud"
-                  className="group relative overflow-hidden rounded-full bg-blue-600 px-7 py-3.5 text-sm font-semibold text-white shadow-xl shadow-blue-900/40 transition-all hover:-translate-y-0.5 hover:bg-blue-500 hover:shadow-blue-900/60"
-                >
-                  <span className="relative z-10 flex items-center gap-2">
-                    Ir al Centro de Estado Cloud
+              <h1 className="mt-6 text-4xl font-black tracking-tight text-white sm:text-5xl lg:text-6xl">
+                Tu centro de comando para{" "}
+                <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-violet-400 bg-clip-text text-transparent">
+                  uptime e incidentes
+                </span>{" "}
+                cloud
+              </h1>
+
+              <p className="mt-6 text-lg leading-8 text-slate-400">
+                Monitorea proveedores cloud, detecta interrupciones en tiempo real,
+                analiza impacto financiero y traduce incidentes al español. Todo en
+                una sola plataforma operativa.
+              </p>
+
+              <div className="mt-8 flex flex-wrap gap-4">
+                {isAuthenticated ? (
+                  <Link
+                    to="/centro-estado-cloud"
+                    className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-cyan-900/30 transition-all hover:-translate-y-0.5 hover:shadow-cyan-900/50 animate-pulse-glow"
+                  >
+                    Ir al Centro de Estado
                     <IconArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                  </span>
-                </Link>
-              ) : (
-                <>
-                  <Link
-                    to="/register"
-                    className="group relative overflow-hidden rounded-full bg-blue-600 px-7 py-3.5 text-sm font-semibold text-white shadow-xl shadow-blue-900/40 transition-all hover:-translate-y-0.5 hover:bg-blue-500 hover:shadow-blue-900/60"
-                  >
-                    <span className="relative z-10 flex items-center gap-2">
-                      Comenzar ahora
+                  </Link>
+                ) : (
+                  <>
+                    <Link
+                      to="/register"
+                      className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-cyan-900/30 transition-all hover:-translate-y-0.5 hover:shadow-cyan-900/50 animate-pulse-glow"
+                    >
+                      Comenzar gratis
                       <IconArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                    </span>
-                  </Link>
-                  <Link
-                    to="/login"
-                    className="group relative overflow-hidden rounded-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900/50 px-7 py-3.5 text-sm font-semibold text-slate-900 dark:text-slate-100 shadow-lg transition-all hover:-translate-y-0.5 hover:border-slate-500 hover:bg-slate-100 dark:bg-slate-800/60"
-                  >
-                    Iniciar sesión
-                  </Link>
-                </>
-              )}
+                    </Link>
+                    <Link
+                      to="/login"
+                      className="inline-flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-900/50 px-6 py-3 text-sm font-semibold text-slate-200 shadow-lg backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:border-slate-500 hover:bg-slate-800/60 hover:text-white"
+                    >
+                      Iniciar sesión
+                    </Link>
+                  </>
+                )}
+              </div>
+
+              <div className="mt-10 flex items-center gap-6 text-sm text-slate-500">
+                <div className="flex items-center gap-2">
+                  <IconShield className="h-4 w-4 text-cyan-400" />
+                  <span>Multi-tenant</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <IconZap className="h-4 w-4 text-amber-400" />
+                  <span>Realtime</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <IconCloud className="h-4 w-4 text-violet-400" />
+                  <span>10+ providers</span>
+                </div>
+              </div>
             </div>
 
-            <div className="mt-10 grid gap-4 sm:grid-cols-2">
-              {benefits.map((benefit, i) => (
-                <div
-                  key={benefit}
-                  className={`flex items-start gap-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 px-4 py-4 text-sm text-slate-800 dark:text-slate-200 shadow-lg shadow-slate-950/30 backdrop-blur-sm transition-all hover:border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 hover:-translate-y-0.5 hover:shadow-xl ${i % 2 === 0 ? "animate-float" : "animate-float-delay"}`}
-                >
-                  <div className="inline-flex rounded-lg bg-blue-500/10 p-1.5">
-                    <IconShield className="h-4 w-4 text-blue-400" />
+            {/* Right: Dashboard Mockup with 3D tilt */}
+            <div className="relative hidden lg:block" style={{ perspective: "1200px" }}>
+              <div className="relative rounded-2xl border border-slate-700/60 bg-slate-900/80 p-4 shadow-2xl shadow-black/50 backdrop-blur-xl transition-transform duration-500 hover:rotate-y-2" style={{ transform: "rotateY(-5deg) rotateX(2deg)" }}>
+                {/* Window chrome */}
+                <div className="mb-4 flex items-center gap-2">
+                  <div className="h-3 w-3 rounded-full bg-red-500/80" />
+                  <div className="h-3 w-3 rounded-full bg-amber-500/80" />
+                  <div className="h-3 w-3 rounded-full bg-emerald-500/80" />
+                  <div className="ml-4 flex-1 rounded-md bg-slate-800/80 py-1 px-3 text-xs text-slate-500 font-mono">
+                    cloudalerthub.com/centro-estado-cloud
                   </div>
-                  {benefit}
                 </div>
-              ))}
-            </div>
-          </div>
 
-          {/* hero visual card */}
-          <div className="animate-float relative rounded-3xl border border-slate-300 dark:border-slate-700/60 bg-white dark:bg-slate-900/50 p-6 shadow-2xl shadow-slate-950/50 backdrop-blur-xl">
-            <div className="absolute -inset-px rounded-3xl bg-gradient-to-br from-blue-500/20 via-transparent to-cyan-500/20 opacity-60" />
-            <div className="relative grid gap-4 md:grid-cols-2">
-              <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-4 transition-all hover:-translate-y-0.5 hover:border-emerald-500/40 hover:shadow-lg hover:shadow-emerald-500/10">
-                <div className="flex items-center gap-2">
-                  <div className="h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
-                  <span className="text-xs font-semibold uppercase tracking-wide text-emerald-300">
-                    Uptime
-                  </span>
-                </div>
-                <div className="mt-3 text-3xl font-bold text-white">
-                  99.98%
-                </div>
-                <div className="mt-2 text-sm text-emerald-200/70">
-                  Checks de disponibilidad con histórico y métricas.
-                </div>
-                <div className="mt-3 flex gap-1">
-                  {[80, 65, 90, 70, 95, 85, 100].map((h, i) => (
-                    <div
-                      key={i}
-                      className="w-full rounded-sm bg-emerald-500/30"
-                      style={{ height: `${h / 3}px` }}
-                    />
-                  ))}
+                {/* Dashboard content */}
+                <div className="grid gap-3">
+                  {/* Top stats row */}
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="rounded-xl border border-emerald-500/20 bg-emerald-950/30 p-3">
+                      <div className="flex items-center gap-2">
+                        <div className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                        <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-300">Uptime</span>
+                      </div>
+                      <div className="mt-2 text-2xl font-bold text-white">99.98%</div>
+                      <div className="mt-1 h-1 w-full rounded-full bg-slate-800 overflow-hidden">
+                        <div className="h-full w-[99%] rounded-full bg-emerald-500/60" />
+                      </div>
+                    </div>
+                    <div className="rounded-xl border border-amber-500/20 bg-amber-950/30 p-3">
+                      <div className="flex items-center gap-2">
+                        <div className="h-2 w-2 rounded-full bg-amber-400 animate-pulse" />
+                        <span className="text-[10px] font-semibold uppercase tracking-wider text-amber-300">Alertas</span>
+                      </div>
+                      <div className="mt-2 text-2xl font-bold text-white">3</div>
+                      <div className="mt-1 text-[10px] text-amber-300/70">2 críticas, 1 menor</div>
+                    </div>
+                    <div className="rounded-xl border border-cyan-500/20 bg-cyan-950/30 p-3">
+                      <div className="flex items-center gap-2">
+                        <div className="h-2 w-2 rounded-full bg-cyan-400 animate-pulse" />
+                        <span className="text-[10px] font-semibold uppercase tracking-wider text-cyan-300">Providers</span>
+                      </div>
+                      <div className="mt-2 text-2xl font-bold text-white">8</div>
+                      <div className="mt-1 text-[10px] text-cyan-300/70">2 con incidencias</div>
+                    </div>
+                  </div>
+
+                  {/* Chart area */}
+                  <div className="rounded-xl border border-slate-700/50 bg-slate-800/40 p-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-semibold text-slate-300">Tendencia de disponibilidad</span>
+                      <span className="text-[10px] text-slate-500">Últimos 7 días</span>
+                    </div>
+                    <div className="mt-4 flex items-end gap-1.5 h-20">
+                      {[65, 78, 55, 92, 88, 95, 98].map((h, i) => (
+                        <div key={i} className="flex-1 rounded-sm bg-gradient-to-t from-cyan-500/40 to-violet-400/60 transition-all hover:from-cyan-500/60 hover:to-violet-400/80" style={{ height: `${h}%` }} />
+                      ))}
+                    </div>
+                    <div className="mt-2 flex justify-between text-[10px] text-slate-600">
+                      <span>Lun</span><span>Mar</span><span>Mie</span><span>Jue</span><span>Vie</span><span>Sab</span><span>Dom</span>
+                    </div>
+                  </div>
+
+                  {/* Incident list */}
+                  <div className="rounded-xl border border-slate-700/50 bg-slate-800/40 p-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-semibold text-slate-300">Incidentes recientes</span>
+                      <span className="rounded bg-red-500/20 px-1.5 py-0.5 text-[10px] font-bold text-red-300">2 activos</span>
+                    </div>
+                    <div className="mt-3 space-y-2">
+                      {[
+                        { name: "AWS us-east-1", sev: "Critical", color: "bg-red-500" },
+                        { name: "Cloudflare CDN", sev: "Minor", color: "bg-amber-500" },
+                      ].map((inc) => (
+                        <div key={inc.name} className="flex items-center justify-between rounded-lg bg-slate-900/50 px-3 py-2">
+                          <div className="flex items-center gap-2">
+                            <div className={`h-2 w-2 rounded-full ${inc.color}`} />
+                            <span className="text-xs text-slate-300">{inc.name}</span>
+                          </div>
+                          <span className="text-[10px] font-semibold text-slate-500">{inc.sev}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-4 transition-all hover:-translate-y-0.5 hover:border-amber-500/40 hover:shadow-lg hover:shadow-amber-500/10">
+
+              {/* Floating badge */}
+              <div className="absolute -bottom-4 -left-4 rounded-xl border border-cyan-500/30 bg-cyan-950/80 px-4 py-3 shadow-xl backdrop-blur-sm animate-float">
                 <div className="flex items-center gap-2">
-                  <div className="h-2 w-2 animate-pulse rounded-full bg-amber-400" />
-                  <span className="text-xs font-semibold uppercase tracking-wide text-amber-300">
-                    Incidentes activos
-                  </span>
+                  <div className="h-2 w-2 rounded-full bg-cyan-400 animate-pulse" />
+                  <span className="text-xs font-semibold text-cyan-300">Todo operativo</span>
                 </div>
-                <div className="mt-3 text-3xl font-bold text-white">
-                  Realtime
-                </div>
-                <div className="mt-2 text-sm text-amber-200/70">
-                  SignalR + polling automático para datos siempre frescos.
-                </div>
-                <div className="mt-3 flex gap-1.5">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <div key={i} className="h-1.5 w-1.5 rounded-full bg-amber-400/60" />
-                  ))}
-                </div>
-              </div>
-              <div className="rounded-2xl border border-sky-500/20 bg-sky-500/5 p-4 transition-all hover:-translate-y-0.5 hover:border-sky-500/40 hover:shadow-lg hover:shadow-sky-500/10 md:col-span-2">
-                <div className="flex items-center gap-2">
-                  <IconTrendingUp className="h-4 w-4 text-sky-400" />
-                  <span className="text-xs font-semibold uppercase tracking-wide text-sky-300">
-                    Centro de Estado Cloud
-                  </span>
-                </div>
-                <div className="mt-3 text-xl font-bold text-white">
-                  Timeline, mapa, paginación y contexto operativo
-                </div>
-                <div className="mt-2 text-sm leading-6 text-sky-200/70">
-                  Visualiza incidencias de múltiples proveedores, filtra por
-                  severidad y fechas, explora el mapa geográfico y traduce
-                  contenido inline.
-                </div>
-                <div className="mt-4 flex gap-2">
-                  {["Cloud", "Mapa", "Filtros", "Traducción"].map((tag) => (
-                    <span key={tag} className="rounded-full bg-sky-500/10 px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider text-sky-300">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
+                <div className="mt-1 text-[10px] text-cyan-400/70">Último check: hace 30s</div>
               </div>
             </div>
           </div>
@@ -599,37 +623,33 @@ export function LandingPage() {
       </section>
 
       {/* ── METRICS STRIP ── */}
-      <section className="border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-6 py-14">
-        <div className="mx-auto grid max-w-7xl gap-8 sm:grid-cols-3">
-          <div ref={uptimeCounter.ref} className="text-center">
-            <div className="text-4xl font-extrabold text-white">
-              {uptimeCounter.count}.98%
+      <section className="relative overflow-hidden border-b border-slate-800 bg-slate-950 px-6 py-16">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(59,130,246,0.08),_transparent_70%)]" />
+        <div className="relative mx-auto grid max-w-7xl gap-6 sm:grid-cols-3">
+          {[
+            { ref: uptimeCounter.ref, value: `${uptimeCounter.count}.98%`, label: "Uptime promedio", lineColor: "bg-gradient-to-r from-emerald-500/50 to-emerald-400/30", textColor: "bg-gradient-to-br from-emerald-400 to-emerald-300" },
+            { ref: providersCounter.ref, value: `${providersCounter.count}+`, label: "Providers monitoreados", lineColor: "bg-gradient-to-r from-sky-500/50 to-sky-400/30", textColor: "bg-gradient-to-br from-sky-400 to-sky-300" },
+            { ref: daysCounter.ref, value: `${daysCounter.count}/7`, label: "Días de monitoreo", lineColor: "bg-gradient-to-r from-blue-500/50 to-blue-400/30", textColor: "bg-gradient-to-br from-blue-400 to-blue-300" },
+          ].map((stat) => (
+            <div
+              key={stat.label}
+              ref={stat.ref}
+              className="group relative rounded-2xl border border-slate-800 bg-slate-900/60 p-8 text-center shadow-lg backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-slate-700 hover:shadow-xl hover:shadow-blue-900/10"
+            >
+              <div className={`absolute inset-x-0 top-0 h-px ${stat.lineColor} opacity-0 transition-opacity duration-300 group-hover:opacity-100`} />
+              <div className={`text-5xl font-black tracking-tight ${stat.textColor} bg-clip-text text-transparent sm:text-6xl`}>
+                {stat.value}
+              </div>
+              <div className="mt-3 text-sm font-semibold uppercase tracking-widest text-slate-500">
+                {stat.label}
+              </div>
             </div>
-            <div className="mt-1 text-sm font-medium tracking-wide text-slate-500 dark:text-slate-400 uppercase">
-              Uptime objetivo
-            </div>
-          </div>
-          <div ref={providersCounter.ref} className="text-center">
-            <div className="text-4xl font-extrabold text-white">
-              {providersCounter.count}+
-            </div>
-            <div className="mt-1 text-sm font-medium tracking-wide text-slate-500 dark:text-slate-400 uppercase">
-              Providers cloud
-            </div>
-          </div>
-          <div ref={daysCounter.ref} className="text-center">
-            <div className="text-4xl font-extrabold text-white">
-              {daysCounter.count}/7
-            </div>
-            <div className="mt-1 text-sm font-medium tracking-wide text-slate-500 dark:text-slate-400 uppercase">
-              Monitoreo continuo
-            </div>
-          </div>
+          ))}
         </div>
       </section>
 
       {/* ── INFINITE MARQUEE ── */}
-      <section className="overflow-hidden border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/40 py-8">
+      <section className="overflow-hidden border-b border-slate-800 bg-slate-900/40 py-8">
         <div className="relative flex">
           <div className="animate-marquee flex shrink-0 gap-8 pr-8">
             {[...providerBadges, ...providerBadges].map((p, i) => (
@@ -657,44 +677,52 @@ export function LandingPage() {
       </section>
 
       {/* ── FEATURES ── */}
-      <section id="features" className="bg-white dark:bg-slate-950 px-6 py-24">
-        <div ref={featuresRef} className="mx-auto max-w-7xl">
-          <div className={`max-w-3xl reveal ${featuresVisible ? "visible" : ""}`}>
-            <div className="inline-flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-blue-300">
+      <section id="features" className="relative overflow-hidden bg-slate-950 px-6 py-28">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_rgba(0,212,255,0.05),_transparent_50%),radial-gradient(ellipse_at_bottom_right,_rgba(124,58,237,0.04),_transparent_50%)]" />
+        <div ref={featuresRef} className="relative mx-auto max-w-7xl">
+          <div className={`mx-auto max-w-3xl text-center reveal ${featuresVisible ? "visible" : ""}`}>
+            <div className="inline-flex items-center gap-2 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-cyan-300">
               <IconZap className="h-3 w-3" />
-              Funcionalidades clave
+              Capacidades operativas
             </div>
-            <h2 className="mt-5 text-4xl font-bold text-white md:text-5xl">
-              Todo lo que tu equipo de operaciones necesita.
+            <h2 className="mt-6 text-4xl font-black tracking-tight text-white md:text-5xl">
+              Todo lo que tu equipo de{" "}
+              <span className="bg-gradient-to-r from-cyan-400 to-violet-400 bg-clip-text text-transparent">
+                operaciones necesita
+              </span>
             </h2>
-            <p className="mt-4 text-lg leading-8 text-slate-500 dark:text-slate-400">
+            <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-slate-400">
               Diseñado para equipos que exigen claridad: desde checks uptime
-              hasta incidentes externos, mapas y navegación operativa sin
-              fricción.
+              hasta incidentes externos, mapas y navegación operativa sin fricción.
             </p>
           </div>
 
-          <div className="mt-14 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+          <div className="mt-20 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
             {featureCards.map((feature, idx) => {
               const Icon = feature.icon;
               return (
                 <div
                   key={feature.title}
-                  className={`group relative rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 p-6 shadow-lg transition-all duration-300 hover:-translate-y-1 hover:border-slate-300 dark:border-slate-700 hover:shadow-xl hover:shadow-${feature.accent.split(" ")[1].replace("to-", "")}/10 reveal ${featuresVisible ? "visible" : ""} stagger-${Math.min(idx + 1, 9)}`}
+                  className={`group relative rounded-2xl border border-slate-800/60 bg-slate-900/30 p-7 backdrop-blur-sm transition-all duration-500 hover:-translate-y-2 hover:border-slate-700/80 hover:bg-slate-900/50 hover:shadow-2xl hover:shadow-cyan-900/5 reveal ${featuresVisible ? "visible" : ""} stagger-${Math.min(idx + 1, 9)}`}
                 >
-                  <div className={`absolute inset-x-0 top-0 h-px bg-gradient-to-r ${feature.accent} opacity-0 transition-opacity duration-300 group-hover:opacity-100`} />
-                  <div className={`mb-5 inline-flex rounded-xl bg-gradient-to-br ${feature.accent} p-3 shadow-lg ${feature.shadow}`}>
-                    <Icon className="h-6 w-6 text-white" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-white">
-                    {feature.title}
-                  </h3>
-                  <p className="mt-2 text-sm leading-7 text-slate-500 dark:text-slate-400">
-                    {feature.description}
-                  </p>
-                  <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-slate-500 transition-colors group-hover:text-slate-700 dark:text-slate-300">
-                    Saber más
-                    <IconArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-1" />
+                  <div className={`absolute inset-x-0 top-0 h-px bg-gradient-to-r ${feature.accent} opacity-0 transition-opacity duration-500 group-hover:opacity-100`} />
+                  <div className={`absolute -inset-px rounded-2xl bg-gradient-to-br ${feature.accent} opacity-0 blur-sm transition-opacity duration-500 group-hover:opacity-[0.08]`} />
+                  <div className="relative">
+                    <div className="mb-5 flex items-center gap-4">
+                      <div className={`inline-flex rounded-xl bg-gradient-to-br ${feature.accent} p-3 shadow-lg ${feature.shadow} transition-transform duration-300 group-hover:scale-110`}>
+                        <Icon className="h-6 w-6 text-white" />
+                      </div>
+                      <h3 className="text-lg font-bold text-white">
+                        {feature.title}
+                      </h3>
+                    </div>
+                    <p className="text-sm leading-7 text-slate-400">
+                      {feature.description}
+                    </p>
+                    <div className="mt-4 flex items-center gap-1.5 text-xs font-semibold text-cyan-400/70 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                      <span>Explorar</span>
+                      <IconArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
+                    </div>
                   </div>
                 </div>
               );
@@ -703,39 +731,45 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* ── DETAILS GRID ── */}
-      <section className="border-y border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 px-6 py-24">
-        <div ref={detailsRef} className="mx-auto max-w-7xl">
-          <div className={`mb-14 max-w-3xl reveal ${detailsVisible ? "visible" : ""}`}>
-            <div className="inline-flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-blue-300">
+      {/* ── ARCHITECTURE / DETAILS ── */}
+      <section className="relative overflow-hidden border-y border-slate-800/40 bg-slate-950 px-6 py-28">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_rgba(124,58,237,0.05),_transparent_50%),radial-gradient(ellipse_at_top_left,_rgba(0,212,255,0.04),_transparent_50%)]" />
+        <div ref={detailsRef} className="relative mx-auto max-w-7xl">
+          <div className={`mx-auto mb-16 max-w-3xl text-center reveal ${detailsVisible ? "visible" : ""}`}>
+            <div className="inline-flex items-center gap-2 rounded-full border border-violet-500/30 bg-violet-500/10 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-violet-300">
               <IconLayers className="h-3 w-3" />
               Arquitectura
             </div>
-            <h2 className="mt-5 text-4xl font-bold text-white">
-              Construido para escalar y para operar.
+            <h2 className="mt-6 text-4xl font-black tracking-tight text-white md:text-5xl">
+              Construido para{" "}
+              <span className="bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">
+                escalar y operar
+              </span>
             </h2>
-            <p className="mt-4 text-lg leading-8 text-slate-500 dark:text-slate-400">
+            <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-slate-400">
               Una plataforma robusta que crece con tu organización, desde
-              monitoreo básico hasta operaciones enterprise con múltiples
-              equipos y tenants.
+              monitoreo básico hasta operaciones enterprise con múltiples equipos.
             </p>
           </div>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {details.map((d, idx) => (
               <div
                 key={d.title}
-                className={`group relative overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/60 p-6 shadow-lg transition-all duration-300 hover:-translate-y-0.5 hover:border-slate-300 dark:border-slate-700 hover:shadow-xl reveal ${detailsVisible ? "visible" : ""} stagger-${Math.min(idx + 1, 9)}`}
+                className={`group relative rounded-2xl border border-slate-800/60 bg-slate-900/30 p-7 backdrop-blur-sm transition-all duration-500 hover:-translate-y-2 hover:border-slate-700/80 hover:bg-slate-900/50 hover:shadow-2xl hover:shadow-violet-900/5 reveal ${detailsVisible ? "visible" : ""} stagger-${Math.min(idx + 1, 9)}`}
               >
-                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-blue-500 to-cyan-500 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                <div className="mb-4 inline-flex rounded-lg bg-blue-500/10 p-2">
-                  <IconTrendingUp className="h-4 w-4 text-blue-400" />
+                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-violet-500 to-cyan-500 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+                <div className="absolute -inset-px rounded-2xl bg-gradient-to-br from-violet-500 to-cyan-500 opacity-0 blur-sm transition-opacity duration-500 group-hover:opacity-[0.08]" />
+                <div className="relative">
+                  <div className="mb-5 inline-flex rounded-xl bg-violet-500/10 p-3 transition-colors group-hover:bg-violet-500/15">
+                    <IconTrendingUp className="h-5 w-5 text-violet-400 transition-colors group-hover:text-violet-300" />
+                  </div>
+                  <h3 className="text-lg font-bold text-white">
+                    {d.title}
+                  </h3>
+                  <p className="mt-2 text-sm leading-7 text-slate-400">
+                    {d.text}
+                  </p>
                 </div>
-                <h3 className="text-base font-semibold text-white">
-                  {d.title}
-                </h3>
-                <p className="mt-2 text-sm leading-7 text-slate-500 dark:text-slate-400">
-                  {d.text}
-                </p>
               </div>
             ))}
           </div>
@@ -743,22 +777,30 @@ export function LandingPage() {
       </section>
 
       {/* ── HOW IT WORKS ── */}
-      <section id="how-it-works" className="relative bg-white dark:bg-slate-950 px-6 py-24">
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-blue-500/30 to-transparent" />
-        <div ref={stepsRef} className="mx-auto max-w-7xl">
-          <div className={`mb-14 max-w-3xl reveal ${stepsVisible ? "visible" : ""}`}>
-            <div className="inline-flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-blue-300">
+      <section id="how-it-works" className="relative overflow-hidden bg-slate-950 px-6 py-28">
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(0,212,255,0.05),_transparent_50%),radial-gradient(ellipse_at_bottom_left,_rgba(124,58,237,0.04),_transparent_50%)]" />
+        <div ref={stepsRef} className="relative mx-auto max-w-7xl">
+          <div className={`mx-auto mb-16 max-w-3xl text-center reveal ${stepsVisible ? "visible" : ""}`}>
+            <div className="inline-flex items-center gap-2 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-cyan-300">
               <IconArrowRight className="h-3 w-3" />
               Cómo funciona
             </div>
-            <h2 className="mt-5 text-4xl font-bold text-white">
-              De la señal a la acción en tres pasos.
+            <h2 className="mt-6 text-4xl font-black tracking-tight text-white md:text-5xl">
+              De la señal a la{" "}
+              <span className="bg-gradient-to-r from-cyan-400 to-violet-400 bg-clip-text text-transparent">
+                acción en tres pasos
+              </span>
             </h2>
           </div>
 
           <div className="relative grid gap-8 lg:grid-cols-3">
             {/* connecting line */}
-            <div className="absolute top-12 left-0 hidden h-0.5 w-full bg-gradient-to-r from-blue-500/30 via-cyan-500/30 to-blue-500/30 lg:block" />
+            <div className="absolute top-[3.25rem] left-[16.67%] right-[16.67%] hidden h-px bg-gradient-to-r from-cyan-500/30 via-violet-500/30 to-cyan-500/30 lg:block" />
+            {/* dots */}
+            <div className="absolute top-[3.125rem] left-[16.67%] hidden h-1 w-1 rounded-full bg-cyan-400 lg:block" />
+            <div className="absolute top-[3.125rem] left-[50%] hidden h-1 w-1 -translate-x-1/2 rounded-full bg-violet-400 lg:block" />
+            <div className="absolute top-[3.125rem] right-[16.67%] hidden h-1 w-1 rounded-full bg-cyan-400 lg:block" />
 
             {[
               {
@@ -779,99 +821,66 @@ export function LandingPage() {
             ].map((item, idx) => (
               <div
                 key={item.step}
-                className={`relative rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-7 shadow-lg transition-all duration-300 hover:-translate-y-1 hover:border-slate-300 dark:border-slate-700 hover:shadow-xl reveal ${stepsVisible ? "visible" : ""} stagger-${Math.min(idx + 1, 9)}`}
+                className={`group relative rounded-2xl border border-slate-800/60 bg-slate-900/30 p-7 backdrop-blur-sm transition-all duration-500 hover:-translate-y-2 hover:border-slate-700/80 hover:bg-slate-900/50 hover:shadow-2xl hover:shadow-cyan-900/5 reveal ${stepsVisible ? "visible" : ""} stagger-${Math.min(idx + 1, 9)}`}
               >
-                <div className="relative z-10 mb-4 inline-flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 text-sm font-bold text-white shadow-lg shadow-blue-500/30">
-                  {item.step}
+                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-cyan-500 to-violet-500 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+                <div className="absolute -inset-px rounded-2xl bg-gradient-to-br from-cyan-500 to-violet-500 opacity-0 blur-sm transition-opacity duration-500 group-hover:opacity-[0.08]" />
+                <div className="relative">
+                  <div className="relative z-10 mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 text-base font-bold text-white shadow-lg shadow-cyan-500/25 transition-transform duration-300 group-hover:scale-110">
+                    {item.step}
+                  </div>
+                  <h3 className="text-xl font-bold text-white">{item.title}</h3>
+                  <p className="mt-3 text-sm leading-7 text-slate-400">{item.text}</p>
+                  <div className="mt-4 flex items-center gap-1.5 text-xs font-semibold text-cyan-400/70 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                    <span>Ver más</span>
+                    <IconArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
+                  </div>
                 </div>
-                <h3 className="text-xl font-bold text-white">{item.title}</h3>
-                <p className="mt-3 text-sm leading-7 text-slate-500 dark:text-slate-400">{item.text}</p>
               </div>
             ))}
           </div>
+        </div>
+      </section>
 
-          {/* Módulos de la plataforma */}
-          <div className="mt-24">
-            <div className={`mb-12 max-w-3xl reveal ${stepsVisible ? "visible" : ""}`}>
-              <div className="inline-flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-blue-300">
-                <IconSliders className="h-3 w-3" />
-                Módulos
-              </div>
-              <h2 className="mt-5 text-4xl font-bold text-white md:text-5xl">
-                Una plataforma, doce capacidades operativas.
-              </h2>
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {[
-                { title: "Centro de Monitoreo", desc: "Dashboard de monitores uptime con métricas de respuesta, histórico y alertas en tiempo real.", accent: "from-emerald-500 to-teal-500", icon: IconActivity },
-                { title: "Centro de Estado Cloud", desc: "Timeline paginado de incidentes de providers globales con filtros, traducción y geolocalización.", accent: "from-sky-500 to-blue-600", icon: IconCloud },
-                { title: "Analítica Cloud", desc: "KPIs, gráficos de tendencias, comparación de providers y calculadora de impacto financiero de downtime.", accent: "from-violet-500 to-purple-600", icon: IconBarChart },
-                { title: "SLA Dashboard", desc: "Definiciones de SLA por provider, reportes automáticos de uptime y detección de breaches.", accent: "from-yellow-500 to-amber-600", icon: IconShield },
-                { title: "Suscripciones de Alerta", desc: "Preferencias de notificación por email, horarios silenciosos, severidad mínima y alertas de prueba.", accent: "from-orange-500 to-red-500", icon: IconBell },
-                { title: "Herramientas de Red", desc: "DNS Lookup con múltiples tipos de registro, servidores configurables e historial de consultas.", accent: "from-amber-500 to-orange-600", icon: IconSearch },
-                { title: "Cartera de Clientes", desc: "Gestión de clientes con proveedores cloud asociados, industria y estado operativo.", accent: "from-cyan-500 to-blue-500", icon: IconBriefcase },
-                { title: "Integraciones", desc: "Conexión Microsoft 365 vía Graph API para importar incidencias reales de tus servicios.", accent: "from-blue-500 to-indigo-600", icon: IconPlug },
-                { title: "Configuración", desc: "Perfil de usuario, seguridad, cambio de contraseña, tema claro/oscuro y preferencias de UI.", accent: "from-indigo-500 to-blue-600", icon: IconSliders },
-              ].map((mod, idx) => {
-                const ModIcon = mod.icon;
-                return (
-                  <div
-                    key={mod.title}
-                    className={`group relative rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 p-5 shadow-lg transition-all duration-300 hover:-translate-y-0.5 hover:border-slate-300 dark:border-slate-700 hover:shadow-xl reveal ${stepsVisible ? "visible" : ""} stagger-${Math.min(idx + 1, 9)}`}
-                  >
-                    <div className={`absolute inset-x-0 top-0 h-px bg-gradient-to-r ${mod.accent} opacity-0 transition-opacity duration-300 group-hover:opacity-100`} />
-                    <div className={`mb-3 inline-flex rounded-lg bg-gradient-to-br ${mod.accent} p-2 shadow-lg`}>
-                      <ModIcon className="h-4 w-4 text-white" />
-                    </div>
-                    <h3 className="text-sm font-bold text-white">{mod.title}</h3>
-                    <p className="mt-1.5 text-xs leading-6 text-slate-500 dark:text-slate-400">{mod.desc}</p>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* CTA banner */}
-          <div className="mt-24 overflow-hidden rounded-3xl border border-blue-500/20 bg-gradient-to-br from-blue-600/20 to-cyan-600/20 p-px shadow-2xl shadow-blue-900/20">
-            <div className="relative rounded-3xl bg-white dark:bg-slate-950/80 px-8 py-14 text-center backdrop-blur-sm">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(59,130,246,0.15),transparent_40%),radial-gradient(circle_at_bottom_right,rgba(14,165,233,0.12),transparent_40%)]" />
+      {/* ── CTA ── */}
+      <section className="relative overflow-hidden bg-slate-950 px-6 py-24">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(0,212,255,0.08),_transparent_60%)]" />
+        <div className="relative mx-auto max-w-5xl">
+          <div className="overflow-hidden rounded-3xl border border-cyan-500/20 bg-gradient-to-br from-cyan-600/20 to-blue-600/20 p-px shadow-2xl shadow-cyan-900/20">
+            <div className="relative rounded-3xl bg-slate-950/80 px-8 py-16 text-center backdrop-blur-xl sm:px-12 sm:py-20">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(0,212,255,0.15),transparent_40%),radial-gradient(circle_at_bottom_right,rgba(59,130,246,0.12),transparent_40%)]" />
               <div className="relative">
-                <div className="inline-flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-blue-300">
+                <div className="inline-flex items-center gap-2 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-cyan-300">
                   Listo para operar
                 </div>
-                <h3 className="mt-5 text-3xl font-bold text-white md:text-4xl">
-                  Entra a Cloud Alert Hub y centraliza toda tu señal operativa.
-                </h3>
-                <p className="mx-auto mt-4 max-w-2xl text-lg leading-8 text-slate-500 dark:text-slate-400">
-                  Accede a una capa pública profesional y luego entra a tu workspace
-                  interno protegido con rutas autenticadas, administración de
-                  usuarios y notificaciones configurables.
+                <h2 className="mt-6 text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">
+                  Centraliza toda tu señal operativa
+                </h2>
+                <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-slate-400">
+                  Accede a una capa pública profesional y entra a tu workspace
+                  interno protegido con rutas autenticadas y notificaciones configurables.
                 </p>
-                <div className="mt-8 flex flex-wrap justify-center gap-3">
+                <div className="mt-10 flex flex-wrap justify-center gap-4">
                   {isAuthenticated ? (
                     <Link
                       to="/dashboard"
-                      className="group relative overflow-hidden rounded-full bg-blue-600 px-8 py-3.5 text-sm font-semibold text-white shadow-xl shadow-blue-900/40 transition-all hover:-translate-y-0.5 hover:bg-blue-500"
+                      className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 px-8 py-3.5 text-sm font-semibold text-white shadow-xl shadow-cyan-900/40 transition-all hover:-translate-y-0.5 hover:shadow-cyan-900/60 animate-pulse-glow"
                     >
-                      <span className="relative z-10 flex items-center gap-2">
-                        Abrir Centro de Monitoreo
-                        <IconArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                      </span>
+                      Abrir Centro de Monitoreo
+                      <IconArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                     </Link>
                   ) : (
                     <>
                       <Link
                         to="/register"
-                        className="group relative overflow-hidden rounded-full bg-blue-600 px-8 py-3.5 text-sm font-semibold text-white shadow-xl shadow-blue-900/40 transition-all hover:-translate-y-0.5 hover:bg-blue-500"
+                        className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 px-8 py-3.5 text-sm font-semibold text-white shadow-xl shadow-cyan-900/40 transition-all hover:-translate-y-0.5 hover:shadow-cyan-900/60 animate-pulse-glow"
                       >
-                        <span className="relative z-10 flex items-center gap-2">
-                          Crear cuenta
-                          <IconArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                        </span>
+                        Crear cuenta gratis
+                        <IconArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                       </Link>
                       <Link
                         to="/login"
-                        className="group relative overflow-hidden rounded-full border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900/50 px-8 py-3.5 text-sm font-semibold text-slate-900 dark:text-slate-100 shadow-lg transition-all hover:-translate-y-0.5 hover:border-slate-400 hover:bg-slate-100 dark:bg-slate-800/60"
+                        className="inline-flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-900/50 px-8 py-3.5 text-sm font-semibold text-slate-200 shadow-lg backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:border-slate-500 hover:bg-slate-800/60 hover:text-white"
                       >
                         Iniciar sesión
                       </Link>
@@ -885,13 +894,62 @@ export function LandingPage() {
       </section>
 
       {/* ── FOOTER ── */}
-      <footer className="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-6 py-10">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 sm:flex-row">
-          <div className="text-sm font-medium text-slate-500 dark:text-slate-400">
-            Cloud Alert Hub — Observabilidad cloud y monitoreo SaaS
+      <footer className="relative border-t border-slate-800/40 bg-slate-950 px-6 pt-16 pb-8">
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent" />
+        <div className="mx-auto max-w-7xl">
+          <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4">
+            {/* Brand */}
+            <div className="lg:col-span-2">
+              <div className="flex items-center gap-3">
+                <CloudAlertLogo className="h-8 w-8" />
+                <div>
+                  <div className="text-lg font-black tracking-tight text-white">Cloud Alert</div>
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.15em] text-slate-500">Hub</div>
+                </div>
+              </div>
+              <p className="mt-4 max-w-sm text-sm leading-7 text-slate-400">
+                Observabilidad cloud y monitoreo SaaS para equipos operativos.
+                Centraliza uptime, estado de proveedores e incidentes en una sola plataforma.
+              </p>
+              <div className="mt-6 flex items-center gap-4">
+                <div className="h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
+                <span className="text-xs font-medium text-slate-500">Todos los sistemas operativos</span>
+              </div>
+            </div>
+
+            {/* Links */}
+            <div>
+              <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-300">Plataforma</h4>
+              <div className="mt-4 flex flex-col gap-3">
+                <Link to="/login" className="text-sm text-slate-400 transition-colors hover:text-cyan-400">Iniciar sesión</Link>
+                <Link to="/register" className="text-sm text-slate-400 transition-colors hover:text-cyan-400">Registrarse</Link>
+                <Link to="/centro-estado-cloud" className="text-sm text-slate-400 transition-colors hover:text-cyan-400">Centro de Estado Cloud</Link>
+                <a href="#features" className="text-sm text-slate-400 transition-colors hover:text-cyan-400">Funcionalidades</a>
+              </div>
+            </div>
+
+            <div>
+              <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-300">Recursos</h4>
+              <div className="mt-4 flex flex-col gap-3">
+                <a href="#how-it-works" className="text-sm text-slate-400 transition-colors hover:text-cyan-400">Cómo funciona</a>
+                <a href="#providers" className="text-sm text-slate-400 transition-colors hover:text-cyan-400">Providers</a>
+                <span className="text-sm text-slate-600">Documentación (próximamente)</span>
+                <span className="text-sm text-slate-600">API (próximamente)</span>
+              </div>
+            </div>
           </div>
-          <div className="text-sm text-slate-600">
-            Todos los derechos reservados.
+
+          <div className="mt-12 border-t border-slate-800/40 pt-8">
+            <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
+              <div className="text-xs text-slate-600">
+                Cloud Alert Hub. Todos los derechos reservados.
+              </div>
+              <div className="flex items-center gap-6 text-xs text-slate-600">
+                <span className="hover:text-slate-400 cursor-default">Privacidad</span>
+                <span className="hover:text-slate-400 cursor-default">Términos</span>
+                <span className="hover:text-slate-400 cursor-default">Contacto</span>
+              </div>
+            </div>
           </div>
         </div>
       </footer>

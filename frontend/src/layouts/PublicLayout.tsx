@@ -1,5 +1,6 @@
 import { Link, Outlet } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import { CloudAlertLogo } from "../components/CloudAlertLogo";
 
 export function PublicLayout() {
   const { isAuthenticated } = useAuth();
@@ -8,12 +9,15 @@ export function PublicLayout() {
     <div className="min-h-screen bg-slate-950 text-slate-50">
       <header className="sticky top-0 z-30 border-b border-slate-800/80 bg-slate-950/85 backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-6 py-4">
-          <Link to="/" className="min-w-0">
-            <div className="text-sm font-semibold tracking-wide text-slate-50">
-              Cloud Alert Hub
-            </div>
-            <div className="text-xs text-slate-400">
-              Observabilidad y estado cloud en una sola vista
+          <Link to="/" className="flex items-center gap-2.5 min-w-0">
+            <CloudAlertLogo className="h-7 w-7" />
+            <div>
+              <div className="text-sm font-black tracking-tight text-slate-50">
+                Cloud Alert
+              </div>
+              <div className="text-[10px] font-semibold uppercase tracking-[0.15em] text-slate-400">
+                Hub
+              </div>
             </div>
           </Link>
 
@@ -61,11 +65,13 @@ export function PublicLayout() {
 
       <footer className="border-t border-slate-800 bg-slate-950">
         <div className="mx-auto flex max-w-7xl flex-col gap-4 px-6 py-8 text-sm text-slate-400 md:flex-row md:items-center md:justify-between">
-          <div>
-            <div className="font-semibold text-slate-200">Cloud Alert Hub</div>
-            <div className="mt-1">
-              Monitoreo uptime, estado cloud, incidentes SaaS y realtime para
-              equipos operativos.
+          <div className="flex items-center gap-2.5">
+            <CloudAlertLogo className="h-6 w-6" />
+            <div>
+              <div className="font-bold text-slate-200">Cloud Alert Hub</div>
+              <div className="mt-0.5 text-xs text-slate-500">
+                Observabilidad cloud para equipos operativos.
+              </div>
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-4">
