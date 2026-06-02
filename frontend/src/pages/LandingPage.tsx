@@ -367,13 +367,19 @@ export function LandingPage() {
   const { ref: featuresRef, visible: featuresVisible } = useReveal();
   const { ref: detailsRef, visible: detailsVisible } = useReveal();
   const { ref: stepsRef, visible: stepsVisible } = useReveal();
-
   useEffect(() => {
     document.title = "Cloud Alert Hub — Observabilidad cloud y monitoreo SaaS";
   }, []);
 
   return (
-    <main>
+    <main
+      className="relative"
+      onMouseMove={(e) => {
+        const main = e.currentTarget;
+        main.style.setProperty("--glow-x", `${e.clientX}px`);
+        main.style.setProperty("--glow-y", `${e.clientY}px`);
+      }}
+    >
       {/* ── KEYFRAME STYLES ── */}
       <style>{`
         @keyframes float {
@@ -440,7 +446,25 @@ export function LandingPage() {
         .stagger-7 { transition-delay: 0.56s; }
         .stagger-8 { transition-delay: 0.64s; }
         .stagger-9 { transition-delay: 0.72s; }
+        .cursor-glow {
+          position: fixed;
+          left: var(--glow-x, 50%);
+          top: var(--glow-y, 50%);
+          transform: translate(-50%, -50%);
+          width: 320px;
+          height: 320px;
+          pointer-events: none;
+          z-index: 2;
+          background: radial-gradient(circle at center, rgba(139,92,246,0.30) 0%, rgba(124,58,237,0.12) 40%, transparent 70%);
+          filter: blur(40px);
+        }
+        @media (pointer: coarse) {
+          .cursor-glow { display: none !important; }
+        }
       `}</style>
+
+      {/* Cursor glow effect */}
+      <div className="cursor-glow" />
 
       {/* ── HERO ── */}
       <section className="relative overflow-hidden border-b border-slate-800 bg-slate-950">
@@ -451,7 +475,7 @@ export function LandingPage() {
         <div className="absolute bottom-1/4 right-1/4 h-[500px] w-[500px] rounded-full bg-violet-500/10 blur-[120px] animate-blob-delay" />
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-500/40 to-transparent" />
 
-        <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-28">
+        <div className="relative z-10 mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-28">
           <div className="grid gap-12 lg:grid-cols-2 lg:items-center lg:gap-16">
             {/* Left: Copy */}
             <div className="max-w-xl lg:max-w-none">
@@ -625,7 +649,7 @@ export function LandingPage() {
       {/* ── METRICS STRIP ── */}
       <section className="relative overflow-hidden border-b border-slate-800 bg-slate-950 px-6 py-16">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(59,130,246,0.08),_transparent_70%)]" />
-        <div className="relative mx-auto grid max-w-7xl gap-6 sm:grid-cols-3">
+        <div className="relative z-10 mx-auto grid max-w-7xl gap-6 sm:grid-cols-3">
           {[
             { ref: uptimeCounter.ref, value: `${uptimeCounter.count}.98%`, label: "Uptime promedio", lineColor: "bg-gradient-to-r from-emerald-500/50 to-emerald-400/30", textColor: "bg-gradient-to-br from-emerald-400 to-emerald-300" },
             { ref: providersCounter.ref, value: `${providersCounter.count}+`, label: "Providers monitoreados", lineColor: "bg-gradient-to-r from-sky-500/50 to-sky-400/30", textColor: "bg-gradient-to-br from-sky-400 to-sky-300" },
@@ -649,8 +673,8 @@ export function LandingPage() {
       </section>
 
       {/* ── INFINITE MARQUEE ── */}
-      <section className="overflow-hidden border-b border-slate-800 bg-slate-900/40 py-8">
-        <div className="relative flex">
+      <section className="relative overflow-hidden border-b border-slate-800 bg-slate-900/40 py-8">
+        <div className="relative z-10 flex">
           <div className="animate-marquee flex shrink-0 gap-8 pr-8">
             {[...providerBadges, ...providerBadges].map((p, i) => (
               <div
@@ -679,7 +703,7 @@ export function LandingPage() {
       {/* ── FEATURES ── */}
       <section id="features" className="relative overflow-hidden bg-slate-950 px-6 py-28">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_rgba(0,212,255,0.05),_transparent_50%),radial-gradient(ellipse_at_bottom_right,_rgba(124,58,237,0.04),_transparent_50%)]" />
-        <div ref={featuresRef} className="relative mx-auto max-w-7xl">
+        <div ref={featuresRef} className="relative z-10 mx-auto max-w-7xl">
           <div className={`mx-auto max-w-3xl text-center reveal ${featuresVisible ? "visible" : ""}`}>
             <div className="inline-flex items-center gap-2 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-cyan-300">
               <IconZap className="h-3 w-3" />
@@ -734,7 +758,7 @@ export function LandingPage() {
       {/* ── ARCHITECTURE / DETAILS ── */}
       <section className="relative overflow-hidden border-y border-slate-800/40 bg-slate-950 px-6 py-28">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_rgba(124,58,237,0.05),_transparent_50%),radial-gradient(ellipse_at_top_left,_rgba(0,212,255,0.04),_transparent_50%)]" />
-        <div ref={detailsRef} className="relative mx-auto max-w-7xl">
+        <div ref={detailsRef} className="relative z-10 mx-auto max-w-7xl">
           <div className={`mx-auto mb-16 max-w-3xl text-center reveal ${detailsVisible ? "visible" : ""}`}>
             <div className="inline-flex items-center gap-2 rounded-full border border-violet-500/30 bg-violet-500/10 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-violet-300">
               <IconLayers className="h-3 w-3" />
@@ -780,7 +804,7 @@ export function LandingPage() {
       <section id="how-it-works" className="relative overflow-hidden bg-slate-950 px-6 py-28">
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(0,212,255,0.05),_transparent_50%),radial-gradient(ellipse_at_bottom_left,_rgba(124,58,237,0.04),_transparent_50%)]" />
-        <div ref={stepsRef} className="relative mx-auto max-w-7xl">
+        <div ref={stepsRef} className="relative z-10 mx-auto max-w-7xl">
           <div className={`mx-auto mb-16 max-w-3xl text-center reveal ${stepsVisible ? "visible" : ""}`}>
             <div className="inline-flex items-center gap-2 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-cyan-300">
               <IconArrowRight className="h-3 w-3" />
@@ -845,7 +869,7 @@ export function LandingPage() {
       {/* ── CTA ── */}
       <section className="relative overflow-hidden bg-slate-950 px-6 py-24">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(0,212,255,0.08),_transparent_60%)]" />
-        <div className="relative mx-auto max-w-5xl">
+        <div className="relative z-10 mx-auto max-w-5xl">
           <div className="overflow-hidden rounded-3xl border border-cyan-500/20 bg-gradient-to-br from-cyan-600/20 to-blue-600/20 p-px shadow-2xl shadow-cyan-900/20">
             <div className="relative rounded-3xl bg-slate-950/80 px-8 py-16 text-center backdrop-blur-xl sm:px-12 sm:py-20">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(0,212,255,0.15),transparent_40%),radial-gradient(circle_at_bottom_right,rgba(59,130,246,0.12),transparent_40%)]" />
@@ -896,7 +920,7 @@ export function LandingPage() {
       {/* ── FOOTER ── */}
       <footer className="relative border-t border-slate-800/40 bg-slate-950 px-6 pt-16 pb-8">
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent" />
-        <div className="mx-auto max-w-7xl">
+        <div className="relative z-10 mx-auto max-w-7xl">
           <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4">
             {/* Brand */}
             <div className="lg:col-span-2">
