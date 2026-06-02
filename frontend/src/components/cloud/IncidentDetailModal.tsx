@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { Modal } from "../Modal";
 import { CloudProviderAvatar } from "../CloudProviderAvatar";
@@ -65,6 +65,14 @@ export function IncidentDetailModal({
   const [showTranslated, setShowTranslated] = useState(Boolean(isCloud && cachedTranslation));
   const [copied, setCopied] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
+
+  // Resetear estado de traducción cuando cambia el incidente
+  useEffect(() => {
+    setLocalTranslation(null);
+    setTranslationError(null);
+    setIsTranslating(false);
+    setShowTranslated(Boolean(isCloud && cachedTranslation));
+  }, [incident.id, cachedTranslation, isCloud]);
 
   const translation = localTranslation ?? (isCloud ? cachedTranslation ?? null : null);
 
