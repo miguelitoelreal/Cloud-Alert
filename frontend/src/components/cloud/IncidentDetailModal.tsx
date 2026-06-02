@@ -4,7 +4,7 @@ import { CloudProviderAvatar } from "../CloudProviderAvatar";
 import { CloudDisplayStatusBadge } from "../CloudDisplayStatusBadge";
 import { CloudIncidentSeverityBadge } from "../CloudIncidentSeverityBadge";
 import { CloudIncidentStatusBadge } from "../CloudIncidentStatusBadge";
-import { MetaItem } from "./MetaItem";
+import { MetaCard } from "./MetaCard";
 import { formatDateTime, relativeTime } from "../../utils/cloudStatus";
 import { translateCloudIncident } from "../../services/cloudStatus";
 import {
@@ -185,160 +185,142 @@ export function IncidentDetailModal({
       ? translation.translatedDescription || "Sin contenido traducido adicional."
       : incident.description;
 
+  const sevColors: Record<CloudIncidentSeverity, string> = {
+    0: "border-l-slate-500",
+    1: "border-l-blue-500",
+    2: "border-l-yellow-500",
+    3: "border-l-orange-500",
+    4: "border-l-red-500",
+  };
+
   return (
     <Modal open={isOpen} title="Detalle del incidente" onClose={onClose} size="lg">
-      <div ref={contentRef} className="space-y-5">
-        <div className="flex flex-wrap items-center gap-2">
-          <CloudProviderAvatar name={providerName} logoUrl={providerLogoUrl} sizeClassName="h-8 w-8" />
-          <div className="min-w-0">
-            <div className="truncate text-sm font-semibold text-slate-100">{providerName}</div>
-            <div className="text-xs text-slate-400">{relativeTime(incident.occurredAt)}</div>
-          </div>
-          {isCloud && displayStatus ? <CloudDisplayStatusBadge label={displayStatus} /> : null}
-          <CloudIncidentSeverityBadge severity={severity} />
-          <CloudIncidentStatusBadge status={status} />
-        </div>
-
-        <div>
-          <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-            Detalle original
-          </div>
-          <div className="mt-2 text-sm font-semibold text-slate-100">{incident.title}</div>
-          <p className="mt-2 whitespace-pre-line text-sm leading-6 text-slate-300">
-            {incident.description}
-          </p>
-        </div>
-
-        <div>
-          <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-            Metadatos del incidente
-          </div>
-          <dl className="mt-2 space-y-2 text-sm">
-            {isCloud ? (
-              <>
-                <MetaItem label="Proveedor" value={providerName} />
-                <MetaItem label="Estado visual" value={displayStatus ?? "—"} />
-              </>
-            ) : (
-              <>
-                <MetaItem label="ID externo" value={incident.id} />
-                <MetaItem label="Estado" value={cloudIncidentStatusLabel(status)} />
-                <MetaItem label="Severidad" value={cloudIncidentSeverityLabel(severity)} />
-              </>
-            )}
-            <MetaItem label="Última actualización" value={formatDateTime(incident.lastUpdatedAt)} />
-            <MetaItem label="Detectado" value={formatDateTime(incident.occurredAt)} />
-            <MetaItem
-              label="Resolución"
-              value={incident.resolvedAt ? formatDateTime(incident.resolvedAt) : "Aún activo"}
-            />
-            <MetaItem
-              label="Días con incidente"
-              value={calculateIncidentDays(incident.occurredAt, incident.resolvedAt)}
-            />
-          </dl>
-        </div>
-
-        {isCloud && (
-          <div>
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                {showTranslated && translation ? "Traducción al español" : "Vista original"}
+      <div ref={contentRef} className="space-y-6">
+        {/* ===== HEADER CARD ===== */}
+        <div className={`relative overflow-hidden rounded-2xl border border-slate-700/60 bg-gradient-to-br from-slate-800/90 to-slate-900 p-5 shadow-lg ${sevColors[severity] ?? "border-l-slate-500"} border-l-[5px]`}>
+          <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-slate-700/20 blur-2xl" />
+          <div className="relative flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="flex items-center gap-4">
+              <CloudProviderAvatar name={providerName} logoUrl={providerLogoUrl} sizeClassName="h-12 w-12" />
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="truncate text-base font-bold text-white">{providerName}</span>
+                  <span className="text-xs text-slate-400">{relativeTime(incident.occurredAt)}</span>
+                </div>
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  {isCloud && displayStatus ? <CloudDisplayStatusBadge label={displayStatus} /> : null}
+                  <CloudIncidentSeverityBadge severity={severity} />
+                  <CloudIncidentStatusBadge status={status} />
+                </div>
               </div>
-              {translation ? (
-                <button
-                  type="button"
-                  onClick={() => setShowTranslated((current) => !current)}
-                  className="text-xs font-medium text-blue-600 hover:text-blue-300"
-                >
-                  {showTranslated ? "Ver original" : "Ver traducción"}
-                </button>
-              ) : null}
             </div>
-            {translation ? (
-              <>
-                <div className="mt-2 text-sm font-semibold text-slate-100">{displayedTitle}</div>
-                <p className="mt-2 whitespace-pre-line text-sm leading-6 text-slate-300">
-                  {displayedDescription}
-                </p>
-              </>
-            ) : isTranslating ? (
-              <div className="mt-2 rounded-xl border border-blue-900/30 bg-blue-900/20 px-3 py-4 text-sm text-blue-300 animate-pulse">
-                Traduciendo...
+            <div className="shrink-0 text-right">
+              <div className="inline-flex items-center gap-1.5 rounded-full border border-slate-700 bg-slate-900/80 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                {calculateIncidentDays(incident.occurredAt, incident.resolvedAt)}
               </div>
-            ) : (
-              <div className="mt-2 rounded-xl border border-dashed border-slate-700 bg-slate-950 px-3 py-4 text-sm text-slate-500">
-                <button
-                  type="button"
-                  onClick={handleTranslate}
-                  className="font-medium text-slate-300 hover:text-slate-100"
-                >
-                  Traducir al español
-                </button>{" "}
-                para ver este incidente traducido.
-              </div>
-            )}
-            {translationError ? (
-              <div className="mt-3 rounded-md border border-red-900/30 bg-red-900/20 px-3 py-2 text-xs text-red-300">
-                {translationError}
-              </div>
-            ) : null}
+            </div>
+          </div>
+        </div>
+
+        {/* ===== CONTENT TABS ===== */}
+        {isCloud && (
+          <div className="flex items-center gap-1 rounded-xl border border-slate-700/50 bg-slate-900/60 p-1">
+            <button
+              type="button"
+              onClick={() => setShowTranslated(false)}
+              className={`flex-1 rounded-lg px-3 py-1.5 text-xs font-bold transition-all ${!showTranslated ? "bg-slate-700 text-white shadow-sm" : "text-slate-400 hover:text-slate-200"}`}
+            >
+              Original
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                if (!translation) handleTranslate();
+                else setShowTranslated(true);
+              }}
+              disabled={isTranslating}
+              className={`flex-1 rounded-lg px-3 py-1.5 text-xs font-bold transition-all ${showTranslated ? "bg-blue-600 text-white shadow-sm" : "text-slate-400 hover:text-slate-200"} disabled:opacity-50`}
+            >
+              {isTranslating ? "Traduciendo..." : translation ? "Traducido" : "Traducir"}
+            </button>
           </div>
         )}
 
+        {/* ===== TITLE + DESCRIPTION ===== */}
         <div>
-          <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-            Servicios afectados
+          <h3 className="text-lg font-extrabold leading-snug tracking-tight text-white">{displayedTitle}</h3>
+          <p className="mt-3 whitespace-pre-line text-sm leading-7 text-slate-300">{displayedDescription}</p>
+          {isCloud && isTranslating && (
+            <div className="mt-3 rounded-xl border border-blue-900/30 bg-blue-900/20 px-4 py-3 text-xs font-semibold text-blue-300 animate-pulse">
+              Traduciendo incidente...
+            </div>
+          )}
+          {isCloud && translationError && (
+            <div className="mt-3 rounded-xl border border-red-900/30 bg-red-900/20 px-4 py-3 text-xs font-semibold text-red-300">
+              {translationError}
+            </div>
+          )}
+        </div>
+
+        {/* ===== METADATA GRID ===== */}
+        <div>
+          <div className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-500">
+            <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15a2.25 2.25 0 012.25 2.25m5.303 12.575v-.5a.75.75 0 00-.75-.75H3a.75.75 0 00-.75.75v.5c0 .97.78 1.768 1.755 1.866a5.023 5.023 0 001.758-.19m14.99 0a5.023 5.023 0 001.758.19c.975-.098 1.755-.896 1.755-1.866z" /></svg>
+            Metadatos
           </div>
-          <div className="mt-2 flex flex-wrap gap-2">
-            {incident.affectedServices.length > 0 ? (
-              incident.affectedServices.map((service) => (
-                <span
-                  key={service}
-                  className="rounded-full bg-slate-950 px-3 py-1 text-xs font-medium text-slate-300 ring-1 ring-slate-700"
-                >
-                  {service}
-                </span>
-              ))
+          <div className="grid gap-2 sm:grid-cols-2">
+            {isCloud ? (
+              <>
+                <MetaCard label="Proveedor" value={providerName} />
+                <MetaCard label="Estado visual" value={displayStatus ?? "—"} />
+              </>
             ) : (
-              <span className="text-sm text-slate-500">Sin servicios afectados especificados.</span>
+              <>
+                <MetaCard label="ID externo" value={incident.id} />
+                <MetaCard label="Estado" value={cloudIncidentStatusLabel(status)} />
+              </>
             )}
+            <MetaCard label="Detectado" value={formatDateTime(incident.occurredAt)} />
+            <MetaCard label="Ultima actualizacion" value={formatDateTime(incident.lastUpdatedAt)} />
+            <MetaCard label="Resolucion" value={incident.resolvedAt ? formatDateTime(incident.resolvedAt) : "Aun activo"} color={incident.resolvedAt ? undefined : "text-rose-400"} />
+            <MetaCard label="Duracion" value={calculateIncidentDays(incident.occurredAt, incident.resolvedAt)} />
           </div>
         </div>
 
+        {/* ===== SERVICES ===== */}
+        <div>
+          <div className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-500">
+            <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75a4.5 4.5 0 01-4.884 4.484c-1.076-.091-2.264.071-2.95 1.18l-.516.808a.75.75 0 01-1.262 0l-.515-.808a3.735 3.735 0 00-2.949-1.18 4.5 4.5 0 01-4.884-4.484A4.5 4.5 0 016.75 2.25 4.5 4.5 0 0111.25 6.75c0 1.398-.626 2.65-1.613 3.487a4.474 4.474 0 00-2.364-.66 4.5 4.5 0 00-4.884 4.484c0 1.398.626 2.65 1.613 3.487.938.836 2.19 1.273 3.487 1.273.807 0 1.584-.186 2.283-.525a.75.75 0 01.745.043c.78.525 1.696.807 2.64.807.943 0 1.86-.282 2.64-.807a.75.75 0 01.745-.043c.7.339 1.477.525 2.283.525 1.298 0 2.55-.437 3.487-1.273.987-.837 1.613-2.089 1.613-3.487A4.5 4.5 0 0015.75 9.75a4.474 4.474 0 00-2.364.66c-.987-.837-1.613-2.089-1.613-3.487A4.5 4.5 0 0115.75 2.25z" /></svg>
+            Servicios afectados
+          </div>
+          {incident.affectedServices.length > 0 ? (
+            <div className="flex flex-wrap gap-2">
+              {incident.affectedServices.map((service) => (
+                <span key={service} className="inline-flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-900/70 px-3 py-1.5 text-xs font-semibold text-slate-300 transition-colors hover:border-slate-600 hover:bg-slate-800">
+                  {service}
+                </span>
+              ))}
+            </div>
+          ) : (
+            <span className="text-sm text-slate-500">Sin servicios afectados especificados.</span>
+          )}
+        </div>
+
+        {/* ===== ACTIONS ===== */}
         <div className="flex flex-wrap items-center gap-2 pt-2">
-          <a
-            href={incident.officialUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-1 rounded-md bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-500"
-          >
-            Ver fuente oficial →
+          <a href={incident.officialUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-bold text-white shadow-sm transition-all hover:-translate-y-px hover:bg-blue-500 hover:shadow">
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 013 3.75v-1.5m0 9c0 .966.392 1.841 1.028 2.475l.675.675M9 12.75l-2.25 2.25M9 12.75l2.25-2.25M9 12.75V9.75m3 3v3m0 0l2.25 2.25m-2.25-2.25l2.25-2.25M15 12.75V9.75m0 0c0-.966-.392-1.841-1.028-2.475l-.675-.675M15 12.75l-2.25 2.25m2.25-2.25l-2.25-2.25" /></svg>
+            Ver fuente oficial
           </a>
-          <button
-            type="button"
-            onClick={handleShare}
-            className="inline-flex items-center gap-1 rounded-md border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-slate-800"
-          >
-            {copied ? "Enlace copiado ✓" : "Compartir"}
+          <button type="button" onClick={handleShare} className="inline-flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-900 px-4 py-2.5 text-xs font-bold text-slate-300 shadow-sm transition-all hover:-translate-y-px hover:bg-slate-800 hover:shadow">
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" /></svg>
+            {copied ? "Copiado!" : "Copiar enlace"}
           </button>
-          <button
-            type="button"
-            onClick={handleDownloadPDF}
-            className="inline-flex items-center gap-1 rounded-md border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-slate-800"
-          >
+          <button type="button" onClick={handleDownloadPDF} className="inline-flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-900 px-4 py-2.5 text-xs font-bold text-slate-300 shadow-sm transition-all hover:-translate-y-px hover:bg-slate-800 hover:shadow">
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
             Descargar PDF
           </button>
-          {isCloud && (
-            <button
-              type="button"
-              onClick={handleTranslate}
-              disabled={isTranslating}
-              className="inline-flex items-center gap-1 rounded-md border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-slate-800 disabled:opacity-50"
-            >
-              {isTranslating ? "Traduciendo..." : translation ? (showTranslated ? "Ver original" : "Ver traducción") : "Traducir al español"}
-            </button>
-          )}
         </div>
       </div>
     </Modal>
