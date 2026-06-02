@@ -280,9 +280,22 @@ namespace MonitoringPlatform.API.Services
         {
             var client = _httpClientFactory.CreateClient("CloudStatusHttpClient");
 
-            // 1. DeepL (más confiable, requiere API key)
-            if (!string.IsNullOrWhiteSpace(_options.TranslationApiKey)
-                && _options.TranslationProvider.Equals("deepl", StringComparison.OrdinalIgnoreCase))
+            // 1. MyMemory (funcionaba bien antes, gratuito)
+            try
+            {
+                return await TranslateWithMyMemoryAsync(client, text, cancellationToken);
+            }
+            catch (TranslationProviderException ex) when (ex.IsRateLimited)
+            {
+                _logger.LogWarning("MyMemory rate limited. Trying DeepL if configured.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "MyMemory failed. Trying DeepL if configured.");
+            }
+
+            // 2. DeepL (más confiable, requiere API key)
+            if (!string.IsNullOrWhiteSpace(_options.TranslationApiKey))
             {
                 try
                 {
@@ -290,22 +303,14 @@ namespace MonitoringPlatform.API.Services
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogWarning(ex, "DeepL translation failed. Falling back to LibreTranslate.");
+                    _logger.LogWarning(ex, "DeepL translation failed.");
                 }
             }
 
-            // 2. LibreTranslate (gratuito, más estable que MyMemory)
-            try
-            {
-                return await TranslateWithLibreTranslateAsync(client, text, cancellationToken);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "LibreTranslate failed. Falling back to MyMemory.");
-            }
-
-            // 3. MyMemory (último fallback gratuito)
-            return await TranslateWithMyMemoryAsync(client, text, cancellationToken);
+            throw new TranslationProviderException(
+                "No se pudo traducir. El servicio gratuito está temporalmente saturado. Configura una API key de DeepL para traducciones ilimitadas.",
+                isTransient: true,
+                isRateLimited: true);
         }
 
         private async Task<string> TranslateWithDeepLAsync(HttpClient client, string text, CancellationToken cancellationToken)
