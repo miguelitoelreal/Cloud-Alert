@@ -1,0 +1,1825 @@
+{
+  "MonitoringPlatform.Application.dll": {
+    "C:\\Users\\Tottus Electro\\Desktop\\chaufita\\src\\MonitoringPlatform.Application\\Services\\DashboardService.cs": {
+      "MonitoringPlatform.Application.Services.DashboardService": {
+        "System.Threading.Tasks.Task`1<System.Collections.Generic.IReadOnlyList`1<MonitoringPlatform.Application.DTOs.DashboardMonitorSummaryDto>> MonitoringPlatform.Application.Services.DashboardService::GetMonitorSummariesAsync()": {
+          "Lines": {
+            "18": 0,
+            "19": 0,
+            "20": 0
+          },
+          "Branches": []
+        },
+        "System.Void MonitoringPlatform.Application.Services.DashboardService::.ctor(MonitoringPlatform.Application.Interfaces.IDashboardRepository)": {
+          "Lines": {
+            "12": 0,
+            "13": 0,
+            "14": 0,
+            "15": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\Users\\Tottus Electro\\Desktop\\chaufita\\src\\MonitoringPlatform.Application\\Services\\MonitoringExecutionService.cs": {
+      "MonitoringPlatform.Application.Services.MonitoringExecutionService": {
+        "System.Threading.Tasks.Task`1<System.Collections.Generic.IReadOnlyList`1<MonitoringPlatform.Application.DTOs.DueMonitorDto>> MonitoringPlatform.Application.Services.MonitoringExecutionService::GetDueMonitorsAsync(System.DateTime,System.Collections.Generic.IReadOnlyCollection`1<System.Guid>,System.Threading.CancellationToken)": {
+          "Lines": {
+            "23": 1,
+            "24": 1,
+            "25": 1
+          },
+          "Branches": []
+        },
+        "System.Threading.Tasks.Task`1<MonitoringPlatform.Application.DTOs.RecordedMonitorCheckDto> MonitoringPlatform.Application.Services.MonitoringExecutionService::RecordCheckResultAsync(MonitoringPlatform.Application.DTOs.RecordMonitorCheckDto,System.Threading.CancellationToken)": {
+          "Lines": {
+            "30": 1,
+            "31": 1,
+            "32": 1
+          },
+          "Branches": []
+        },
+        "System.Void MonitoringPlatform.Application.Services.MonitoringExecutionService::.ctor(MonitoringPlatform.Application.Interfaces.IMonitorExecutionRepository)": {
+          "Lines": {
+            "14": 2,
+            "15": 2,
+            "16": 2,
+            "17": 2
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\Users\\Tottus Electro\\Desktop\\chaufita\\src\\MonitoringPlatform.Application\\Services\\MonitorLogService.cs": {
+      "MonitoringPlatform.Application.Services.MonitorLogService": {
+        "System.Threading.Tasks.Task`1<System.Collections.Generic.IReadOnlyList`1<MonitoringPlatform.Application.DTOs.MonitorLogResponseDto>> MonitoringPlatform.Application.Services.MonitorLogService::GetByMonitorIdAsync(System.Guid,System.Int32)": {
+          "Lines": {
+            "19": 0,
+            "20": 0,
+            "21": 0
+          },
+          "Branches": []
+        },
+        "System.Void MonitoringPlatform.Application.Services.MonitorLogService::.ctor(MonitoringPlatform.Application.Interfaces.IMonitorLogRepository)": {
+          "Lines": {
+            "13": 0,
+            "14": 0,
+            "15": 0,
+            "16": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\Users\\Tottus Electro\\Desktop\\chaufita\\src\\MonitoringPlatform.Application\\Services\\MonitorService.cs": {
+      "MonitoringPlatform.Application.Services.MonitorService": {
+        "System.Void MonitoringPlatform.Application.Services.MonitorService::ValidateDto(MonitoringPlatform.Application.DTOs.CreateMonitorDto)": {
+          "Lines": {
+            "46": 3,
+            "47": 3,
+            "48": 0,
+            "49": 3,
+            "50": 1,
+            "51": 2,
+            "52": 1,
+            "53": 1
+          },
+          "Branches": [
+            {
+              "Line": 47,
+              "Offset": 14,
+              "EndOffset": 16,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 0
+            },
+            {
+              "Line": 47,
+              "Offset": 14,
+              "EndOffset": 27,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 3
+            },
+            {
+              "Line": 49,
+              "Offset": 38,
+              "EndOffset": 40,
+              "Path": 0,
+              "Ordinal": 2,
+              "Hits": 3
+            },
+            {
+              "Line": 49,
+              "Offset": 38,
+              "EndOffset": 57,
+              "Path": 1,
+              "Ordinal": 3,
+              "Hits": 0
+            },
+            {
+              "Line": 49,
+              "Offset": 60,
+              "EndOffset": 62,
+              "Path": 0,
+              "Ordinal": 4,
+              "Hits": 1
+            },
+            {
+              "Line": 49,
+              "Offset": 60,
+              "EndOffset": 73,
+              "Path": 1,
+              "Ordinal": 5,
+              "Hits": 2
+            },
+            {
+              "Line": 51,
+              "Offset": 85,
+              "EndOffset": 87,
+              "Path": 0,
+              "Ordinal": 6,
+              "Hits": 1
+            },
+            {
+              "Line": 51,
+              "Offset": 85,
+              "EndOffset": 98,
+              "Path": 1,
+              "Ordinal": 7,
+              "Hits": 1
+            }
+          ]
+        },
+        "System.Void MonitoringPlatform.Application.Services.MonitorService::ValidateDto(MonitoringPlatform.Application.DTOs.UpdateMonitorDto)": {
+          "Lines": {
+            "56": 2,
+            "57": 2,
+            "58": 1,
+            "59": 1,
+            "60": 0,
+            "61": 1,
+            "62": 0,
+            "63": 1
+          },
+          "Branches": [
+            {
+              "Line": 57,
+              "Offset": 14,
+              "EndOffset": 16,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 1
+            },
+            {
+              "Line": 57,
+              "Offset": 14,
+              "EndOffset": 27,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 1
+            },
+            {
+              "Line": 59,
+              "Offset": 38,
+              "EndOffset": 40,
+              "Path": 0,
+              "Ordinal": 2,
+              "Hits": 1
+            },
+            {
+              "Line": 59,
+              "Offset": 38,
+              "EndOffset": 57,
+              "Path": 1,
+              "Ordinal": 3,
+              "Hits": 0
+            },
+            {
+              "Line": 59,
+              "Offset": 60,
+              "EndOffset": 62,
+              "Path": 0,
+              "Ordinal": 4,
+              "Hits": 0
+            },
+            {
+              "Line": 59,
+              "Offset": 60,
+              "EndOffset": 73,
+              "Path": 1,
+              "Ordinal": 5,
+              "Hits": 1
+            },
+            {
+              "Line": 61,
+              "Offset": 85,
+              "EndOffset": 87,
+              "Path": 0,
+              "Ordinal": 6,
+              "Hits": 0
+            },
+            {
+              "Line": 61,
+              "Offset": 85,
+              "EndOffset": 98,
+              "Path": 1,
+              "Ordinal": 7,
+              "Hits": 1
+            }
+          ]
+        },
+        "System.Boolean MonitoringPlatform.Application.Services.MonitorService::IsValidUrl(System.String)": {
+          "Lines": {
+            "66": 4,
+            "67": 4,
+            "68": 4,
+            "69": 4
+          },
+          "Branches": [
+            {
+              "Line": 67,
+              "Offset": 10,
+              "EndOffset": 12,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 4
+            },
+            {
+              "Line": 67,
+              "Offset": 28,
+              "EndOffset": 30,
+              "Path": 0,
+              "Ordinal": 2,
+              "Hits": 4
+            },
+            {
+              "Line": 67,
+              "Offset": 28,
+              "EndOffset": 48,
+              "Path": 1,
+              "Ordinal": 3,
+              "Hits": 0
+            },
+            {
+              "Line": 67,
+              "Offset": 10,
+              "EndOffset": 51,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 0
+            }
+          ]
+        },
+        "System.Void MonitoringPlatform.Application.Services.MonitorService::.ctor(MonitoringPlatform.Application.Interfaces.IMonitorRepository)": {
+          "Lines": {
+            "13": 5,
+            "14": 5,
+            "15": 5,
+            "16": 5
+          },
+          "Branches": []
+        }
+      },
+      "MonitoringPlatform.Application.Services.MonitorService/<CreateAsync>d__2": {
+        "System.Void MonitoringPlatform.Application.Services.MonitorService/<CreateAsync>d__2::MoveNext()": {
+          "Lines": {
+            "19": 3,
+            "20": 3,
+            "21": 1,
+            "22": 1
+          },
+          "Branches": []
+        }
+      },
+      "MonitoringPlatform.Application.Services.MonitorService/<DeleteAsync>d__6": {
+        "System.Void MonitoringPlatform.Application.Services.MonitorService/<DeleteAsync>d__6::MoveNext()": {
+          "Lines": {
+            "41": 0,
+            "42": 0,
+            "43": 0
+          },
+          "Branches": []
+        }
+      },
+      "MonitoringPlatform.Application.Services.MonitorService/<GetAllAsync>d__3": {
+        "System.Void MonitoringPlatform.Application.Services.MonitorService/<GetAllAsync>d__3::MoveNext()": {
+          "Lines": {
+            "25": 0,
+            "26": 0,
+            "27": 0
+          },
+          "Branches": []
+        }
+      },
+      "MonitoringPlatform.Application.Services.MonitorService/<GetByIdAsync>d__4": {
+        "System.Void MonitoringPlatform.Application.Services.MonitorService/<GetByIdAsync>d__4::MoveNext()": {
+          "Lines": {
+            "30": 0,
+            "31": 0,
+            "32": 0
+          },
+          "Branches": []
+        }
+      },
+      "MonitoringPlatform.Application.Services.MonitorService/<UpdateAsync>d__5": {
+        "System.Void MonitoringPlatform.Application.Services.MonitorService/<UpdateAsync>d__5::MoveNext()": {
+          "Lines": {
+            "35": 2,
+            "36": 2,
+            "37": 1,
+            "38": 1
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\Users\\Tottus Electro\\Desktop\\chaufita\\src\\MonitoringPlatform.Application\\DTOs\\DashboardDtos.cs": {
+      "MonitoringPlatform.Application.DTOs.DashboardMonitorSummaryDto": {
+        "System.Guid MonitoringPlatform.Application.DTOs.DashboardMonitorSummaryDto::get_Id()": {
+          "Lines": {
+            "7": 10
+          },
+          "Branches": []
+        },
+        "System.String MonitoringPlatform.Application.DTOs.DashboardMonitorSummaryDto::get_Name()": {
+          "Lines": {
+            "8": 8
+          },
+          "Branches": []
+        },
+        "System.String MonitoringPlatform.Application.DTOs.DashboardMonitorSummaryDto::get_Url()": {
+          "Lines": {
+            "9": 8
+          },
+          "Branches": []
+        },
+        "System.Int32 MonitoringPlatform.Application.DTOs.DashboardMonitorSummaryDto::get_CurrentStatus()": {
+          "Lines": {
+            "11": 6
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.DateTime> MonitoringPlatform.Application.DTOs.DashboardMonitorSummaryDto::get_LastCheckedAt()": {
+          "Lines": {
+            "12": 6
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> MonitoringPlatform.Application.DTOs.DashboardMonitorSummaryDto::get_LastResponseTimeMs()": {
+          "Lines": {
+            "13": 5
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Double> MonitoringPlatform.Application.DTOs.DashboardMonitorSummaryDto::get_UptimePercentage()": {
+          "Lines": {
+            "15": 7
+          },
+          "Branches": []
+        },
+        "System.Int32 MonitoringPlatform.Application.DTOs.DashboardMonitorSummaryDto::get_TotalChecks()": {
+          "Lines": {
+            "16": 9
+          },
+          "Branches": []
+        },
+        "System.Int32 MonitoringPlatform.Application.DTOs.DashboardMonitorSummaryDto::get_FailedChecks()": {
+          "Lines": {
+            "17": 7
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\Users\\Tottus Electro\\Desktop\\chaufita\\src\\MonitoringPlatform.Application\\DTOs\\MonitorDtos.cs": {
+      "MonitoringPlatform.Application.DTOs.CreateMonitorDto": {
+        "System.String MonitoringPlatform.Application.DTOs.CreateMonitorDto::get_Name()": {
+          "Lines": {
+            "5": 10
+          },
+          "Branches": []
+        },
+        "System.String MonitoringPlatform.Application.DTOs.CreateMonitorDto::get_Url()": {
+          "Lines": {
+            "6": 13
+          },
+          "Branches": []
+        },
+        "System.Int32 MonitoringPlatform.Application.DTOs.CreateMonitorDto::get_IntervalInSeconds()": {
+          "Lines": {
+            "7": 6
+          },
+          "Branches": []
+        }
+      },
+      "MonitoringPlatform.Application.DTOs.UpdateMonitorDto": {
+        "System.String MonitoringPlatform.Application.DTOs.UpdateMonitorDto::get_Name()": {
+          "Lines": {
+            "12": 7
+          },
+          "Branches": []
+        },
+        "System.String MonitoringPlatform.Application.DTOs.UpdateMonitorDto::get_Url()": {
+          "Lines": {
+            "13": 7
+          },
+          "Branches": []
+        },
+        "System.Int32 MonitoringPlatform.Application.DTOs.UpdateMonitorDto::get_IntervalInSeconds()": {
+          "Lines": {
+            "14": 4
+          },
+          "Branches": []
+        }
+      },
+      "MonitoringPlatform.Application.DTOs.MonitorResponseDto": {
+        "System.Guid MonitoringPlatform.Application.DTOs.MonitorResponseDto::get_Id()": {
+          "Lines": {
+            "19": 4
+          },
+          "Branches": []
+        },
+        "System.String MonitoringPlatform.Application.DTOs.MonitorResponseDto::get_Name()": {
+          "Lines": {
+            "20": 8
+          },
+          "Branches": []
+        },
+        "System.String MonitoringPlatform.Application.DTOs.MonitorResponseDto::get_Url()": {
+          "Lines": {
+            "21": 6
+          },
+          "Branches": []
+        },
+        "System.Int32 MonitoringPlatform.Application.DTOs.MonitorResponseDto::get_IntervalInSeconds()": {
+          "Lines": {
+            "22": 4
+          },
+          "Branches": []
+        },
+        "System.Int32 MonitoringPlatform.Application.DTOs.MonitorResponseDto::get_Status()": {
+          "Lines": {
+            "23": 2
+          },
+          "Branches": []
+        },
+        "System.DateTime MonitoringPlatform.Application.DTOs.MonitorResponseDto::get_CreatedAt()": {
+          "Lines": {
+            "24": 2
+          },
+          "Branches": []
+        },
+        "System.DateTime MonitoringPlatform.Application.DTOs.MonitorResponseDto::get_UpdatedAt()": {
+          "Lines": {
+            "25": 2
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\Users\\Tottus Electro\\Desktop\\chaufita\\src\\MonitoringPlatform.Application\\DTOs\\MonitoringDtos.cs": {
+      "MonitoringPlatform.Application.DTOs.DueMonitorDto": {
+        "System.Guid MonitoringPlatform.Application.DTOs.DueMonitorDto::get_Id()": {
+          "Lines": {
+            "7": 10
+          },
+          "Branches": []
+        },
+        "System.String MonitoringPlatform.Application.DTOs.DueMonitorDto::get_Name()": {
+          "Lines": {
+            "8": 8
+          },
+          "Branches": []
+        },
+        "System.String MonitoringPlatform.Application.DTOs.DueMonitorDto::get_Url()": {
+          "Lines": {
+            "9": 6
+          },
+          "Branches": []
+        },
+        "System.Int32 MonitoringPlatform.Application.DTOs.DueMonitorDto::get_IntervalInSeconds()": {
+          "Lines": {
+            "10": 4
+          },
+          "Branches": []
+        }
+      },
+      "MonitoringPlatform.Application.DTOs.RecordMonitorCheckDto": {
+        "System.Guid MonitoringPlatform.Application.DTOs.RecordMonitorCheckDto::get_MonitorId()": {
+          "Lines": {
+            "15": 10
+          },
+          "Branches": []
+        },
+        "System.Int32 MonitoringPlatform.Application.DTOs.RecordMonitorCheckDto::get_Status()": {
+          "Lines": {
+            "16": 9
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int32> MonitoringPlatform.Application.DTOs.RecordMonitorCheckDto::get_StatusCode()": {
+          "Lines": {
+            "17": 5
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> MonitoringPlatform.Application.DTOs.RecordMonitorCheckDto::get_ResponseTimeMs()": {
+          "Lines": {
+            "18": 7
+          },
+          "Branches": []
+        },
+        "System.DateTime MonitoringPlatform.Application.DTOs.RecordMonitorCheckDto::get_CheckedAt()": {
+          "Lines": {
+            "19": 9
+          },
+          "Branches": []
+        },
+        "System.String MonitoringPlatform.Application.DTOs.RecordMonitorCheckDto::get_ErrorMessage()": {
+          "Lines": {
+            "20": 2
+          },
+          "Branches": []
+        }
+      },
+      "MonitoringPlatform.Application.DTOs.RecordedMonitorCheckDto": {
+        "MonitoringPlatform.Application.DTOs.DashboardMonitorSummaryDto MonitoringPlatform.Application.DTOs.RecordedMonitorCheckDto::get_Monitor()": {
+          "Lines": {
+            "25": 11
+          },
+          "Branches": []
+        },
+        "MonitoringPlatform.Application.DTOs.MonitorLogDto MonitoringPlatform.Application.DTOs.RecordedMonitorCheckDto::get_Log()": {
+          "Lines": {
+            "26": 8
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\Users\\Tottus Electro\\Desktop\\chaufita\\src\\MonitoringPlatform.Application\\DTOs\\MonitorLogDto.cs": {
+      "MonitoringPlatform.Application.DTOs.MonitorLogDto": {
+        "System.Guid MonitoringPlatform.Application.DTOs.MonitorLogDto::get_Id()": {
+          "Lines": {
+            "7": 2
+          },
+          "Branches": []
+        },
+        "System.Guid MonitoringPlatform.Application.DTOs.MonitorLogDto::get_MonitorId()": {
+          "Lines": {
+            "8": 2
+          },
+          "Branches": []
+        },
+        "System.Int32 MonitoringPlatform.Application.DTOs.MonitorLogDto::get_Status()": {
+          "Lines": {
+            "9": 2
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int32> MonitoringPlatform.Application.DTOs.MonitorLogDto::get_StatusCode()": {
+          "Lines": {
+            "10": 5
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> MonitoringPlatform.Application.DTOs.MonitorLogDto::get_ResponseTimeMs()": {
+          "Lines": {
+            "11": 3
+          },
+          "Branches": []
+        },
+        "System.DateTime MonitoringPlatform.Application.DTOs.MonitorLogDto::get_CheckedAt()": {
+          "Lines": {
+            "12": 2
+          },
+          "Branches": []
+        },
+        "System.String MonitoringPlatform.Application.DTOs.MonitorLogDto::get_ErrorMessage()": {
+          "Lines": {
+            "13": 1
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\Users\\Tottus Electro\\Desktop\\chaufita\\src\\MonitoringPlatform.Application\\DTOs\\MonitorLogDtos.cs": {
+      "MonitoringPlatform.Application.DTOs.MonitorLogResponseDto": {
+        "System.Guid MonitoringPlatform.Application.DTOs.MonitorLogResponseDto::get_Id()": {
+          "Lines": {
+            "7": 0
+          },
+          "Branches": []
+        },
+        "System.Guid MonitoringPlatform.Application.DTOs.MonitorLogResponseDto::get_MonitorId()": {
+          "Lines": {
+            "8": 0
+          },
+          "Branches": []
+        },
+        "System.Int32 MonitoringPlatform.Application.DTOs.MonitorLogResponseDto::get_Status()": {
+          "Lines": {
+            "9": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int32> MonitoringPlatform.Application.DTOs.MonitorLogResponseDto::get_StatusCode()": {
+          "Lines": {
+            "10": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> MonitoringPlatform.Application.DTOs.MonitorLogResponseDto::get_ResponseTimeMs()": {
+          "Lines": {
+            "11": 0
+          },
+          "Branches": []
+        },
+        "System.DateTime MonitoringPlatform.Application.DTOs.MonitorLogResponseDto::get_CheckedAt()": {
+          "Lines": {
+            "12": 0
+          },
+          "Branches": []
+        },
+        "System.String MonitoringPlatform.Application.DTOs.MonitorLogResponseDto::get_ErrorMessage()": {
+          "Lines": {
+            "13": 0
+          },
+          "Branches": []
+        }
+      }
+    }
+  },
+  "MonitoringPlatform.Domain.dll": {
+    "C:\\Users\\Tottus Electro\\Desktop\\chaufita\\src\\MonitoringPlatform.Domain\\Entities\\Monitor.cs": {
+      "MonitoringPlatform.Domain.Entities.Monitor": {
+        "System.Guid MonitoringPlatform.Domain.Entities.Monitor::get_Id()": {
+          "Lines": {
+            "8": 11
+          },
+          "Branches": []
+        },
+        "System.String MonitoringPlatform.Domain.Entities.Monitor::get_Name()": {
+          "Lines": {
+            "9": 15
+          },
+          "Branches": []
+        },
+        "System.String MonitoringPlatform.Domain.Entities.Monitor::get_Url()": {
+          "Lines": {
+            "10": 15
+          },
+          "Branches": []
+        },
+        "System.Int32 MonitoringPlatform.Domain.Entities.Monitor::get_IntervalInSeconds()": {
+          "Lines": {
+            "11": 6
+          },
+          "Branches": []
+        },
+        "MonitoringPlatform.Domain.Entities.MonitorStatus MonitoringPlatform.Domain.Entities.Monitor::get_Status()": {
+          "Lines": {
+            "12": 8
+          },
+          "Branches": []
+        },
+        "System.DateTime MonitoringPlatform.Domain.Entities.Monitor::get_CreatedAt()": {
+          "Lines": {
+            "13": 6
+          },
+          "Branches": []
+        },
+        "System.DateTime MonitoringPlatform.Domain.Entities.Monitor::get_UpdatedAt()": {
+          "Lines": {
+            "14": 8
+          },
+          "Branches": []
+        },
+        "System.Collections.Generic.ICollection`1<MonitoringPlatform.Domain.Entities.MonitorLog> MonitoringPlatform.Domain.Entities.Monitor::get_Logs()": {
+          "Lines": {
+            "17": 8
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\Users\\Tottus Electro\\Desktop\\chaufita\\src\\MonitoringPlatform.Domain\\Entities\\MonitorLog.cs": {
+      "MonitoringPlatform.Domain.Entities.MonitorLog": {
+        "System.Guid MonitoringPlatform.Domain.Entities.MonitorLog::get_Id()": {
+          "Lines": {
+            "7": 8
+          },
+          "Branches": []
+        },
+        "System.Guid MonitoringPlatform.Domain.Entities.MonitorLog::get_MonitorId()": {
+          "Lines": {
+            "8": 8
+          },
+          "Branches": []
+        },
+        "MonitoringPlatform.Domain.Entities.MonitorStatus MonitoringPlatform.Domain.Entities.MonitorLog::get_Status()": {
+          "Lines": {
+            "9": 7
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int32> MonitoringPlatform.Domain.Entities.MonitorLog::get_StatusCode()": {
+          "Lines": {
+            "10": 5
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> MonitoringPlatform.Domain.Entities.MonitorLog::get_ResponseTimeMs()": {
+          "Lines": {
+            "11": 7
+          },
+          "Branches": []
+        },
+        "System.DateTime MonitoringPlatform.Domain.Entities.MonitorLog::get_CheckedAt()": {
+          "Lines": {
+            "12": 7
+          },
+          "Branches": []
+        },
+        "System.String MonitoringPlatform.Domain.Entities.MonitorLog::get_ErrorMessage()": {
+          "Lines": {
+            "13": 3
+          },
+          "Branches": []
+        },
+        "MonitoringPlatform.Domain.Entities.Monitor MonitoringPlatform.Domain.Entities.MonitorLog::get_Monitor()": {
+          "Lines": {
+            "16": 10
+          },
+          "Branches": []
+        }
+      }
+    }
+  },
+  "MonitoringPlatform.Infrastructure.dll": {
+    "C:\\Users\\Tottus Electro\\Desktop\\chaufita\\src\\MonitoringPlatform.Infrastructure\\Repositories\\DashboardRepository.cs": {
+      "MonitoringPlatform.Infrastructure.Repositories.DashboardRepository": {
+        "System.Void MonitoringPlatform.Infrastructure.Repositories.DashboardRepository::.ctor(MonitoringPlatform.Infrastructure.Persistence.AppDbContext)": {
+          "Lines": {
+            "17": 0,
+            "18": 0,
+            "19": 0,
+            "20": 0
+          },
+          "Branches": []
+        }
+      },
+      "MonitoringPlatform.Infrastructure.Repositories.DashboardRepository/<>c": {
+        "System.Guid MonitoringPlatform.Infrastructure.Repositories.DashboardRepository/<>c::<GetMonitorSummariesAsync>b__2_0(<>f__AnonymousType2`4<System.Guid,System.String,System.String,System.Int32>)": {
+          "Lines": {
+            "41": 0
+          },
+          "Branches": []
+        },
+        "System.Guid MonitoringPlatform.Infrastructure.Repositories.DashboardRepository/<>c::<GetMonitorSummariesAsync>b__2_7(<>f__AnonymousType3`3<System.Guid,System.Int32,System.Int32>)": {
+          "Lines": {
+            "53": 0
+          },
+          "Branches": []
+        },
+        "<>f__AnonymousType4`2<System.Int32,System.Int32> MonitoringPlatform.Infrastructure.Repositories.DashboardRepository/<>c::<GetMonitorSummariesAsync>b__2_8(<>f__AnonymousType3`3<System.Guid,System.Int32,System.Int32>)": {
+          "Lines": {
+            "54": 0,
+            "55": 0,
+            "56": 0,
+            "57": 0
+          },
+          "Branches": []
+        },
+        "System.Guid MonitoringPlatform.Infrastructure.Repositories.DashboardRepository/<>c::<GetMonitorSummariesAsync>b__2_13(<>f__AnonymousType5`4<System.Guid,System.Int32,System.Nullable`1<System.DateTime>,System.Nullable`1<System.Int64>>)": {
+          "Lines": {
+            "74": 0
+          },
+          "Branches": []
+        }
+      },
+      "MonitoringPlatform.Infrastructure.Repositories.DashboardRepository/<>c__DisplayClass2_0": {
+        "MonitoringPlatform.Application.DTOs.DashboardMonitorSummaryDto MonitoringPlatform.Infrastructure.Repositories.DashboardRepository/<>c__DisplayClass2_0::<GetMonitorSummariesAsync>b__1(<>f__AnonymousType2`4<System.Guid,System.String,System.String,System.Int32>)": {
+          "Lines": {
+            "78": 0,
+            "79": 0,
+            "80": 0,
+            "82": 0,
+            "83": 0,
+            "85": 0,
+            "86": 0,
+            "87": 0,
+            "88": 0,
+            "89": 0,
+            "90": 0,
+            "91": 0,
+            "92": 0,
+            "93": 0,
+            "94": 0,
+            "95": 0,
+            "96": 0,
+            "97": 0,
+            "98": 0,
+            "99": 0
+          },
+          "Branches": [
+            {
+              "Line": 82,
+              "Offset": 42,
+              "EndOffset": 44,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 0
+            },
+            {
+              "Line": 82,
+              "Offset": 42,
+              "EndOffset": 47,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 0
+            },
+            {
+              "Line": 83,
+              "Offset": 56,
+              "EndOffset": 58,
+              "Path": 0,
+              "Ordinal": 2,
+              "Hits": 0
+            },
+            {
+              "Line": 83,
+              "Offset": 56,
+              "EndOffset": 61,
+              "Path": 1,
+              "Ordinal": 3,
+              "Hits": 0
+            },
+            {
+              "Line": 85,
+              "Offset": 115,
+              "EndOffset": 117,
+              "Path": 0,
+              "Ordinal": 4,
+              "Hits": 0
+            },
+            {
+              "Line": 85,
+              "Offset": 115,
+              "EndOffset": 125,
+              "Path": 1,
+              "Ordinal": 5,
+              "Hits": 0
+            },
+            {
+              "Line": 85,
+              "Offset": 139,
+              "EndOffset": 141,
+              "Path": 0,
+              "Ordinal": 6,
+              "Hits": 0
+            },
+            {
+              "Line": 85,
+              "Offset": 139,
+              "EndOffset": 153,
+              "Path": 1,
+              "Ordinal": 7,
+              "Hits": 0
+            },
+            {
+              "Line": 85,
+              "Offset": 167,
+              "EndOffset": 169,
+              "Path": 0,
+              "Ordinal": 8,
+              "Hits": 0
+            },
+            {
+              "Line": 85,
+              "Offset": 167,
+              "EndOffset": 181,
+              "Path": 1,
+              "Ordinal": 9,
+              "Hits": 0
+            },
+            {
+              "Line": 85,
+              "Offset": 215,
+              "EndOffset": 217,
+              "Path": 0,
+              "Ordinal": 10,
+              "Hits": 0
+            },
+            {
+              "Line": 85,
+              "Offset": 215,
+              "EndOffset": 229,
+              "Path": 1,
+              "Ordinal": 11,
+              "Hits": 0
+            }
+          ]
+        }
+      },
+      "MonitoringPlatform.Infrastructure.Repositories.DashboardRepository/<GetMonitorSummariesAsync>d__2": {
+        "System.Void MonitoringPlatform.Infrastructure.Repositories.DashboardRepository/<GetMonitorSummariesAsync>d__2::MoveNext()": {
+          "Lines": {
+            "23": 0,
+            "24": 0,
+            "25": 0,
+            "26": 0,
+            "27": 0,
+            "28": 0,
+            "29": 0,
+            "30": 0,
+            "31": 0,
+            "32": 0,
+            "33": 0,
+            "34": 0,
+            "36": 0,
+            "37": 0,
+            "38": 0,
+            "43": 0,
+            "44": 0,
+            "45": 0,
+            "46": 0,
+            "47": 0,
+            "48": 0,
+            "49": 0,
+            "50": 0,
+            "51": 0,
+            "52": 0,
+            "59": 0,
+            "60": 0,
+            "61": 0,
+            "62": 0,
+            "63": 0,
+            "64": 0,
+            "65": 0,
+            "66": 0,
+            "67": 0,
+            "68": 0,
+            "69": 0,
+            "70": 0,
+            "71": 0,
+            "72": 0,
+            "73": 0,
+            "76": 0,
+            "77": 0,
+            "81": 0,
+            "84": 0,
+            "100": 0,
+            "101": 0
+          },
+          "Branches": [
+            {
+              "Line": 36,
+              "Offset": 566,
+              "EndOffset": 568,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 0
+            },
+            {
+              "Line": 36,
+              "Offset": 566,
+              "EndOffset": 580,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 0
+            }
+          ]
+        }
+      }
+    },
+    "C:\\Users\\Tottus Electro\\Desktop\\chaufita\\src\\MonitoringPlatform.Infrastructure\\Repositories\\MonitorExecutionRepository.cs": {
+      "MonitoringPlatform.Infrastructure.Repositories.MonitorExecutionRepository": {
+        "System.Void MonitoringPlatform.Infrastructure.Repositories.MonitorExecutionRepository::.ctor(MonitoringPlatform.Infrastructure.Persistence.AppDbContext)": {
+          "Lines": {
+            "18": 0,
+            "19": 0,
+            "20": 0,
+            "21": 0
+          },
+          "Branches": []
+        }
+      },
+      "MonitoringPlatform.Infrastructure.Repositories.MonitorExecutionRepository/<>c": {
+        "System.Guid MonitoringPlatform.Infrastructure.Repositories.MonitorExecutionRepository/<>c::<GetDueMonitorsAsync>b__2_2(MonitoringPlatform.Application.DTOs.DueMonitorDto)": {
+          "Lines": {
+            "49": 0
+          },
+          "Branches": []
+        },
+        "System.Guid MonitoringPlatform.Infrastructure.Repositories.MonitorExecutionRepository/<>c::<GetDueMonitorsAsync>b__2_8(<>f__AnonymousType6`2<System.Guid,System.DateTime>)": {
+          "Lines": {
+            "60": 0
+          },
+          "Branches": []
+        },
+        "System.String MonitoringPlatform.Infrastructure.Repositories.MonitorExecutionRepository/<>c::<GetDueMonitorsAsync>b__2_4(MonitoringPlatform.Application.DTOs.DueMonitorDto)": {
+          "Lines": {
+            "65": 0
+          },
+          "Branches": []
+        }
+      },
+      "MonitoringPlatform.Infrastructure.Repositories.MonitorExecutionRepository/<>c__DisplayClass2_0": {
+        "System.Boolean MonitoringPlatform.Infrastructure.Repositories.MonitorExecutionRepository/<>c__DisplayClass2_0::<GetDueMonitorsAsync>b__3(MonitoringPlatform.Application.DTOs.DueMonitorDto)": {
+          "Lines": {
+            "63": 0,
+            "64": 0
+          },
+          "Branches": [
+            {
+              "Line": 63,
+              "Offset": 19,
+              "EndOffset": 21,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 0
+            },
+            {
+              "Line": 63,
+              "Offset": 19,
+              "EndOffset": 55,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 0
+            }
+          ]
+        }
+      },
+      "MonitoringPlatform.Infrastructure.Repositories.MonitorExecutionRepository/<GetDueMonitorsAsync>d__2": {
+        "System.Void MonitoringPlatform.Infrastructure.Repositories.MonitorExecutionRepository/<GetDueMonitorsAsync>d__2::MoveNext()": {
+          "Lines": {
+            "27": 0,
+            "28": 0,
+            "29": 0,
+            "30": 0,
+            "31": 0,
+            "32": 0,
+            "33": 0,
+            "34": 0,
+            "35": 0,
+            "36": 0,
+            "38": 0,
+            "39": 0,
+            "40": 0,
+            "41": 0,
+            "43": 0,
+            "44": 0,
+            "45": 0,
+            "46": 0,
+            "51": 0,
+            "52": 0,
+            "53": 0,
+            "54": 0,
+            "55": 0,
+            "56": 0,
+            "57": 0,
+            "58": 0,
+            "59": 0,
+            "62": 0,
+            "66": 0,
+            "67": 0
+          },
+          "Branches": [
+            {
+              "Line": 38,
+              "Offset": 365,
+              "EndOffset": 370,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 0
+            },
+            {
+              "Line": 38,
+              "Offset": 365,
+              "EndOffset": 520,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 0
+            },
+            {
+              "Line": 44,
+              "Offset": 673,
+              "EndOffset": 675,
+              "Path": 0,
+              "Ordinal": 2,
+              "Hits": 0
+            },
+            {
+              "Line": 44,
+              "Offset": 673,
+              "EndOffset": 688,
+              "Path": 1,
+              "Ordinal": 3,
+              "Hits": 0
+            }
+          ]
+        }
+      },
+      "MonitoringPlatform.Infrastructure.Repositories.MonitorExecutionRepository/<RecordCheckResultAsync>d__3": {
+        "System.Void MonitoringPlatform.Infrastructure.Repositories.MonitorExecutionRepository/<RecordCheckResultAsync>d__3::MoveNext()": {
+          "Lines": {
+            "72": 0,
+            "73": 0,
+            "74": 0,
+            "75": 0,
+            "76": 0,
+            "79": 0,
+            "80": 0,
+            "81": 0,
+            "82": 0,
+            "83": 0,
+            "84": 0,
+            "85": 0,
+            "86": 0,
+            "87": 0,
+            "88": 0,
+            "90": 0,
+            "92": 0,
+            "93": 0,
+            "95": 0,
+            "97": 0,
+            "98": 0,
+            "99": 0,
+            "100": 0,
+            "101": 0,
+            "102": 0,
+            "103": 0,
+            "104": 0,
+            "105": 0,
+            "106": 0,
+            "108": 0,
+            "109": 0,
+            "110": 0,
+            "111": 0,
+            "112": 0,
+            "113": 0,
+            "114": 0,
+            "115": 0,
+            "116": 0,
+            "117": 0,
+            "118": 0,
+            "119": 0,
+            "120": 0,
+            "121": 0,
+            "122": 0,
+            "123": 0,
+            "124": 0,
+            "125": 0,
+            "126": 0,
+            "127": 0,
+            "128": 0,
+            "129": 0,
+            "130": 0,
+            "131": 0,
+            "132": 0,
+            "133": 0,
+            "134": 0,
+            "135": 0
+          },
+          "Branches": [
+            {
+              "Line": 74,
+              "Offset": 259,
+              "EndOffset": 261,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 0
+            },
+            {
+              "Line": 74,
+              "Offset": 259,
+              "EndOffset": 335,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 0
+            },
+            {
+              "Line": 108,
+              "Offset": 1540,
+              "EndOffset": 1542,
+              "Path": 0,
+              "Ordinal": 2,
+              "Hits": 0
+            },
+            {
+              "Line": 108,
+              "Offset": 1540,
+              "EndOffset": 1554,
+              "Path": 1,
+              "Ordinal": 3,
+              "Hits": 0
+            }
+          ]
+        }
+      }
+    },
+    "C:\\Users\\Tottus Electro\\Desktop\\chaufita\\src\\MonitoringPlatform.Infrastructure\\Repositories\\MonitorLogRepository.cs": {
+      "MonitoringPlatform.Infrastructure.Repositories.MonitorLogRepository": {
+        "MonitoringPlatform.Application.DTOs.MonitorLogResponseDto MonitoringPlatform.Infrastructure.Repositories.MonitorLogRepository::ToDto(MonitoringPlatform.Domain.Entities.MonitorLog)": {
+          "Lines": {
+            "36": 0,
+            "37": 0,
+            "38": 0,
+            "39": 0,
+            "40": 0,
+            "41": 0,
+            "42": 0,
+            "43": 0,
+            "44": 0,
+            "45": 0
+          },
+          "Branches": []
+        },
+        "System.Void MonitoringPlatform.Infrastructure.Repositories.MonitorLogRepository::.ctor(MonitoringPlatform.Infrastructure.Persistence.AppDbContext)": {
+          "Lines": {
+            "17": 0,
+            "18": 0,
+            "19": 0,
+            "20": 0
+          },
+          "Branches": []
+        }
+      },
+      "MonitoringPlatform.Infrastructure.Repositories.MonitorLogRepository/<GetByMonitorIdAsync>d__2": {
+        "System.Void MonitoringPlatform.Infrastructure.Repositories.MonitorLogRepository/<GetByMonitorIdAsync>d__2::MoveNext()": {
+          "Lines": {
+            "23": 0,
+            "24": 0,
+            "25": 0,
+            "27": 0,
+            "28": 0,
+            "29": 0,
+            "30": 0,
+            "31": 0,
+            "32": 0,
+            "33": 0,
+            "34": 0
+          },
+          "Branches": [
+            {
+              "Line": 24,
+              "Offset": 60,
+              "EndOffset": 62,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 0
+            },
+            {
+              "Line": 24,
+              "Offset": 60,
+              "EndOffset": 70,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 0
+            },
+            {
+              "Line": 25,
+              "Offset": 85,
+              "EndOffset": 87,
+              "Path": 0,
+              "Ordinal": 2,
+              "Hits": 0
+            },
+            {
+              "Line": 25,
+              "Offset": 85,
+              "EndOffset": 98,
+              "Path": 1,
+              "Ordinal": 3,
+              "Hits": 0
+            }
+          ]
+        }
+      }
+    },
+    "C:\\Users\\Tottus Electro\\Desktop\\chaufita\\src\\MonitoringPlatform.Infrastructure\\Repositories\\MonitorRepository.cs": {
+      "MonitoringPlatform.Infrastructure.Repositories.MonitorRepository": {
+        "MonitoringPlatform.Application.DTOs.MonitorResponseDto MonitoringPlatform.Infrastructure.Repositories.MonitorRepository::ToDto(MonitoringPlatform.Domain.Entities.Monitor)": {
+          "Lines": {
+            "74": 0,
+            "75": 0,
+            "76": 0,
+            "77": 0,
+            "78": 0,
+            "79": 0,
+            "80": 0,
+            "81": 0,
+            "82": 0,
+            "83": 0
+          },
+          "Branches": []
+        },
+        "System.Void MonitoringPlatform.Infrastructure.Repositories.MonitorRepository::.ctor(MonitoringPlatform.Infrastructure.Persistence.AppDbContext)": {
+          "Lines": {
+            "17": 0,
+            "18": 0,
+            "19": 0,
+            "20": 0
+          },
+          "Branches": []
+        }
+      },
+      "MonitoringPlatform.Infrastructure.Repositories.MonitorRepository/<CreateAsync>d__4": {
+        "System.Void MonitoringPlatform.Infrastructure.Repositories.MonitorRepository/<CreateAsync>d__4::MoveNext()": {
+          "Lines": {
+            "37": 0,
+            "38": 0,
+            "39": 0,
+            "40": 0,
+            "41": 0,
+            "42": 0,
+            "43": 0,
+            "44": 0,
+            "45": 0,
+            "46": 0,
+            "47": 0,
+            "48": 0,
+            "49": 0,
+            "50": 0,
+            "51": 0
+          },
+          "Branches": []
+        }
+      },
+      "MonitoringPlatform.Infrastructure.Repositories.MonitorRepository/<DeleteAsync>d__6": {
+        "System.Void MonitoringPlatform.Infrastructure.Repositories.MonitorRepository/<DeleteAsync>d__6::MoveNext()": {
+          "Lines": {
+            "66": 0,
+            "67": 0,
+            "68": 0,
+            "69": 0,
+            "70": 0,
+            "71": 0,
+            "72": 0
+          },
+          "Branches": [
+            {
+              "Line": 68,
+              "Offset": 198,
+              "EndOffset": 200,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 0
+            },
+            {
+              "Line": 68,
+              "Offset": 198,
+              "EndOffset": 207,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 0
+            }
+          ]
+        }
+      },
+      "MonitoringPlatform.Infrastructure.Repositories.MonitorRepository/<GetAllAsync>d__3": {
+        "System.Void MonitoringPlatform.Infrastructure.Repositories.MonitorRepository/<GetAllAsync>d__3::MoveNext()": {
+          "Lines": {
+            "29": 0,
+            "30": 0,
+            "31": 0,
+            "32": 0,
+            "33": 0,
+            "34": 0
+          },
+          "Branches": []
+        }
+      },
+      "MonitoringPlatform.Infrastructure.Repositories.MonitorRepository/<GetByIdAsync>d__2": {
+        "System.Void MonitoringPlatform.Infrastructure.Repositories.MonitorRepository/<GetByIdAsync>d__2::MoveNext()": {
+          "Lines": {
+            "23": 0,
+            "24": 0,
+            "25": 0,
+            "26": 0
+          },
+          "Branches": [
+            {
+              "Line": 25,
+              "Offset": 180,
+              "EndOffset": 182,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 0
+            },
+            {
+              "Line": 25,
+              "Offset": 180,
+              "EndOffset": 195,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 0
+            }
+          ]
+        }
+      },
+      "MonitoringPlatform.Infrastructure.Repositories.MonitorRepository/<UpdateAsync>d__5": {
+        "System.Void MonitoringPlatform.Infrastructure.Repositories.MonitorRepository/<UpdateAsync>d__5::MoveNext()": {
+          "Lines": {
+            "54": 0,
+            "55": 0,
+            "56": 0,
+            "57": 0,
+            "58": 0,
+            "59": 0,
+            "60": 0,
+            "61": 0,
+            "62": 0,
+            "63": 0
+          },
+          "Branches": [
+            {
+              "Line": 56,
+              "Offset": 198,
+              "EndOffset": 200,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 0
+            },
+            {
+              "Line": 56,
+              "Offset": 198,
+              "EndOffset": 207,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 0
+            }
+          ]
+        }
+      }
+    },
+    "C:\\Users\\Tottus Electro\\Desktop\\chaufita\\src\\MonitoringPlatform.Infrastructure\\Persistence\\AppDbContext.cs": {
+      "MonitoringPlatform.Infrastructure.Persistence.AppDbContext": {
+        "Microsoft.EntityFrameworkCore.DbSet`1<MonitoringPlatform.Domain.Entities.Monitor> MonitoringPlatform.Infrastructure.Persistence.AppDbContext::get_Monitors()": {
+          "Lines": {
+            "11": 0
+          },
+          "Branches": []
+        },
+        "Microsoft.EntityFrameworkCore.DbSet`1<MonitoringPlatform.Domain.Entities.MonitorLog> MonitoringPlatform.Infrastructure.Persistence.AppDbContext::get_MonitorLogs()": {
+          "Lines": {
+            "12": 0
+          },
+          "Branches": []
+        },
+        "System.Void MonitoringPlatform.Infrastructure.Persistence.AppDbContext::OnModelCreating(Microsoft.EntityFrameworkCore.ModelBuilder)": {
+          "Lines": {
+            "14": 0,
+            "15": 0,
+            "16": 0,
+            "17": 0,
+            "18": 0,
+            "19": 0,
+            "20": 0,
+            "21": 0,
+            "22": 0,
+            "23": 0,
+            "24": 0,
+            "25": 0,
+            "26": 0,
+            "27": 0,
+            "28": 0,
+            "29": 0,
+            "31": 0,
+            "32": 0,
+            "33": 0,
+            "34": 0,
+            "35": 0,
+            "36": 0,
+            "37": 0,
+            "38": 0
+          },
+          "Branches": []
+        },
+        "System.Void MonitoringPlatform.Infrastructure.Persistence.AppDbContext::.ctor(Microsoft.EntityFrameworkCore.DbContextOptions`1<MonitoringPlatform.Infrastructure.Persistence.AppDbContext>)": {
+          "Lines": {
+            "7": 0,
+            "8": 0,
+            "9": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\Users\\Tottus Electro\\Desktop\\chaufita\\src\\MonitoringPlatform.Infrastructure\\Migrations\\20260523032041_InitialMonitorsMigration.cs": {
+      "MonitoringPlatform.Infrastructure.Migrations.InitialMonitorsMigration": {
+        "System.Void MonitoringPlatform.Infrastructure.Migrations.InitialMonitorsMigration::Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)": {
+          "Lines": {
+            "13": 0,
+            "14": 0,
+            "15": 0,
+            "16": 0,
+            "17": 0,
+            "18": 0,
+            "19": 0,
+            "20": 0,
+            "21": 0,
+            "22": 0,
+            "23": 0,
+            "24": 0,
+            "25": 0,
+            "26": 0,
+            "27": 0,
+            "28": 0,
+            "29": 0,
+            "30": 0
+          },
+          "Branches": []
+        },
+        "System.Void MonitoringPlatform.Infrastructure.Migrations.InitialMonitorsMigration::Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)": {
+          "Lines": {
+            "34": 0,
+            "35": 0,
+            "36": 0,
+            "37": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\Users\\Tottus Electro\\Desktop\\chaufita\\src\\MonitoringPlatform.Infrastructure\\Migrations\\20260523032041_InitialMonitorsMigration.Designer.cs": {
+      "MonitoringPlatform.Infrastructure.Migrations.InitialMonitorsMigration": {
+        "System.Void MonitoringPlatform.Infrastructure.Migrations.InitialMonitorsMigration::BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)": {
+          "Lines": {
+            "20": 0,
+            "22": 0,
+            "23": 0,
+            "24": 0,
+            "26": 0,
+            "28": 0,
+            "29": 0,
+            "30": 0,
+            "31": 0,
+            "32": 0,
+            "33": 0,
+            "34": 0,
+            "35": 0,
+            "36": 0,
+            "37": 0,
+            "38": 0,
+            "39": 0,
+            "40": 0,
+            "41": 0,
+            "42": 0,
+            "43": 0,
+            "44": 0,
+            "45": 0,
+            "46": 0,
+            "47": 0,
+            "48": 0,
+            "49": 0,
+            "50": 0,
+            "51": 0,
+            "52": 0,
+            "53": 0,
+            "54": 0,
+            "55": 0,
+            "56": 0,
+            "57": 0,
+            "58": 0,
+            "59": 0,
+            "61": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\Users\\Tottus Electro\\Desktop\\chaufita\\src\\MonitoringPlatform.Infrastructure\\Migrations\\20260523033331_AddMonitorLog.cs": {
+      "MonitoringPlatform.Infrastructure.Migrations.AddMonitorLog": {
+        "System.Void MonitoringPlatform.Infrastructure.Migrations.AddMonitorLog::Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)": {
+          "Lines": {
+            "13": 0,
+            "14": 0,
+            "15": 0,
+            "16": 0,
+            "17": 0,
+            "18": 0,
+            "19": 0,
+            "20": 0,
+            "21": 0,
+            "22": 0,
+            "23": 0,
+            "24": 0,
+            "25": 0,
+            "26": 0,
+            "27": 0,
+            "28": 0,
+            "29": 0,
+            "30": 0,
+            "31": 0,
+            "32": 0,
+            "33": 0,
+            "34": 0,
+            "35": 0,
+            "37": 0,
+            "38": 0,
+            "39": 0,
+            "40": 0,
+            "41": 0
+          },
+          "Branches": []
+        },
+        "System.Void MonitoringPlatform.Infrastructure.Migrations.AddMonitorLog::Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)": {
+          "Lines": {
+            "45": 0,
+            "46": 0,
+            "47": 0,
+            "48": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\Users\\Tottus Electro\\Desktop\\chaufita\\src\\MonitoringPlatform.Infrastructure\\Migrations\\20260523033331_AddMonitorLog.Designer.cs": {
+      "MonitoringPlatform.Infrastructure.Migrations.AddMonitorLog": {
+        "System.Void MonitoringPlatform.Infrastructure.Migrations.AddMonitorLog::BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)": {
+          "Lines": {
+            "20": 0,
+            "22": 0,
+            "23": 0,
+            "24": 0,
+            "26": 0,
+            "28": 0,
+            "29": 0,
+            "30": 0,
+            "31": 0,
+            "32": 0,
+            "33": 0,
+            "34": 0,
+            "35": 0,
+            "36": 0,
+            "37": 0,
+            "38": 0,
+            "39": 0,
+            "40": 0,
+            "41": 0,
+            "42": 0,
+            "43": 0,
+            "44": 0,
+            "45": 0,
+            "46": 0,
+            "47": 0,
+            "48": 0,
+            "49": 0,
+            "50": 0,
+            "51": 0,
+            "52": 0,
+            "53": 0,
+            "54": 0,
+            "55": 0,
+            "56": 0,
+            "57": 0,
+            "58": 0,
+            "59": 0,
+            "61": 0,
+            "62": 0,
+            "63": 0,
+            "64": 0,
+            "65": 0,
+            "66": 0,
+            "67": 0,
+            "68": 0,
+            "69": 0,
+            "70": 0,
+            "71": 0,
+            "72": 0,
+            "73": 0,
+            "74": 0,
+            "75": 0,
+            "76": 0,
+            "77": 0,
+            "78": 0,
+            "79": 0,
+            "80": 0,
+            "81": 0,
+            "82": 0,
+            "83": 0,
+            "84": 0,
+            "85": 0,
+            "86": 0,
+            "87": 0,
+            "88": 0,
+            "89": 0,
+            "90": 0,
+            "91": 0,
+            "93": 0,
+            "94": 0,
+            "95": 0,
+            "96": 0,
+            "97": 0,
+            "98": 0,
+            "99": 0,
+            "100": 0,
+            "101": 0,
+            "102": 0,
+            "104": 0,
+            "105": 0,
+            "106": 0,
+            "107": 0,
+            "109": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\Users\\Tottus Electro\\Desktop\\chaufita\\src\\MonitoringPlatform.Infrastructure\\Migrations\\AppDbContextModelSnapshot.cs": {
+      "MonitoringPlatform.Infrastructure.Migrations.AppDbContextModelSnapshot": {
+        "System.Void MonitoringPlatform.Infrastructure.Migrations.AppDbContextModelSnapshot::BuildModel(Microsoft.EntityFrameworkCore.ModelBuilder)": {
+          "Lines": {
+            "17": 0,
+            "19": 0,
+            "20": 0,
+            "21": 0,
+            "23": 0,
+            "25": 0,
+            "26": 0,
+            "27": 0,
+            "28": 0,
+            "29": 0,
+            "30": 0,
+            "31": 0,
+            "32": 0,
+            "33": 0,
+            "34": 0,
+            "35": 0,
+            "36": 0,
+            "37": 0,
+            "38": 0,
+            "39": 0,
+            "40": 0,
+            "41": 0,
+            "42": 0,
+            "43": 0,
+            "44": 0,
+            "45": 0,
+            "46": 0,
+            "47": 0,
+            "48": 0,
+            "49": 0,
+            "50": 0,
+            "51": 0,
+            "52": 0,
+            "53": 0,
+            "54": 0,
+            "55": 0,
+            "56": 0,
+            "58": 0,
+            "59": 0,
+            "60": 0,
+            "61": 0,
+            "62": 0,
+            "63": 0,
+            "64": 0,
+            "65": 0,
+            "66": 0,
+            "67": 0,
+            "68": 0,
+            "69": 0,
+            "70": 0,
+            "71": 0,
+            "72": 0,
+            "73": 0,
+            "74": 0,
+            "75": 0,
+            "76": 0,
+            "77": 0,
+            "78": 0,
+            "79": 0,
+            "80": 0,
+            "81": 0,
+            "82": 0,
+            "83": 0,
+            "84": 0,
+            "85": 0,
+            "86": 0,
+            "87": 0,
+            "88": 0,
+            "90": 0,
+            "91": 0,
+            "92": 0,
+            "93": 0,
+            "94": 0,
+            "95": 0,
+            "96": 0,
+            "97": 0,
+            "98": 0,
+            "99": 0,
+            "101": 0,
+            "102": 0,
+            "103": 0,
+            "104": 0,
+            "106": 0
+          },
+          "Branches": []
+        }
+      }
+    }
+  }
+}
