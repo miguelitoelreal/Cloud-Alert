@@ -35,7 +35,6 @@ namespace MonitoringPlatform.API.Services
                 .AsNoTracking()
                 .Where(x => x.CloudProviderId == provider.Id)
                 .OrderByDescending(x => x.OccurredAt)
-                .Take(20)
                 .Select(x => new CloudIncidentDto
                 {
                     Id = x.Id,

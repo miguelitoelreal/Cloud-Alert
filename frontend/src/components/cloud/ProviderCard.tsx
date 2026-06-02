@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { CloudProviderAvatar } from "../CloudProviderAvatar";
 import { MiniSparkline } from "./MiniSparkline";
 import {
@@ -18,6 +19,7 @@ export function ProviderCard({
   msIntegrationConfigured,
   trendPoints,
 }: ProviderCardProps) {
+  const navigate = useNavigate();
   const isMsProvider =
     provider.sourceType === CloudStatusSourceType.MicrosoftGraphServiceHealth;
   const needsConfig = isMsProvider && msIntegrationConfigured === false;
@@ -30,14 +32,19 @@ export function ProviderCard({
         ? { label: "1 incidente", dot: "bg-amber-500", bg: "bg-amber-50 dark:bg-amber-950/20", text: "text-amber-700 dark:text-amber-300", border: "border-amber-200 dark:border-amber-900/30" }
         : { label: "Operativo", dot: "bg-emerald-500", bg: "bg-emerald-50 dark:bg-emerald-950/20", text: "text-emerald-700 dark:text-emerald-300", border: "border-emerald-200 dark:border-emerald-900/30" };
 
-  const link = needsConfig ? "#/integrations" : provider.statusPageUrl;
+  const handleClick = () => {
+    if (needsConfig) {
+      navigate("/integraciones");
+    } else {
+      navigate(`/cloud-status/${provider.slug}`);
+    }
+  };
 
   return (
-    <a
-      href={link ?? undefined}
-      target={needsConfig ? undefined : "_blank"}
-      rel={needsConfig ? undefined : "noreferrer"}
-      className="group relative flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5 dark:border-slate-800 dark:bg-slate-900"
+    <button
+      type="button"
+      onClick={handleClick}
+      className="group relative flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5 dark:border-slate-800 dark:bg-slate-900 text-left"
     >
       {/* Status bar at top */}
       <div className={`h-1 w-full ${statusConfig.dot}`} />
@@ -91,12 +98,12 @@ export function ProviderCard({
 
         {/* Footer link */}
         <div className="mt-3 flex items-center gap-1 text-xs font-medium text-blue-600 opacity-0 transition-opacity group-hover:opacity-100 dark:text-blue-400">
-          <span>{needsConfig ? "Configurar" : "Ver estado"}</span>
+          <span>{needsConfig ? "Configurar" : "Ver detalle del proveedor"}</span>
           <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
           </svg>
         </div>
       </div>
-    </a>
+    </button>
   );
 }
