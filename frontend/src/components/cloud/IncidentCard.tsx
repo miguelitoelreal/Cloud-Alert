@@ -15,9 +15,10 @@ type IncidentCardProps = {
   incident: CloudIncidentDto | MicrosoftGraphIncident;
   isNew?: boolean;
   onSelect?: () => void;
+  highlighted?: boolean;
 };
 
-export function IncidentCard({ variant, incident, isNew, onSelect, dense }: IncidentCardProps & { dense?: boolean }) {
+export function IncidentCard({ variant, incident, isNew, onSelect, dense, highlighted }: IncidentCardProps & { dense?: boolean }) {
   const isCloud = variant === "cloud";
   const cloudIncident = isCloud ? (incident as CloudIncidentDto) : null;
   const providerName = cloudIncident?.providerName ?? "Microsoft 365";
@@ -40,7 +41,8 @@ export function IncidentCard({ variant, incident, isNew, onSelect, dense }: Inci
 
   return (
     <article
-      className={`rounded-xl border border-slate-800 bg-slate-950 shadow-sm ${severityBorder} border-l-4 cursor-pointer transition-colors hover:bg-slate-900/40 ${dense ? "p-2.5" : "p-4"}`}
+      id={`incident-${incident.id}`}
+      className={`rounded-xl border bg-slate-950 shadow-sm ${severityBorder} border-l-4 cursor-pointer transition-colors hover:bg-slate-900/40 ${dense ? "p-2.5" : "p-4"} ${highlighted ? "ring-2 ring-blue-500 ring-offset-2 ring-offset-slate-950 animate-pulse" : "border-slate-800"}`}
       onClick={onSelect}
     >
       <div className="flex flex-wrap items-center gap-2">

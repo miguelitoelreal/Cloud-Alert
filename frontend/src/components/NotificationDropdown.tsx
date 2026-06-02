@@ -98,8 +98,8 @@ export function NotificationDropdown({ data }: NotificationDropdownProps) {
               <>
                 {/* Monitores caídos */}
                 {data.offlineMonitors.length > 0 && (
-                  <div className="px-4 py-2">
-                    <div className="mb-1.5 flex items-center gap-2 text-xs font-medium text-red-400">
+                  <div className="px-3 py-2">
+                    <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-red-500">
                       <IconMonitor className="h-3.5 w-3.5" />
                       Monitores caídos ({data.offlineMonitors.length})
                     </div>
@@ -108,14 +108,16 @@ export function NotificationDropdown({ data }: NotificationDropdownProps) {
                         key={m.id}
                         type="button"
                         onClick={() => {
-                          navigate("/dashboard");
+                          navigate(`/monitors/${m.id}`);
                           setOpen(false);
                         }}
-                        className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm text-slate-300 transition-colors hover:bg-slate-800"
+                        className="flex w-full items-center gap-2 rounded-lg border border-slate-100 dark:border-slate-800 border-l-4 border-l-red-500 bg-white dark:bg-slate-950 px-3 py-2 text-left text-sm transition-all hover:bg-slate-50 dark:hover:bg-slate-800/60 mb-1.5"
                       >
-                        <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-red-500" />
-                        <span className="truncate">{m.name}</span>
-                        <IconChevronRight className="ml-auto h-3.5 w-3.5 shrink-0 text-slate-600" />
+                        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-red-100 dark:bg-red-950/30 text-[10px] font-bold text-red-600 dark:text-red-300">
+                          OFF
+                        </span>
+                        <span className="truncate text-sm font-medium text-slate-800 dark:text-slate-200">{m.name}</span>
+                        <IconChevronRight className="ml-auto h-3.5 w-3.5 shrink-0 text-slate-400" />
                       </button>
                     ))}
                   </div>
@@ -123,38 +125,56 @@ export function NotificationDropdown({ data }: NotificationDropdownProps) {
 
                 {/* Incidencias cloud */}
                 {data.activeCloudIncidents.length > 0 && (
-                  <div className="border-t border-slate-800 px-4 py-2">
-                    <div className="mb-1.5 flex items-center gap-2 text-xs font-medium text-amber-400">
+                  <div className="border-t border-slate-100 dark:border-slate-800 px-3 py-2">
+                    <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-amber-500">
                       <IconCloud className="h-3.5 w-3.5" />
                       Incidencias cloud ({data.activeCloudIncidents.length})
                     </div>
                     {data.activeCloudIncidents.map((i) => {
-                      const severityColor =
-                        i.severity === 4 ? "bg-red-500 text-red-100" :
-                        i.severity === 3 ? "bg-amber-500 text-amber-100" :
-                        i.severity === 2 ? "bg-yellow-500 text-yellow-100" :
-                        "bg-blue-500 text-blue-100";
+                      const severityBorder =
+                        i.severity === 4 ? "border-l-red-500" :
+                        i.severity === 3 ? "border-l-amber-500" :
+                        i.severity === 2 ? "border-l-yellow-500" :
+                        "border-l-blue-500";
+                      const severityBadge =
+                        i.severity === 4 ? "bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-300" :
+                        i.severity === 3 ? "bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300" :
+                        i.severity === 2 ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-950/40 dark:text-yellow-300" :
+                        "bg-blue-100 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300";
                       const severityLabel =
                         i.severity === 4 ? "Crítica" :
                         i.severity === 3 ? "Mayor" :
                         i.severity === 2 ? "Menor" :
                         "Info";
+                      const providerInitial = i.providerName.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
                       return (
                         <button
                           key={i.id}
                           type="button"
                           onClick={() => {
-                            navigate("/centro-estado-cloud");
+                            navigate(`/centro-estado-cloud?incidentId=${i.id}`);
                             setOpen(false);
                           }}
-                          className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm text-slate-300 transition-colors hover:bg-slate-800"
+                          className={`flex w-full flex-col gap-1 rounded-lg border border-slate-100 dark:border-slate-800 border-l-4 ${severityBorder} bg-white dark:bg-slate-950 px-3 py-2.5 text-left transition-all hover:bg-slate-50 dark:hover:bg-slate-800/60 mb-1.5`}
                         >
-                          <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500" />
-                          <span className="truncate flex-1">{i.providerName}: {i.title}</span>
-                          <span className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] font-medium ${severityColor}`}>
-                            {severityLabel}
+                          <div className="flex items-center gap-2">
+                            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-slate-100 dark:bg-slate-800 text-[10px] font-bold text-slate-600 dark:text-slate-300">
+                              {providerInitial}
+                            </span>
+                            <span className="text-xs font-medium text-slate-500 dark:text-slate-400 truncate">
+                              {i.providerName}
+                            </span>
+                            <span className={`ml-auto shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${severityBadge}`}>
+                              {severityLabel}
+                            </span>
+                          </div>
+                          <span className="truncate text-sm font-semibold text-slate-800 dark:text-slate-200">
+                            {i.title}
                           </span>
-                          <IconChevronRight className="ml-auto h-3.5 w-3.5 shrink-0 text-slate-600" />
+                          <span className="flex items-center gap-1 text-[11px] text-slate-400">
+                            <span>Ver detalles en el timeline</span>
+                            <IconChevronRight className="h-3 w-3" />
+                          </span>
                         </button>
                       );
                     })}
@@ -163,8 +183,8 @@ export function NotificationDropdown({ data }: NotificationDropdownProps) {
 
                 {/* SLA breaches */}
                 {data.slaBreaches > 0 && (
-                  <div className="border-t border-slate-800 px-4 py-2">
-                    <div className="mb-1.5 flex items-center gap-2 text-xs font-medium text-rose-400">
+                  <div className="border-t border-slate-100 dark:border-slate-800 px-3 py-2">
+                    <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-rose-500">
                       <IconShield className="h-3.5 w-3.5" />
                       SLA incumplidos ({data.slaBreaches})
                     </div>
@@ -174,11 +194,13 @@ export function NotificationDropdown({ data }: NotificationDropdownProps) {
                         navigate("/sla-dashboard");
                         setOpen(false);
                       }}
-                      className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm text-slate-300 transition-colors hover:bg-slate-800"
+                      className="flex w-full items-center gap-2 rounded-lg border border-slate-100 dark:border-slate-800 border-l-4 border-l-rose-500 bg-white dark:bg-slate-950 px-3 py-2 text-left text-sm transition-all hover:bg-slate-50 dark:hover:bg-slate-800/60"
                     >
-                      <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-rose-500" />
-                      <span className="truncate">Ver reportes de SLA</span>
-                      <IconChevronRight className="ml-auto h-3.5 w-3.5 shrink-0 text-slate-600" />
+                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-rose-100 dark:bg-rose-950/30 text-[10px] font-bold text-rose-600 dark:text-rose-300">
+                        SLA
+                      </span>
+                      <span className="truncate text-sm font-medium text-slate-800 dark:text-slate-200">Ver reportes de SLA</span>
+                      <IconChevronRight className="ml-auto h-3.5 w-3.5 shrink-0 text-slate-400" />
                     </button>
                   </div>
                 )}
@@ -187,8 +209,8 @@ export function NotificationDropdown({ data }: NotificationDropdownProps) {
           </div>
 
           {hasAlerts && (
-            <div className="border-t border-slate-800 px-4 py-2">
-              <div className="text-center text-xs text-slate-600">
+            <div className="border-t border-slate-100 dark:border-slate-800 px-4 py-2">
+              <div className="text-center text-xs text-slate-500 dark:text-slate-600">
                 Cada alerta te lleva a su sección
               </div>
             </div>

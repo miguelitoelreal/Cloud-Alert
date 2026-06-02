@@ -235,6 +235,7 @@ export function CloudStatusPage() {
     incident: CloudIncidentDto | MicrosoftGraphIncident;
     cachedTranslation?: CloudIncidentTranslationDto | null;
   } | null>(null);
+  const [highlightedIncidentId, setHighlightedIncidentId] = useState<string | null>(null);
   const [refreshInterval, setRefreshInterval] = useLocalStorage("cs-refresh-interval", 30_000);
   const [currentPage, setCurrentPage] = useState(1);
   const [translationCache, setTranslationCache] = useState<
@@ -376,6 +377,52 @@ export function CloudStatusPage() {
       setIsResetting(false);
     }
   }
+
+  // Auto-scroll + highlight incident from notification bell query param
+  const incidentIdFromUrl = searchParams.get("incidentId");
+  const lastAutoScrolledIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!incidentIdFromUrl || lastAutoScrolledIdRef.current === incidentIdFromUrl) return;
+
+    const allIncidents: UnifiedIncident[] = [
+      ...(overview?.incidents ?? []).map((i) => ({ type: "cloud" as const, data: i })),
+      ...(msIncidents ?? []).map((i) => ({ type: "microsoft" as const, data: i })),
+    ];
+
+    const found = allIncidents.find((i) => i.data.id === incidentIdFromUrl);
+    if (found) {
+      lastAutoScrolledIdRef.current = incidentIdFromUrl;
+      setHighlightedIncidentId(found.data.id);
+
+      // Scroll to the incident card in the timeline
+      setTimeout(() => {
+        const el = document.getElementById(`incident-${found.data.id}`);
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }, 300);
+
+      // After highlighting, open the detail modal
+      setTimeout(() => {
+        setSelectedIncident({
+          variant: found.type,
+          incident: found.data,
+          cachedTranslation: translationCache[found.data.id] ?? null,
+        });
+      }, 900);
+
+      // Remove highlight after 6 seconds
+      setTimeout(() => {
+        setHighlightedIncidentId(null);
+      }, 6000);
+
+      // Clean URL param without reloading
+      const params = new URLSearchParams(searchParams);
+      params.delete("incidentId");
+      setSearchParams(params, { replace: true });
+    }
+  }, [incidentIdFromUrl, overview, msIncidents, translationCache, searchParams, setSearchParams]);
 
   useEffect(() => {
     document.title = "Cloud Alert Hub — Centro de Estado Cloud";
@@ -1033,6 +1080,7 @@ export function CloudStatusPage() {
                         incident={item.data}
                         isNew={newIncidentIds.has(item.data.id)}
                         dense={denseMode}
+                        highlighted={item.data.id === highlightedIncidentId}
                         onSelect={() =>
                           setSelectedIncident({
                             variant: item.type,
