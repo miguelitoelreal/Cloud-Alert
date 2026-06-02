@@ -84,7 +84,7 @@ export function NotificationDropdown({ data }: NotificationDropdownProps) {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-80 rounded-xl border border-slate-200 bg-white shadow-2xl ring-1 ring-black/5 dark:border-slate-700 dark:bg-slate-900">
+        <div className="fixed inset-x-4 top-16 z-50 rounded-xl border border-slate-200 bg-white shadow-2xl ring-1 ring-black/5 dark:border-slate-700 dark:bg-slate-900 sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:mt-2 sm:w-80">
           <div className="border-b border-slate-200 px-4 py-3 dark:border-slate-800">
             <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Notificaciones</h3>
           </div>

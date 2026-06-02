@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import axios from "axios";
 import { Modal } from "../Modal";
 import { CloudProviderAvatar } from "../CloudProviderAvatar";
 import { CloudDisplayStatusBadge } from "../CloudDisplayStatusBadge";
@@ -169,11 +170,20 @@ export function IncidentDetailModal({
       setShowTranslated(true);
       if (onTranslationLoaded) onTranslationLoaded(incident.id, result);
     } catch (e) {
-      setTranslationError(
-        e instanceof Error && e.message
-          ? e.message
-          : "No se pudo traducir el incidente en este momento. Intenta nuevamente más tarde.",
-      );
+      let msg = "No se pudo traducir el incidente en este momento. Intenta nuevamente más tarde.";
+      if (axios.isAxiosError(e)) {
+        const status = e.response?.status;
+        if (status === 404) msg = "El servicio de traducción no está disponible (404). Contacta al administrador.";
+        else if (status === 500) msg = "Error interno del servidor de traducción (500). Intenta más tarde.";
+        else if (status === 429) msg = "Demasiadas solicitudes de traducción. Espera un momento e intenta de nuevo.";
+        else if (!status) msg = "No se pudo conectar con el servicio de traducción. Verifica tu conexión a internet.";
+        else msg = `Error del servicio de traducción (${status}). Intenta nuevamente.`;
+      } else if (e instanceof Error && e.message) {
+        msg = e.message;
+      }
+      setTranslationError(msg);
+      // eslint-disable-next-line no-console
+      console.error("[Translate] Error:", e);
     } finally {
       setIsTranslating(false);
     }
