@@ -1,0 +1,261 @@
+@{
+    ViewData["Title"] = "Calculadora SLA";
+}
+
+<div class="container py-4">
+
+    <div class="row g-4">
+
+        <!-- PANEL IZQUIERDO -->
+        <div class="col-lg-5">
+
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+
+                    <h4 class="fw-bold mb-4">
+                        Nivel de Disponibilidad
+                    </h4>
+
+                    <small class="text-muted fw-semibold">
+                        Botones rápidos (Estándares de la Industria)
+                    </small>
+
+                    <div class="row g-2 mt-2">
+
+                        <div class="col-6">
+                            <button class="btn btn-outline-primary w-100 sla-btn"
+                                    data-sla="95">
+                                95%
+                            </button>
+                        </div>
+
+                        <div class="col-6">
+                            <button class="btn btn-outline-primary w-100 sla-btn"
+                                    data-sla="99">
+                                99%
+                            </button>
+                        </div>
+
+                        <div class="col-6">
+                            <button class="btn btn-outline-primary w-100 sla-btn"
+                                    data-sla="99.9">
+                                99.9%
+                            </button>
+                        </div>
+
+                        <div class="col-6">
+                            <button class="btn btn-outline-primary w-100 sla-btn"
+                                    data-sla="99.99">
+                                99.99%
+                            </button>
+                        </div>
+
+                    </div>
+
+                    <hr class="my-4"/>
+
+                    <label class="form-label fw-semibold">
+                        SLA Personalizado (%)
+                    </label>
+
+                    <div class="input-group input-group-lg">
+
+                        <input type="number"
+                               class="form-control"
+                               id="slaInput"
+                               min="0"
+                               max="100"
+                               step="0.01"
+                               value="95"/>
+
+                        <span class="input-group-text">%</span>
+
+                    </div>
+
+                    <small class="text-muted">
+                        Ingresa cualquier valor entre 0 y 100
+                    </small>
+
+                    <div class="alert alert-primary mt-4">
+
+                        <h6 class="fw-bold">
+                            📋 Valores de Referencia
+                        </h6>
+
+                        <ul class="mb-0">
+                            <li>Diario: 24 horas</li>
+                            <li>Semanal: 7 días</li>
+                            <li>Mensual: 30.44 días (promedio anual)</li>
+                            <li>Anual: 365.25 días (incluye bisiestos)</li>
+                        </ul>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- PANEL DERECHO -->
+        <div class="col-lg-7">
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-body">
+
+                    <h4 class="fw-bold mb-4 text-danger">
+                        ⏰ Downtime Permitido
+                    </h4>
+
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+                            <div class="card border-danger bg-danger-subtle">
+                                <div class="card-body">
+                                    <h6>Por Día</h6>
+                                    <small>24 horas</small>
+                                    <h3 id="dailyResult"
+                                        class="fw-bold mt-2">
+                                        0h 0m 0s
+                                    </h3>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="card border-warning bg-warning-subtle">
+                                <div class="card-body">
+                                    <h6>Por Semana</h6>
+                                    <small>7 días</small>
+                                    <h3 id="weeklyResult"
+                                        class="fw-bold mt-2">
+                                        0h 0m 0s
+                                    </h3>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="card border-info bg-info-subtle">
+                                <div class="card-body">
+                                    <h6>Por Mes</h6>
+                                    <small>30.44 días</small>
+                                    <h3 id="monthlyResult"
+                                        class="fw-bold mt-2">
+                                        0h 0m 0s
+                                    </h3>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="card border-secondary bg-secondary-subtle">
+                                <div class="card-body">
+                                    <h6>Por Año</h6>
+                                    <small>365.25 días</small>
+                                    <h3 id="yearlyResult"
+                                        class="fw-bold mt-2">
+                                        0h 0m 0s
+                                    </h3>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="card mt-4">
+                        <div class="card-body">
+
+                            <h5 class="fw-bold">
+                                Detalles del Cálculo
+                            </h5>
+
+                            <div class="d-flex justify-content-between">
+                                <span>Disponibilidad configurada:</span>
+                                <strong id="availabilityText">
+                                    95%
+                                </strong>
+                            </div>
+
+                            <div class="d-flex justify-content-between">
+                                <span>Indisponibilidad permitida:</span>
+                                <strong id="downtimeText"
+                                        class="text-danger">
+                                    5%
+                                </strong>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts
+{
+<script>
+
+    function calculateSla(value)
+    {
+        fetch(`/Sla/Calculate?availability=${value}`)
+        .then(response => response.json())
+        .then(data =>
+        {
+            document.getElementById("dailyResult").innerText =
+                data.daily;
+
+            document.getElementById("weeklyResult").innerText =
+                data.weekly;
+
+            document.getElementById("monthlyResult").innerText =
+                data.monthly;
+
+            document.getElementById("yearlyResult").innerText =
+                data.yearly;
+
+            document.getElementById("availabilityText").innerText =
+                value + "%";
+
+            document.getElementById("downtimeText").innerText =
+                (100 - value).toFixed(4) + "%";
+        });
+    }
+
+    document.querySelectorAll(".sla-btn")
+    .forEach(button =>
+    {
+        button.addEventListener("click", function()
+        {
+            const value = this.dataset.sla;
+
+            document.getElementById("slaInput").value = value;
+
+            calculateSla(value);
+        });
+    });
+
+    document.getElementById("slaInput")
+    .addEventListener("input", function()
+    {
+        let value = parseFloat(this.value);
+
+        if (!isNaN(value))
+        {
+            calculateSla(value);
+        }
+    });
+
+    window.onload = () =>
+    {
+        calculateSla(95);
+    };
+
+</script>
+}
