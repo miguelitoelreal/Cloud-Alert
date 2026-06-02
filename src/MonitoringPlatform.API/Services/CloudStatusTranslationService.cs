@@ -5,6 +5,8 @@ using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
+using MonitoringPlatform.API.Configurations;
 using MonitoringPlatform.Application.DTOs;
 
 namespace MonitoringPlatform.API.Services
@@ -52,15 +54,18 @@ namespace MonitoringPlatform.API.Services
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IMemoryCache _cache;
         private readonly ILogger<CloudStatusTranslationService> _logger;
+        private readonly CloudStatusOptions _options;
 
         public CloudStatusTranslationService(
             IHttpClientFactory httpClientFactory,
             IMemoryCache cache,
-            ILogger<CloudStatusTranslationService> logger)
+            ILogger<CloudStatusTranslationService> logger,
+            IOptions<CloudStatusOptions> options)
         {
             _httpClientFactory = httpClientFactory;
             _cache = cache;
             _logger = logger;
+            _options = options.Value;
         }
 
         public async Task<CloudIncidentTranslationDto> TranslateIncidentAsync(
@@ -274,6 +279,115 @@ namespace MonitoringPlatform.API.Services
         private async Task<string> TranslateChunkCoreAsync(string text, CancellationToken cancellationToken)
         {
             var client = _httpClientFactory.CreateClient("CloudStatusHttpClient");
+
+            // 1. DeepL (más confiable, requiere API key)
+            if (!string.IsNullOrWhiteSpace(_options.TranslationApiKey)
+                && _options.TranslationProvider.Equals("deepl", StringComparison.OrdinalIgnoreCase))
+            {
+                try
+                {
+                    return await TranslateWithDeepLAsync(client, text, cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "DeepL translation failed. Falling back to LibreTranslate.");
+                }
+            }
+
+            // 2. LibreTranslate (gratuito, más estable que MyMemory)
+            try
+            {
+                return await TranslateWithLibreTranslateAsync(client, text, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "LibreTranslate failed. Falling back to MyMemory.");
+            }
+
+            // 3. MyMemory (último fallback gratuito)
+            return await TranslateWithMyMemoryAsync(client, text, cancellationToken);
+        }
+
+        private async Task<string> TranslateWithDeepLAsync(HttpClient client, string text, CancellationToken cancellationToken)
+        {
+            using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            timeoutCts.CancelAfter(PerAttemptTimeout);
+
+            var url = "https://api-free.deepl.com/v2/translate";
+            var content = new FormUrlEncodedContent(new Dictionary<string, string>
+            {
+                ["text"] = text,
+                ["target_lang"] = "ES",
+                ["source_lang"] = "EN",
+            });
+
+            using var request = new HttpRequestMessage(HttpMethod.Post, url) { Content = content };
+            request.Headers.TryAddWithoutValidation("Authorization", $"DeepL-Auth-Key {_options.TranslationApiKey}");
+
+            using var response = await client.SendAsync(request, timeoutCts.Token);
+            await using var stream = await response.Content.ReadAsStreamAsync(timeoutCts.Token);
+            using var document = await JsonDocument.ParseAsync(stream, cancellationToken: timeoutCts.Token);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var message = TryGetString(document.RootElement, "message")
+                    ?? $"DeepL returned HTTP {(int)response.StatusCode}";
+                throw new TranslationProviderException(message, isTransient: true, isRateLimited: response.StatusCode == System.Net.HttpStatusCode.TooManyRequests);
+            }
+
+            if (!document.RootElement.TryGetProperty("translations", out var translations)
+                || translations.GetArrayLength() == 0
+                || !translations[0].TryGetProperty("text", out var translatedTextElement))
+            {
+                throw new TranslationProviderException("DeepL returned an invalid response.", isTransient: false, isRateLimited: false);
+            }
+
+            var translatedText = translatedTextElement.GetString()?.Trim() ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(translatedText))
+            {
+                throw new TranslationProviderException("DeepL returned an empty translation.", isTransient: false, isRateLimited: false);
+            }
+
+            return translatedText;
+        }
+
+        private async Task<string> TranslateWithLibreTranslateAsync(HttpClient client, string text, CancellationToken cancellationToken)
+        {
+            using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            timeoutCts.CancelAfter(PerAttemptTimeout);
+
+            var url = "https://libretranslate.de/translate";
+            var payload = new { q = text, source = "en", target = "es", format = "text" };
+            var json = JsonSerializer.Serialize(payload);
+            using var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            using var response = await client.PostAsync(url, content, timeoutCts.Token);
+            await using var stream = await response.Content.ReadAsStreamAsync(timeoutCts.Token);
+            using var document = await JsonDocument.ParseAsync(stream, cancellationToken: timeoutCts.Token);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorMsg = TryGetString(document.RootElement, "error")
+                    ?? $"LibreTranslate returned HTTP {(int)response.StatusCode}";
+                throw new TranslationProviderException(errorMsg, isTransient: true, isRateLimited: false);
+            }
+
+            if (!document.RootElement.TryGetProperty("translatedText", out var translatedTextElement))
+            {
+                throw new TranslationProviderException("LibreTranslate returned an invalid response.", isTransient: false, isRateLimited: false);
+            }
+
+            var translatedText = translatedTextElement.GetString()?.Trim() ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(translatedText))
+            {
+                throw new TranslationProviderException("LibreTranslate returned an empty translation.", isTransient: false, isRateLimited: false);
+            }
+
+            return translatedText;
+        }
+
+        private async Task<string> TranslateWithMyMemoryAsync(HttpClient client, string text, CancellationToken cancellationToken)
+        {
             var url = $"https://api.mymemory.translated.net/get?q={Uri.EscapeDataString(text)}&langpair=en|es";
 
             using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
@@ -289,7 +403,7 @@ namespace MonitoringPlatform.API.Services
             if (!response.IsSuccessStatusCode || (responseStatus.HasValue && responseStatus.Value >= 400))
             {
                 _logger.LogWarning(
-                    "Cloud incident translation provider returned an error. HttpStatus: {HttpStatusCode}. ProviderStatus: {ProviderStatus}. Details: {ProviderDetails}",
+                    "MyMemory returned an error. HttpStatus: {HttpStatusCode}. ProviderStatus: {ProviderStatus}. Details: {ProviderDetails}",
                     (int)response.StatusCode,
                     responseStatus,
                     responseDetails);
@@ -300,9 +414,9 @@ namespace MonitoringPlatform.API.Services
             if (!document.RootElement.TryGetProperty("responseData", out var responseData)
                 || !responseData.TryGetProperty("translatedText", out var translatedTextElement))
             {
-                _logger.LogWarning("Cloud incident translation provider returned an invalid payload.");
+                _logger.LogWarning("MyMemory returned an invalid payload.");
                 throw new TranslationProviderException(
-                    "No se recibió una traducción válida para este incidente.",
+                    "No se recibió una traducción válida.",
                     isTransient: false,
                     isRateLimited: false);
             }
@@ -310,9 +424,9 @@ namespace MonitoringPlatform.API.Services
             var translatedText = WebUtility.HtmlDecode(translatedTextElement.GetString()?.Trim() ?? string.Empty);
             if (string.IsNullOrWhiteSpace(translatedText))
             {
-                _logger.LogWarning("Cloud incident translation provider returned an empty translation.");
+                _logger.LogWarning("MyMemory returned an empty translation.");
                 throw new TranslationProviderException(
-                    "No se recibió una traducción válida para este incidente.",
+                    "No se recibió una traducción válida.",
                     isTransient: false,
                     isRateLimited: false);
             }

@@ -9,6 +9,8 @@ namespace MonitoringPlatform.API.Configurations
         public bool Enabled { get; set; } = true;
         public int IntervalSeconds { get; set; } = 300;
         public int HttpTimeoutSeconds { get; set; } = 20;
+        public string? TranslationApiKey { get; set; }
+        public string TranslationProvider { get; set; } = "deepl"; // deepl | libretranslate | mymemory
         public List<CloudStatusProviderOptions> Providers { get; set; } = [];
 
         public IReadOnlyCollection<CloudProviderSeedDto> ToSeedDtos()

@@ -84,7 +84,11 @@ export function NotificationDropdown({ data }: NotificationDropdownProps) {
       </button>
 
       {open && (
-        <div className="fixed inset-x-4 top-16 z-50 rounded-xl border border-slate-200 bg-white shadow-2xl ring-1 ring-black/5 dark:border-slate-700 dark:bg-slate-900 sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:mt-2 sm:w-80">
+        <>
+          {/* Overlay en móvil */}
+          <div className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm sm:hidden" onClick={() => setOpen(false)} />
+
+          <div className="fixed inset-x-3 top-[4.5rem] z-50 max-h-[calc(100vh-6rem)] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-900 sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:mt-2 sm:w-80 sm:max-h-96">
           <div className="border-b border-slate-200 px-4 py-3 dark:border-slate-800">
             <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Notificaciones</h3>
           </div>
@@ -216,6 +220,7 @@ export function NotificationDropdown({ data }: NotificationDropdownProps) {
             </div>
           )}
         </div>
+      </>
       )}
     </div>
   );
