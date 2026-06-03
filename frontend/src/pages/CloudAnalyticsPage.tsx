@@ -230,200 +230,6 @@ function CompareSection({ analytics, compareA, compareB }: { analytics: CloudPro
   );
 }
 
-function DowntimeImpactCalculator({ defaultDowntimeMinutes = 0 }: { defaultDowntimeMinutes?: number }) {
-  const [annualRevenue, setAnnualRevenue] = useState(0);
-  const [employees, setEmployees] = useState(0);
-  const [hourlyCost, setHourlyCost] = useState(0);
-  const [duration, setDuration] = useState(defaultDowntimeMinutes);
-  const [interruptionType, setInterruptionType] = useState<"partial" | "total">("total");
-  const [sector, setSector] = useState("tech");
-
-  const sectorMultipliers: Record<string, number> = {
-    tech: 1.3,
-    finance: 1.5,
-    healthcare: 1.4,
-    retail: 1.1,
-    manufacturing: 1.0,
-    other: 1.0,
-  };
-  const sectorLabels: Record<string, string> = {
-    tech: "Tecnología / SaaS",
-    finance: "Finanzas / Banca",
-    healthcare: "Salud",
-    retail: "Retail / E-commerce",
-    manufacturing: "Manufactura",
-    other: "Otro",
-  };
-
-  const interruptionMultiplier = interruptionType === "total" ? 1 : 0.5;
-  const sectorMultiplier = sectorMultipliers[sector] ?? 1;
-
-  // Cálculos
-  const revenuePerMinute = annualRevenue / 365 / 24 / 60;
-  const lostRevenue = revenuePerMinute * duration * interruptionMultiplier * sectorMultiplier;
-
-  const employeeCostPerMinute = (employees * hourlyCost) / 60;
-  const lostProductivity = employeeCostPerMinute * duration * interruptionMultiplier;
-
-  const totalCost = lostRevenue + lostProductivity;
-  const costPerMinute = duration > 0 ? totalCost / duration : 0;
-  const equivalentWorkDays = employees > 0 && hourlyCost > 0 ? totalCost / (employees * hourlyCost * 8) : 0;
-
-  return (
-    <div className="space-y-6">
-      {/* Inputs */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-4">
-          <label className="block text-xs font-medium uppercase tracking-wider text-slate-500">Ingresos anuales (USD)</label>
-          <input
-            type="number"
-            min={0}
-            value={annualRevenue || ""}
-            onChange={(e) => setAnnualRevenue(Number(e.target.value))}
-            placeholder="0"
-            className="mt-2 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-800 dark:text-slate-200"
-          />
-        </div>
-        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-4">
-          <label className="block text-xs font-medium uppercase tracking-wider text-slate-500">Número de empleados</label>
-          <input
-            type="number"
-            min={0}
-            value={employees || ""}
-            onChange={(e) => setEmployees(Number(e.target.value))}
-            placeholder="0"
-            className="mt-2 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-800 dark:text-slate-200"
-          />
-        </div>
-        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-4">
-          <label className="block text-xs font-medium uppercase tracking-wider text-slate-500">Costo promedio por hora (USD)</label>
-          <input
-            type="number"
-            min={0}
-            value={hourlyCost || ""}
-            onChange={(e) => setHourlyCost(Number(e.target.value))}
-            placeholder="0"
-            className="mt-2 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-800 dark:text-slate-200"
-          />
-        </div>
-        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-4">
-          <label className="block text-xs font-medium uppercase tracking-wider text-slate-500">Duración caída (minutos)</label>
-          <div className="flex items-center gap-3 mt-2">
-            <input
-              type="range"
-              min={0}
-              max={1440}
-              step={5}
-              value={duration}
-              onChange={(e) => setDuration(Number(e.target.value))}
-              className="flex-1 accent-blue-600"
-            />
-            <input
-              type="number"
-              min={0}
-              max={1440}
-              value={duration}
-              onChange={(e) => setDuration(Number(e.target.value))}
-              className="w-20 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-2 py-1 text-sm text-slate-800 dark:text-slate-200 text-center"
-            />
-          </div>
-        </div>
-        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-4">
-          <label className="block text-xs font-medium uppercase tracking-wider text-slate-500">Tipo de interrupción</label>
-          <select
-            value={interruptionType}
-            onChange={(e) => setInterruptionType(e.target.value as "partial" | "total")}
-            className="mt-2 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-800 dark:text-slate-200"
-          >
-            <option value="total">Total</option>
-            <option value="partial">Parcial</option>
-          </select>
-        </div>
-        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-4">
-          <label className="block text-xs font-medium uppercase tracking-wider text-slate-500">Sector</label>
-          <select
-            value={sector}
-            onChange={(e) => setSector(e.target.value)}
-            className="mt-2 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-800 dark:text-slate-200"
-          >
-            {Object.entries(sectorLabels).map(([key, label]) => (
-              <option key={key} value={key}>{label} (x{sectorMultipliers[key]})</option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      {/* Resultados */}
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-xl border border-red-200 dark:border-red-900/30 bg-red-50 dark:bg-red-950/20 p-4">
-          <p className="text-[10px] uppercase tracking-wider text-red-600 dark:text-red-400">Costo total</p>
-          <p className="mt-1 text-2xl font-bold text-red-700 dark:text-red-300">
-            ${totalCost.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-          </p>
-        </div>
-        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-4">
-          <p className="text-[10px] uppercase tracking-wider text-slate-500">Ingresos perdidos</p>
-          <p className="mt-1 text-xl font-bold text-slate-800 dark:text-slate-100">
-            ${lostRevenue.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-          </p>
-        </div>
-        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-4">
-          <p className="text-[10px] uppercase tracking-wider text-slate-500">Productividad perdida</p>
-          <p className="mt-1 text-xl font-bold text-slate-800 dark:text-slate-100">
-            ${lostProductivity.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-          </p>
-        </div>
-        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-4">
-          <p className="text-[10px] uppercase tracking-wider text-slate-500">Costo / minuto</p>
-          <p className="mt-1 text-xl font-bold text-slate-800 dark:text-slate-100">
-            ${costPerMinute.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-          </p>
-        </div>
-      </div>
-
-      {/* Contexto */}
-      {equivalentWorkDays > 0 && (
-        <div className="rounded-xl border border-amber-200 dark:border-amber-900/30 bg-amber-50 dark:bg-amber-950/20 px-4 py-3">
-          <p className="text-sm text-amber-800 dark:text-amber-300">
-            Equivale a <strong>{equivalentWorkDays.toFixed(1)} días laborales</strong> de toda la empresa.
-          </p>
-        </div>
-      )}
-
-      {/* Gráfico simple de comparación */}
-      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5">
-        <h3 className="mb-4 text-sm font-semibold text-slate-900 dark:text-white">Desglose de costos</h3>
-        <div className="space-y-3">
-          <div>
-            <div className="flex items-center justify-between text-sm text-slate-600 dark:text-slate-400">
-              <span>Ingresos perdidos</span>
-              <span className="font-medium">${lostRevenue.toLocaleString("en-US", { maximumFractionDigits: 0 })}</span>
-            </div>
-            <div className="mt-1 h-2 w-full rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
-              <div
-                className="h-full rounded-full bg-red-500 transition-all"
-                style={{ width: `${totalCost > 0 ? (lostRevenue / totalCost) * 100 : 0}%` }}
-              />
-            </div>
-          </div>
-          <div>
-            <div className="flex items-center justify-between text-sm text-slate-600 dark:text-slate-400">
-              <span>Productividad perdida</span>
-              <span className="font-medium">${lostProductivity.toLocaleString("en-US", { maximumFractionDigits: 0 })}</span>
-            </div>
-            <div className="mt-1 h-2 w-full rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
-              <div
-                className="h-full rounded-full bg-amber-500 transition-all"
-                style={{ width: `${totalCost > 0 ? (lostProductivity / totalCost) * 100 : 0}%` }}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export function CloudAnalyticsPage() {
   const [analytics, setAnalytics] = useState<CloudProviderAnalytics[]>([]);
   const [monitors, setMonitors] = useState<DashboardMonitorSummaryDto[]>([]);
@@ -432,7 +238,7 @@ export function CloudAnalyticsPage() {
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [toast, setToast] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"overview" | "compare" | "monitors" | "impact">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "compare" | "monitors">("overview");
   const [compareA, setCompareA] = useState<string>("");
   const [compareB, setCompareB] = useState<string>("");
 
@@ -529,7 +335,7 @@ export function CloudAnalyticsPage() {
 
       {/* Tabs */}
       <div className="flex flex-wrap items-center gap-1 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-1">
-        {(["overview", "compare", "monitors", "impact"] as const).map((tab) => (
+        {(["overview", "compare", "monitors"] as const).map((tab) => (
           <button
             key={tab}
             type="button"
@@ -540,7 +346,7 @@ export function CloudAnalyticsPage() {
                 : "text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
             }`}
           >
-            {tab === "overview" ? "Resumen" : tab === "compare" ? "Comparar" : tab === "monitors" ? "Monitores" : "Impacto"}
+            {tab === "overview" ? "Resumen" : tab === "compare" ? "Comparar" : "Monitores"}
           </button>
         ))}
       </div>
@@ -698,10 +504,6 @@ export function CloudAnalyticsPage() {
             </>
           )}
         </>
-      )}
-
-      {activeTab === "impact" && (
-        <DowntimeImpactCalculator defaultDowntimeMinutes={totalDowntime} />
       )}
 
       {activeTab === "overview" && (loading && analytics.length === 0 ? (

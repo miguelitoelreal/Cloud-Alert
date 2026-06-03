@@ -1,5 +1,6 @@
 ﻿import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import { DowntimeImpactCalculator } from "../components/DowntimeImpactCalculator";
 
 const RECORD_TYPES: { label: string; value: number }[] = [
   { label: "A", value: 1 },
@@ -100,7 +101,7 @@ export function NetworkToolsPage() {
     }
   });
 
-  const [activeTool, setActiveTool] = useState<"dns" | "latency">("dns");
+  const [activeTool, setActiveTool] = useState<"dns" | "latency" | "sla" | "impact">("dns");
 
   const [latencyUrl, setLatencyUrl] = useState("");
   const [latencyLoading, setLatencyLoading] = useState(false);
@@ -117,8 +118,135 @@ export function NetworkToolsPage() {
     total: number;
   } | null>(null);
 
+  // ── SLA Calculator state ──
+  const [slaPercentage, setSlaPercentage] = useState(99.9);
+  const [slaPeriod, setSlaPeriod] = useState<"day" | "month" | "quarter" | "year">("month");
+  const [slaServices, setSlaServices] = useState(1);
+  const [slaCustomDowntime, setSlaCustomDowntime] = useState<string>("");
+  const [slaCustomUnit, setSlaCustomUnit] = useState<"seconds" | "minutes" | "hours" | "days">("minutes");
+
+  // Reverse calculator: I had X downtime → what SLA did I achieve?
+  const [revDowntime, setRevDowntime] = useState<string>("");
+  const [revUnit, setRevUnit] = useState<"seconds" | "minutes" | "hours" | "days">("minutes");
+  const [revPeriod, setRevPeriod] = useState<"day" | "month" | "quarter" | "year">("month");
+
+  // Penalty calculator
+  const [penaltySla, setPenaltySla] = useState(99.9);
+  const [penaltyMonthlyCost, setPenaltyMonthlyCost] = useState<string>("1000");
+  const [penaltyDowntime, setPenaltyDowntime] = useState<string>("");
+  const [penaltyUnit, setPenaltyUnit] = useState<"seconds" | "minutes" | "hours" | "days">("minutes");
+  const [penaltyPeriod, setPenaltyPeriod] = useState<"day" | "month" | "quarter" | "year">("month");
+
+  // Compare two SLAs
+  const [compareA, setCompareA] = useState(99.9);
+  const [compareB, setCompareB] = useState(99.99);
+  const [comparePeriod, setComparePeriod] = useState<"day" | "month" | "quarter" | "year">("month");
+
+  const UNIT_MULTIPLIERS: Record<typeof slaCustomUnit, number> = {
+    seconds: 1,
+    minutes: 60,
+    hours: 3600,
+    days: 86400,
+  };
+
+  const SLA_PRESETS = [
+    { label: "99%", value: 99, desc: "3.65 dias/ano de downtime" },
+    { label: "99.9%", value: 99.9, desc: "8.76 horas/ano" },
+    { label: "99.95%", value: 99.95, desc: "4.38 horas/ano" },
+    { label: "99.99%", value: 99.99, desc: "52.6 minutos/ano" },
+    { label: "99.999%", value: 99.999, desc: "5.26 minutos/ano" },
+    { label: "99.9999%", value: 99.9999, desc: "31.5 segundos/ano" },
+  ];
+
+  const PERIOD_SECONDS: Record<typeof slaPeriod, number> = {
+    day: 86400,
+    month: 2592000,
+    quarter: 7776000,
+    year: 31536000,
+  };
+
+  function formatDuration(totalSeconds: number): string {
+    if (totalSeconds <= 0) return "0s";
+    const d = Math.floor(totalSeconds / 86400);
+    const h = Math.floor((totalSeconds % 86400) / 3600);
+    const m = Math.floor((totalSeconds % 3600) / 60);
+    const s = Math.round(totalSeconds % 60);
+    const parts: string[] = [];
+    if (d > 0) parts.push(`${d}d`);
+    if (h > 0) parts.push(`${h}h`);
+    if (m > 0) parts.push(`${m}m`);
+    if (s > 0 || parts.length === 0) parts.push(`${s}s`);
+    return parts.join(" ");
+  }
+
+  function formatDurationPrecise(totalSeconds: number): string {
+    if (totalSeconds <= 0) return "0s";
+    const d = Math.floor(totalSeconds / 86400);
+    const h = Math.floor((totalSeconds % 86400) / 3600);
+    const m = Math.floor((totalSeconds % 3600) / 60);
+    const s = (totalSeconds % 60).toFixed(2);
+    const parts: string[] = [];
+    if (d > 0) parts.push(`${d}d`);
+    if (h > 0) parts.push(`${h}h`);
+    if (m > 0) parts.push(`${m}m`);
+    if (Number(s) > 0 || parts.length === 0) parts.push(`${Number(s)}s`);
+    return parts.join(" ");
+  }
+
+  const allowedDowntimeSeconds = (100 - slaPercentage) / 100 * PERIOD_SECONDS[slaPeriod];
+  const compoundSla = Math.pow(slaPercentage / 100, slaServices) * 100;
+  const effectiveDowntime = (100 - compoundSla) / 100 * PERIOD_SECONDS[slaPeriod];
+
+  // Convert custom downtime to seconds
+  const customDowntimeRaw = Number(slaCustomDowntime);
+  const customDowntimeSeconds = !isNaN(customDowntimeRaw) && customDowntimeRaw > 0
+    ? customDowntimeRaw * UNIT_MULTIPLIERS[slaCustomUnit]
+    : 0;
+  const achievedSla = customDowntimeSeconds > 0
+    ? Math.max(0, 100 - (customDowntimeSeconds / PERIOD_SECONDS[slaPeriod]) * 100)
+    : null;
+  const complianceUsed = customDowntimeSeconds > 0 && allowedDowntimeSeconds > 0
+    ? Math.min(100, (customDowntimeSeconds / allowedDowntimeSeconds) * 100)
+    : null;
+
+  // Reverse calculator
+  const revDowntimeRaw = Number(revDowntime);
+  const revDowntimeSeconds = !isNaN(revDowntimeRaw) && revDowntimeRaw > 0
+    ? revDowntimeRaw * UNIT_MULTIPLIERS[revUnit]
+    : 0;
+  const revAchievedSla = revDowntimeSeconds > 0
+    ? Math.max(0, 100 - (revDowntimeSeconds / PERIOD_SECONDS[revPeriod]) * 100)
+    : null;
+
+  // Penalty calculator
+  const penaltyDowntimeRaw = Number(penaltyDowntime);
+  const penaltyDowntimeSeconds = !isNaN(penaltyDowntimeRaw) && penaltyDowntimeRaw > 0
+    ? penaltyDowntimeRaw * UNIT_MULTIPLIERS[penaltyUnit]
+    : 0;
+  const penaltyAllowedSeconds = (100 - penaltySla) / 100 * PERIOD_SECONDS[penaltyPeriod];
+  const penaltyExceededSeconds = Math.max(0, penaltyDowntimeSeconds - penaltyAllowedSeconds);
+  const penaltyMonthlyCostNum = Number(penaltyMonthlyCost) || 0;
+  const penaltyCredit = penaltyExceededSeconds > 0 && penaltyAllowedSeconds > 0
+    ? Math.min(100, (penaltyExceededSeconds / penaltyAllowedSeconds) * 10) // 10% credit per allowed downtime unit exceeded, capped at 100%
+    : 0;
+  const penaltyCreditAmount = penaltyMonthlyCostNum * (penaltyCredit / 100);
+
+  // Compare two SLAs
+  const compareAllowedA = (100 - compareA) / 100 * PERIOD_SECONDS[comparePeriod];
+  const compareAllowedB = (100 - compareB) / 100 * PERIOD_SECONDS[comparePeriod];
+  const compareDiffSeconds = compareAllowedB - compareAllowedA;
+
+  function getNinesLabel(pct: number): string {
+    if (pct >= 99.9999) return "Six Nines";
+    if (pct >= 99.999) return "Five Nines";
+    if (pct >= 99.99) return "Four Nines";
+    if (pct >= 99.9) return "Three Nines";
+    if (pct >= 99) return "Two Nines";
+    return "One Nine";
+  }
+
   useEffect(() => {
-    document.title = "Herramientas de red — DNS Lookup";
+    document.title = "Herramientas — DNS Lookup";
   }, []);
 
   useEffect(() => {
@@ -297,8 +425,8 @@ export function NetworkToolsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Herramientas de red</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400">Diagnostico de DNS y latencia para servicios cloud</p>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Herramientas</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400">Diagnostico de DNS, latencia, calculadora SLA y costo de downtime</p>
       </div>
 
       {/* Tabs */}
@@ -326,6 +454,30 @@ export function NetworkToolsPage() {
         >
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" /></svg>
           Test de Latencia
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTool("sla")}
+          className={`rounded-t-lg px-4 py-2.5 text-sm font-medium flex items-center gap-2 transition-colors ${
+            activeTool === "sla"
+              ? "bg-white dark:bg-slate-950 text-violet-600 dark:text-violet-400 border-t border-x border-slate-200 dark:border-slate-800 -mb-px"
+              : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
+          }`}
+        >
+          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M11.35 3.836c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15a2.251 2.251 0 012.25 2.25v.894m-12 0A2.251 2.251 0 012.25 3.75h-1.5a2.251 2.251 0 01-2.25-2.25v-.894m20 0a2.25 2.25 0 012.25-2.25h1.5a2.25 2.25 0 012.25 2.25v.894M9 10.5h.008v.008H9V10.5zm0 3h.008v.008H9v-.008zm0 3h.008v.008H9v-.008zM12 10.5h.008v.008H12V10.5zm0 3h.008v.008H12v-.008zm0 3h.008v.008H12v-.008zM15 10.5h.008v.008H15V10.5zm0 3h.008v.008H15v-.008zm0 3h.008v.008H15v-.008z" /><path strokeLinecap="round" strokeLinejoin="round" d="M12 22.5c5.523 0 10-4.477 10-10S17.523 2.5 12 2.5 2 6.977 2 12.5s4.477 10 10 10z" /></svg>
+          Calculadora SLA
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTool("impact")}
+          className={`rounded-t-lg px-4 py-2.5 text-sm font-medium flex items-center gap-2 transition-colors ${
+            activeTool === "impact"
+              ? "bg-white dark:bg-slate-950 text-rose-600 dark:text-rose-400 border-t border-x border-slate-200 dark:border-slate-800 -mb-px"
+              : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
+          }`}
+        >
+          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          Costo de Downtime
         </button>
       </div>
 
@@ -677,6 +829,351 @@ export function NetworkToolsPage() {
           </div>
         )}
       </div>
+      )}
+
+      {activeTool === "sla" && (
+        <div className="space-y-6">
+          {/* Configuracion */}
+          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 space-y-5">
+            {/* SLA Target */}
+            <div>
+              <label className="block text-xs font-medium uppercase tracking-wider text-slate-500">Objetivo SLA</label>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {SLA_PRESETS.map((p) => (
+                  <button
+                    key={p.value}
+                    type="button"
+                    onClick={() => setSlaPercentage(p.value)}
+                    className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
+                      slaPercentage === p.value
+                        ? "bg-violet-600 text-white"
+                        : "border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-violet-50 dark:hover:bg-violet-900/20"
+                    }`}
+                  >
+                    {p.label}
+                  </button>
+                ))}
+              </div>
+              <div className="mt-3 flex items-center gap-3">
+                <input
+                  type="range"
+                  min={90}
+                  max={99.9999}
+                  step={0.0001}
+                  value={slaPercentage}
+                  onChange={(e) => setSlaPercentage(Number(e.target.value))}
+                  className="w-full accent-violet-600"
+                />
+                <span className="text-sm font-mono font-semibold text-slate-800 dark:text-slate-200 min-w-[80px] text-right">
+                  {slaPercentage.toFixed(4)}%
+                </span>
+              </div>
+            </div>
+
+            {/* Periodo */}
+            <div>
+              <label className="block text-xs font-medium uppercase tracking-wider text-slate-500">Periodo</label>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {[
+                  { label: "Dia", value: "day" as const },
+                  { label: "Mes (30d)", value: "month" as const },
+                  { label: "Trimestre (90d)", value: "quarter" as const },
+                  { label: "Ano (365d)", value: "year" as const },
+                ].map((p) => (
+                  <button
+                    key={p.value}
+                    type="button"
+                    onClick={() => setSlaPeriod(p.value)}
+                    className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
+                      slaPeriod === p.value
+                        ? "bg-violet-600 text-white"
+                        : "border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-violet-50 dark:hover:bg-violet-900/20"
+                    }`}
+                  >
+                    {p.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Servicios en cadena */}
+            <div>
+              <label className="block text-xs font-medium uppercase tracking-wider text-slate-500">
+                Servicios en cadena (SLA compuesto)
+              </label>
+              <div className="mt-2 flex items-center gap-3">
+                <input
+                  type="range"
+                  min={1}
+                  max={10}
+                  step={1}
+                  value={slaServices}
+                  onChange={(e) => setSlaServices(Number(e.target.value))}
+                  className="w-48 accent-violet-600"
+                />
+                <span className="text-sm font-mono font-semibold text-slate-800 dark:text-slate-200">
+                  {slaServices} {slaServices === 1 ? "servicio" : "servicios"}
+                </span>
+              </div>
+            </div>
+
+            {/* Downtime real con unidades flexibles */}
+            <div>
+              <label className="block text-xs font-medium uppercase tracking-wider text-slate-500">
+                Downtime real ocurrido — opcional
+              </label>
+              <div className="mt-2 flex items-center gap-2">
+                <input
+                  type="number"
+                  value={slaCustomDowntime}
+                  onChange={(e) => setSlaCustomDowntime(e.target.value)}
+                  placeholder="ej: 30"
+                  className="w-32 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-800 dark:text-slate-200"
+                />
+                <select
+                  value={slaCustomUnit}
+                  onChange={(e) => setSlaCustomUnit(e.target.value as typeof slaCustomUnit)}
+                  className="rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-800 dark:text-slate-200"
+                >
+                  <option value="seconds">segundos</option>
+                  <option value="minutes">minutos</option>
+                  <option value="hours">horas</option>
+                  <option value="days">dias</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Resultados principales */}
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 text-center">
+              <div className="text-xs font-medium uppercase tracking-wider text-slate-500">Downtime maximo permitido</div>
+              <div className="mt-2 text-2xl font-bold text-violet-600 dark:text-violet-400">{formatDuration(allowedDowntimeSeconds)}</div>
+              <div className="mt-1 text-xs text-slate-500">{formatDurationPrecise(allowedDowntimeSeconds)}</div>
+            </div>
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 text-center">
+              <div className="text-xs font-medium uppercase tracking-wider text-slate-500">Uptime esperado</div>
+              <div className="mt-2 text-2xl font-bold text-emerald-600 dark:text-emerald-400">{slaPercentage.toFixed(4)}%</div>
+              <div className="mt-1 text-xs text-slate-500">{getNinesLabel(slaPercentage)}</div>
+            </div>
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 text-center">
+              <div className="text-xs font-medium uppercase tracking-wider text-slate-500">SLA compuesto</div>
+              <div className="mt-2 text-2xl font-bold text-cyan-600 dark:text-cyan-400">{compoundSla.toFixed(4)}%</div>
+              <div className="mt-1 text-xs text-slate-500">{slaServices} en serie</div>
+            </div>
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 text-center">
+              <div className="text-xs font-medium uppercase tracking-wider text-slate-500">Downtime efectivo (compuesto)</div>
+              <div className="mt-2 text-2xl font-bold text-rose-600 dark:text-rose-400">{formatDuration(effectiveDowntime)}</div>
+            </div>
+          </div>
+
+          {/* Barra de cumplimiento */}
+          {complianceUsed !== null && (
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-medium uppercase tracking-wider text-slate-500">Uso del downtime permitido</span>
+                <span className={`text-sm font-bold ${complianceUsed > 100 ? "text-rose-600" : complianceUsed > 80 ? "text-amber-600" : "text-emerald-600"}`}>
+                  {complianceUsed.toFixed(1)}%
+                </span>
+              </div>
+              <div className="w-full h-3 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all ${complianceUsed > 100 ? "bg-rose-500" : complianceUsed > 80 ? "bg-amber-500" : "bg-emerald-500"}`}
+                  style={{ width: `${Math.min(100, complianceUsed)}%` }}
+                />
+              </div>
+              <div className="mt-2 flex justify-between text-xs text-slate-500">
+                <span>Downtime real: {formatDuration(customDowntimeSeconds)}</span>
+                <span>Permitido: {formatDuration(allowedDowntimeSeconds)}</span>
+              </div>
+              {complianceUsed > 100 && (
+                <div className="mt-2 text-sm text-rose-600 dark:text-rose-400 font-semibold">
+                  SLA incumplido — Excedido por {formatDuration(customDowntimeSeconds - allowedDowntimeSeconds)}
+                </div>
+              )}
+              {achievedSla !== null && (
+                <div className="mt-1 text-sm">
+                  SLA alcanzado: <span className="font-mono font-semibold text-violet-600 dark:text-violet-400">{achievedSla.toFixed(4)}%</span>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Calculadora inversa */}
+          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 space-y-4">
+            <div className="flex items-center gap-2">
+              <svg className="h-5 w-5 text-cyan-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" /></svg>
+              <h2 className="text-sm font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">Calculadora inversa</h2>
+              <span className="text-xs text-slate-400">Tuve X downtime, que SLA logre?</span>
+            </div>
+            <div className="flex flex-wrap items-end gap-3">
+              <div>
+                <label className="block text-xs font-medium uppercase tracking-wider text-slate-500">Downtime ocurrido</label>
+                <div className="mt-1 flex items-center gap-2">
+                  <input type="number" value={revDowntime} onChange={(e) => setRevDowntime(e.target.value)} placeholder="30"
+                    className="w-28 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-800 dark:text-slate-200" />
+                  <select value={revUnit} onChange={(e) => setRevUnit(e.target.value as typeof revUnit)}
+                    className="rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-800 dark:text-slate-200">
+                    <option value="seconds">seg</option><option value="minutes">min</option><option value="hours">hrs</option><option value="days">dias</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-medium uppercase tracking-wider text-slate-500">Periodo</label>
+                <select value={revPeriod} onChange={(e) => setRevPeriod(e.target.value as typeof revPeriod)}
+                  className="mt-1 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-800 dark:text-slate-200">
+                  <option value="day">Dia</option><option value="month">Mes</option><option value="quarter">Trimestre</option><option value="year">Ano</option>
+                </select>
+              </div>
+            </div>
+            {revAchievedSla !== null && (
+              <div className="rounded-lg bg-cyan-50 dark:bg-cyan-950/20 border border-cyan-200 dark:border-cyan-900/30 p-4">
+                <div className="text-xs font-medium uppercase tracking-wider text-cyan-600 dark:text-cyan-400">SLA alcanzado</div>
+                <div className="text-3xl font-bold text-slate-900 dark:text-white">{revAchievedSla.toFixed(4)}%</div>
+                <div className="text-sm text-slate-500">{getNinesLabel(revAchievedSla)}</div>
+              </div>
+            )}
+          </div>
+
+          {/* Calculadora de penalizacion */}
+          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 space-y-4">
+            <div className="flex items-center gap-2">
+              <svg className="h-5 w-5 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              <h2 className="text-sm font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">Calculadora de penalizacion</h2>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <div>
+                <label className="block text-xs font-medium uppercase tracking-wider text-slate-500">SLA objetivo</label>
+                <select value={penaltySla} onChange={(e) => setPenaltySla(Number(e.target.value))}
+                  className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-800 dark:text-slate-200">
+                  {SLA_PRESETS.map((p) => (<option key={p.value} value={p.value}>{p.label} — {p.desc}</option>))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium uppercase tracking-wider text-slate-500">Costo mensual ($)</label>
+                <input type="number" value={penaltyMonthlyCost} onChange={(e) => setPenaltyMonthlyCost(e.target.value)} placeholder="1000"
+                  className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-800 dark:text-slate-200" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium uppercase tracking-wider text-slate-500">Downtime real</label>
+                <div className="mt-1 flex items-center gap-2">
+                  <input type="number" value={penaltyDowntime} onChange={(e) => setPenaltyDowntime(e.target.value)} placeholder="120"
+                    className="w-20 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-800 dark:text-slate-200" />
+                  <select value={penaltyUnit} onChange={(e) => setPenaltyUnit(e.target.value as typeof penaltyUnit)}
+                    className="rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-2 py-2 text-sm text-slate-800 dark:text-slate-200">
+                    <option value="seconds">seg</option><option value="minutes">min</option><option value="hours">hrs</option><option value="days">dias</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-medium uppercase tracking-wider text-slate-500">Periodo</label>
+                <select value={penaltyPeriod} onChange={(e) => setPenaltyPeriod(e.target.value as typeof penaltyPeriod)}
+                  className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-800 dark:text-slate-200">
+                  <option value="day">Dia</option><option value="month">Mes</option><option value="quarter">Trimestre</option><option value="year">Ano</option>
+                </select>
+              </div>
+            </div>
+            {penaltyDowntimeSeconds > 0 && (
+              <div className="grid gap-4 sm:grid-cols-3">
+                <div className="rounded-lg bg-rose-50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/30 p-4 text-center">
+                  <div className="text-xs font-medium uppercase tracking-wider text-rose-600 dark:text-rose-400">Downtime excedido</div>
+                  <div className="mt-1 text-xl font-bold text-slate-900 dark:text-white">{formatDuration(penaltyExceededSeconds)}</div>
+                </div>
+                <div className="rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/30 p-4 text-center">
+                  <div className="text-xs font-medium uppercase tracking-wider text-amber-600 dark:text-amber-400">Credito estimado</div>
+                  <div className="mt-1 text-xl font-bold text-slate-900 dark:text-white">{penaltyCredit.toFixed(1)}%</div>
+                </div>
+                <div className="rounded-lg bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900/30 p-4 text-center">
+                  <div className="text-xs font-medium uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Monto a creditar</div>
+                  <div className="mt-1 text-xl font-bold text-slate-900 dark:text-white">${penaltyCreditAmount.toFixed(2)}</div>
+                  <div className="text-xs text-slate-500">de ${penaltyMonthlyCostNum.toFixed(2)}/mes</div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Comparador de SLAs */}
+          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 space-y-4">
+            <div className="flex items-center gap-2">
+              <svg className="h-5 w-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" /></svg>
+              <h2 className="text-sm font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">Comparador de SLAs</h2>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-3">
+              <div>
+                <label className="block text-xs font-medium uppercase tracking-wider text-slate-500">SLA A</label>
+                <input type="number" min={90} max={99.9999} step={0.01} value={compareA} onChange={(e) => setCompareA(Number(e.target.value))}
+                  className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-800 dark:text-slate-200" />
+                <div className="mt-1 text-xs text-slate-500">{getNinesLabel(compareA)} — {formatDuration(compareAllowedA)} permitido</div>
+              </div>
+              <div>
+                <label className="block text-xs font-medium uppercase tracking-wider text-slate-500">SLA B</label>
+                <input type="number" min={90} max={99.9999} step={0.01} value={compareB} onChange={(e) => setCompareB(Number(e.target.value))}
+                  className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-800 dark:text-slate-200" />
+                <div className="mt-1 text-xs text-slate-500">{getNinesLabel(compareB)} — {formatDuration(compareAllowedB)} permitido</div>
+              </div>
+              <div>
+                <label className="block text-xs font-medium uppercase tracking-wider text-slate-500">Periodo</label>
+                <select value={comparePeriod} onChange={(e) => setComparePeriod(e.target.value as typeof comparePeriod)}
+                  className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-800 dark:text-slate-200">
+                  <option value="day">Dia</option><option value="month">Mes</option><option value="quarter">Trimestre</option><option value="year">Ano</option>
+                </select>
+              </div>
+            </div>
+            <div className="rounded-lg bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900/30 p-4">
+              <div className="text-xs font-medium uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Diferencia de tolerancia</div>
+              <div className="mt-1 text-xl font-bold text-slate-900 dark:text-white">
+                {compareDiffSeconds >= 0 ? "+" : ""}{formatDuration(Math.abs(compareDiffSeconds))}
+              </div>
+              <div className="text-sm text-slate-500">
+                SLA B permite {compareDiffSeconds >= 0 ? "mas" : "menos"} downtime que SLA A en un {comparePeriod === "day" ? "dia" : comparePeriod === "month" ? "mes" : comparePeriod === "quarter" ? "trimestre" : "ano"}.
+              </div>
+            </div>
+          </div>
+
+          {/* Tabla contextual de referencia */}
+          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 overflow-hidden">
+            <div className="px-5 py-3 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60">
+              <div className="text-sm font-semibold text-slate-700 dark:text-slate-300">Referencia de niveles SLA</div>
+              <div className="text-xs text-slate-500">Downtime maximo permitido por ano</div>
+            </div>
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/30">
+                  <th className="px-5 py-2 text-left font-medium text-slate-500 dark:text-slate-400">Nivel</th>
+                  <th className="px-5 py-2 text-right font-medium text-slate-500 dark:text-slate-400">SLA</th>
+                  <th className="px-5 py-2 text-right font-medium text-slate-500 dark:text-slate-400">Downtime/ano</th>
+                  <th className="px-5 py-2 text-right font-medium text-slate-500 dark:text-slate-400">Downtime/mes</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                {[
+                  { label: "One Nine", pct: 90 },
+                  { label: "Two Nines", pct: 99 },
+                  { label: "Three Nines", pct: 99.9 },
+                  { label: "Four Nines", pct: 99.99 },
+                  { label: "Five Nines", pct: 99.999 },
+                  { label: "Six Nines", pct: 99.9999 },
+                ].map((row) => {
+                  const yearly = (100 - row.pct) / 100 * PERIOD_SECONDS.year;
+                  const monthly = (100 - row.pct) / 100 * PERIOD_SECONDS.month;
+                  const isActive = Math.abs(slaPercentage - row.pct) < 0.0001;
+                  return (
+                    <tr key={row.pct} className={isActive ? "bg-violet-50 dark:bg-violet-950/10" : ""}>
+                      <td className={`px-5 py-2 font-medium ${isActive ? "text-violet-700 dark:text-violet-300" : "text-slate-700 dark:text-slate-300"}`}>{row.label}</td>
+                      <td className="px-5 py-2 text-right font-mono text-slate-800 dark:text-slate-200">{row.pct}%</td>
+                      <td className="px-5 py-2 text-right font-mono text-slate-600 dark:text-slate-400">{formatDuration(yearly)}</td>
+                      <td className="px-5 py-2 text-right font-mono text-slate-600 dark:text-slate-400">{formatDuration(monthly)}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {activeTool === "impact" && (
+        <DowntimeImpactCalculator />
       )}
     </div>
   );

@@ -58,13 +58,6 @@ function IconBellRing(props: React.SVGProps<SVGSVGElement>) {
     </svg>
   );
 }
-function IconShield(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-    </svg>
-  );
-}
 function IconNetwork(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" {...props}>
@@ -93,10 +86,9 @@ const NAV_ITEMS: NavItem[] = [
   { to: "/dashboard", label: "Centro de Monitoreo", icon: IconMonitor },
   { to: "/cloud-status/analytics", label: "Analítica Cloud", icon: IconChart },
   { to: "/alert-subscriptions", label: "Suscripciones de Alerta", icon: IconBellRing },
-  { to: "/sla-dashboard", label: "Dashboard de SLA", icon: IconShield },
   { to: "/clientes", label: "Cartera de Clientes", icon: IconBriefcase },
   { to: "/integraciones", label: "Integraciones", icon: IconPlug },
-  { to: "/herramientas-red", label: "Herramientas de red", icon: IconNetwork },
+  { to: "/herramientas-red", label: "Herramientas", icon: IconNetwork },
 ];
 
 type SidebarNavProps = {
