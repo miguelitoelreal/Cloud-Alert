@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
 interface Message {
   id: string;
@@ -18,6 +18,15 @@ export function SupportPage() {
   ]);
   const [inputText, setInputText] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, isTyping]);
 
   const handleSendMessage = async () => {
     if (!inputText.trim()) return;
@@ -87,9 +96,9 @@ export function SupportPage() {
   };
 
   return (
-    <div className="flex h-full flex-col bg-slate-50 dark:bg-slate-950">
-      {/* Header */}
-      <div className="border-b border-slate-200 bg-white px-8 py-5 dark:border-slate-800 dark:bg-slate-900">
+    <div className="flex h-screen flex-col bg-slate-50 dark:bg-slate-950">
+      {/* Header - Fixed height */}
+      <div className="flex-shrink-0 border-b border-slate-200 bg-white px-8 py-5 dark:border-slate-800 dark:bg-slate-900">
         <div className="flex items-center gap-4">
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 shadow-lg shadow-purple-500/20">
             <svg
@@ -113,7 +122,7 @@ export function SupportPage() {
         </div>
       </div>
 
-      {/* Chat Messages */}
+      {/* Chat Messages - Scrollable area */}
       <div className="flex-1 overflow-y-auto p-8">
         <div className="mx-auto max-w-4xl space-y-6">
           {messages.map((message) => (
@@ -153,11 +162,12 @@ export function SupportPage() {
               </div>
             </div>
           )}
+          <div ref={messagesEndRef} />
         </div>
       </div>
 
-      {/* Input Area */}
-      <div className="border-t border-slate-200 bg-white px-8 py-6 dark:border-slate-800 dark:bg-slate-900">
+      {/* Input Area - Fixed at bottom */}
+      <div className="flex-shrink-0 border-t border-slate-200 bg-white px-8 py-6 dark:border-slate-800 dark:bg-slate-900">
         <div className="mx-auto max-w-4xl">
           <div className="flex gap-4">
             <textarea
