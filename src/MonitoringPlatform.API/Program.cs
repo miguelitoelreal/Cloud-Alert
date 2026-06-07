@@ -364,13 +364,13 @@ static async Task EnsureCloudProvidersAsync(AppDbContext db, IOptions<CloudStatu
     }
 }
 
-// Create database schema automatically on startup (required for Docker/Render deploys)
+// Create or migrate database schema automatically on startup (required for Docker/Render deploys)
 try
 {
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     var cloudOptions = scope.ServiceProvider.GetRequiredService<IOptions<CloudStatusOptions>>();
-    db.Database.EnsureCreated();
+    db.Database.Migrate();
 
     // Asegurar que columnas nuevas existan en bases de datos deployadas previamente
     await DbSchemaInitializer.EnsureLatencyColumnsAsync(db);
@@ -381,6 +381,7 @@ try
 catch (Exception ex)
 {
     Console.WriteLine($"[Startup] Database init failed: {ex.Message}");
+    Console.WriteLine($"[Startup] Stack trace: {ex.StackTrace}");
 }
 
 app.UseCors(CorsPolicyName);
