@@ -89,11 +89,11 @@ export function SupportPage() {
   return (
     <div className="flex h-full flex-col bg-slate-50 dark:bg-slate-950">
       {/* Header */}
-      <div className="border-b border-slate-200 bg-white px-6 py-4 dark:border-slate-800 dark:bg-slate-900">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-100 dark:bg-purple-900/30">
+      <div className="border-b border-slate-200 bg-white px-8 py-5 dark:border-slate-800 dark:bg-slate-900">
+        <div className="flex items-center gap-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 shadow-lg shadow-purple-500/20">
             <svg
-              className="h-5 w-5 text-purple-600 dark:text-purple-400"
+              className="h-6 w-6 text-white"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -107,25 +107,25 @@ export function SupportPage() {
             </svg>
           </div>
           <div>
-            <h1 className="text-lg font-semibold text-slate-900 dark:text-white">Soporte Técnico</h1>
-            <p className="text-sm text-slate-500 dark:text-slate-400">Asistente virtual 24/7</p>
+            <h1 className="text-xl font-semibold text-slate-900 dark:text-white">Soporte Técnico</h1>
+            <p className="text-sm text-slate-500 dark:text-slate-400">Asistente virtual disponible 24/7</p>
           </div>
         </div>
       </div>
 
       {/* Chat Messages */}
-      <div className="flex-1 overflow-y-auto p-6">
-        <div className="mx-auto max-w-3xl space-y-4">
+      <div className="flex-1 overflow-y-auto p-8">
+        <div className="mx-auto max-w-4xl space-y-6">
           {messages.map((message) => (
             <div
               key={message.id}
               className={`flex ${message.isUser ? "justify-end" : "justify-start"}`}
             >
               <div
-                className={`max-w-[70%] rounded-2xl px-4 py-3 ${
+                className={`max-w-[75%] rounded-2xl px-6 py-4 shadow-sm ${
                   message.isUser
-                    ? "bg-purple-600 text-white"
-                    : "bg-white text-slate-900 shadow-sm dark:bg-slate-800 dark:text-white"
+                    ? "bg-gradient-to-br from-purple-600 to-purple-700 text-white shadow-purple-500/20"
+                    : "bg-white text-slate-900 shadow-md dark:bg-slate-800 dark:text-white"
                 }`}
               >
                 <div
@@ -133,7 +133,7 @@ export function SupportPage() {
                   dangerouslySetInnerHTML={{ __html: message.text.replace(/\n/g, '<br />').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }}
                 />
                 <p
-                  className={`mt-1 text-xs ${
+                  className={`mt-2 text-xs ${
                     message.isUser ? "text-purple-200" : "text-slate-400 dark:text-slate-500"
                   }`}
                 >
@@ -144,11 +144,11 @@ export function SupportPage() {
           ))}
           {isTyping && (
             <div className="flex justify-start">
-              <div className="rounded-2xl bg-white px-4 py-3 shadow-sm dark:bg-slate-800">
-                <div className="flex gap-1">
-                  <div className="h-2 w-2 animate-bounce rounded-full bg-slate-400" />
-                  <div className="h-2 w-2 animate-bounce rounded-full bg-slate-400" style={{ animationDelay: "0.1s" }} />
-                  <div className="h-2 w-2 animate-bounce rounded-full bg-slate-400" style={{ animationDelay: "0.2s" }} />
+              <div className="rounded-2xl bg-white px-6 py-4 shadow-md dark:bg-slate-800">
+                <div className="flex gap-2">
+                  <div className="h-2.5 w-2.5 animate-bounce rounded-full bg-slate-400" />
+                  <div className="h-2.5 w-2.5 animate-bounce rounded-full bg-slate-400" style={{ animationDelay: "0.1s" }} />
+                  <div className="h-2.5 w-2.5 animate-bounce rounded-full bg-slate-400" style={{ animationDelay: "0.2s" }} />
                 </div>
               </div>
             </div>
@@ -157,22 +157,22 @@ export function SupportPage() {
       </div>
 
       {/* Input Area */}
-      <div className="border-t border-slate-200 bg-white px-6 py-4 dark:border-slate-800 dark:bg-slate-900">
-        <div className="mx-auto max-w-3xl">
-          <div className="flex gap-3">
+      <div className="border-t border-slate-200 bg-white px-8 py-6 dark:border-slate-800 dark:bg-slate-900">
+        <div className="mx-auto max-w-4xl">
+          <div className="flex gap-4">
             <textarea
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Escribe tu pregunta o problema..."
+              placeholder="Escribe tu pregunta o describe el problema que tienes..."
               rows={1}
-              className="flex-1 resize-none rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:border-purple-400 dark:focus:ring-purple-400/20"
-              style={{ minHeight: "48px", maxHeight: "120px" }}
+              className="flex-1 resize-none rounded-xl border border-slate-300 px-5 py-4 text-sm focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:border-purple-400 dark:focus:ring-purple-400/20"
+              style={{ minHeight: "52px", maxHeight: "150px" }}
             />
             <button
               onClick={handleSendMessage}
               disabled={!inputText.trim() || isTyping}
-              className="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-600 text-white transition-colors hover:bg-purple-700 disabled:bg-slate-300 disabled:cursor-not-allowed dark:disabled:bg-slate-700"
+              className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-purple-600 to-purple-700 text-white shadow-lg shadow-purple-500/30 transition-all hover:shadow-purple-500/40 disabled:bg-slate-300 disabled:shadow-none disabled:cursor-not-allowed dark:disabled:bg-slate-700"
             >
               <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
@@ -184,8 +184,8 @@ export function SupportPage() {
               </svg>
             </button>
           </div>
-          <p className="mt-2 text-xs text-slate-400 dark:text-slate-500">
-            Puedes preguntar sobre monitoreo, alertas, estado cloud, integraciones, SLA, y más.
+          <p className="mt-3 text-xs text-slate-400 dark:text-slate-500">
+            Puedes preguntar sobre monitoreo, alertas, estado cloud, integraciones, SLA, configuración de monitores y más.
           </p>
         </div>
       </div>
