@@ -66,6 +66,13 @@ function IconNetwork(props: React.SVGProps<SVGSVGElement>) {
     </svg>
   );
 }
+function IconSupport(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+    </svg>
+  );
+}
 
 function IconMenu(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -335,6 +342,56 @@ export function SidebarNav({ isOpen, onClose, collapsed = false, onToggleCollaps
               </NavLink>
             </>
           ) : null}
+
+          {/* Soporte Técnico - separado al final */}
+          {!collapsed && (
+            <div className="mt-6 mb-2 px-2 text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-600">
+              Ayuda
+            </div>
+          )}
+          <NavLink
+            to="/soporte"
+            onClick={onClose}
+            className={({ isActive }) =>
+              [
+                "group flex items-center transition-all duration-200",
+                collapsed
+                  ? "justify-center rounded-xl p-2.5"
+                  : "gap-3 rounded-xl px-3 py-2.5 text-sm font-medium",
+                isActive
+                  ? collapsed
+                    ? "bg-purple-500/10 text-purple-300"
+                    : "bg-purple-500/10 text-purple-300 shadow-sm shadow-purple-500/10"
+                  : collapsed
+                    ? "text-slate-400 hover:bg-slate-800/60 hover:text-slate-200"
+                    : "text-slate-400 hover:bg-slate-800/60 hover:text-slate-200",
+              ].join(" ")
+            }
+          >
+            {({ isActive }) => (
+              <>
+                {collapsed ? (
+                  <span title="Soporte Técnico">
+                    <IconSupport
+                      className={`h-5 w-5 shrink-0 transition-colors ${
+                        isActive ? "text-purple-400" : "text-slate-500 group-hover:text-slate-300"
+                      }`}
+                    />
+                  </span>
+                ) : (
+                  <IconSupport
+                    className={`h-5 w-5 shrink-0 transition-colors ${
+                      isActive ? "text-purple-400" : "text-slate-500 group-hover:text-slate-300"
+                    }`}
+                  />
+                )}
+                {!collapsed && <span>Soporte Técnico</span>}
+                {!collapsed && isActive && (
+                  <span className="ml-auto h-1.5 w-1.5 rounded-full bg-purple-400 shadow-sm shadow-purple-400/50" />
+                )}
+              </>
+            )}
+          </NavLink>
 
           {/* Toggle button when collapsed */}
           {collapsed && (

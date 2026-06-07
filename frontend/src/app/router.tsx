@@ -27,6 +27,7 @@ const AdminPage = lazy(() => import("../pages/AdminPage").then((m) => ({ default
 const CustomersPage = lazy(() => import("../pages/CustomersPage").then((m) => ({ default: m.CustomersPage })));
 const SystemHealthPage = lazy(() => import("../pages/SystemHealthPage").then((m) => ({ default: m.SystemHealthPage })));
 const NetworkToolsPage = lazy(() => import("../pages/NetworkToolsPage").then((m) => ({ default: m.NetworkToolsPage })));
+const SupportPage = lazy(() => import("../pages/SupportPage").then((m) => ({ default: m.SupportPage })));
 
 export const router = createBrowserRouter([
   {
@@ -128,6 +129,10 @@ export const router = createBrowserRouter([
           {
             path: "admin",
             element: <Suspense fallback={<PageLoader />}><AdminPage /></Suspense>,
+          },
+          {
+            path: "soporte",
+            element: <Suspense fallback={<PageLoader />}><SupportPage /></Suspense>,
           },
         ],
       },
