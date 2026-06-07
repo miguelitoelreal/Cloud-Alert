@@ -141,27 +141,59 @@ namespace MonitoringPlatform.API.Services
                 CloudIncidentSeverity.Minor => "#1e40af",
                 _ => "#374151",
             };
+            var badgeBg = severity switch
+            {
+                CloudIncidentSeverity.Critical => "#dc2626",
+                CloudIncidentSeverity.Major => "#d97706",
+                CloudIncidentSeverity.Minor => "#2563eb",
+                _ => "#4b5563",
+            };
 
-            var details = new List<string>();
-            details.Add($"<p style='margin:0 0 8px;font-size:14px;color:#4b5563;'><strong>{(isEn ? "Provider" : "Proveedor")}:</strong> {providerName}</p>");
-            details.Add($"<p style='margin:0 0 8px;font-size:14px;color:#4b5563;'><strong>{(isEn ? "Severity" : "Severidad")}:</strong> {sevLabel}</p>");
-            if (pref.IncludeMetrics)
-                details.Add($"<p style='margin:0 0 8px;font-size:14px;color:#4b5563;'><strong>{(isEn ? "Description" : "Descripción")}:</strong></p><blockquote style='margin:0 0 8px;font-size:14px;color:#4b5563;'>{incidentDescription}</blockquote>");
-            details.Add($"<p style='margin:0;font-size:13px;color:#6b7280;'><strong>{(isEn ? "Time" : "Hora")}:</strong> {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss} UTC</p>");
+            var icon = severity switch
+            {
+                CloudIncidentSeverity.Critical => "🔴",
+                CloudIncidentSeverity.Major => "🟠",
+                CloudIncidentSeverity.Minor => "🔵",
+                _ => "⚪",
+            };
 
             var directLink = pref.IncludeDirectLinks
-                ? $"<p><a href='https://localhost:5173/centro-estado-cloud'>{(isEn ? "Open Cloud Status Center" : "Accede al Centro de Estado Cloud")}</a></p>"
+                ? $"<a href='https://localhost:5173/centro-estado-cloud' style='display:inline-block;background:{borderColor};color:#ffffff;padding:10px 20px;text-decoration:none;border-radius:6px;font-size:13px;font-weight:500;'>{(isEn ? "View in Cloud Status Center →" : "Ver en Centro de Estado Cloud →")}</a>"
                 : "";
 
             var body = Wrap(pref, tenantName, subject, isEn ? "Cloud Incident" : "Incidencia Cloud",
-@$"<div style='background:{bgColor};border-left:4px solid {borderColor};padding:16px;border-radius:8px;margin-bottom:20px;'>
-    <h2 style='margin:0 0 8px;color:{titleColor};font-size:18px;'>{incidentTitle}</h2>
-    <p style='margin:0;color:#4b5563;font-size:13px;'>{(isEn ? "A cloud incident has been detected." : "Se ha detectado una incidencia cloud.")}</p>
+@$"<div style='background:linear-gradient(135deg,{bgColor} 0%,#ffffff 100%);border:1px solid {borderColor};border-radius:12px;padding:24px;margin-bottom:24px;'>
+    <div style='display:flex;align-items:center;gap:12px;margin-bottom:16px;'>
+        <span style='font-size:32px;'>{icon}</span>
+        <div>
+            <h2 style='margin:0;color:{titleColor};font-size:20px;font-weight:600;'>{incidentTitle}</h2>
+            <p style='margin:4px 0 0;color:#6b7280;font-size:13px;'>{(isEn ? "A cloud incident has been detected" : "Se ha detectado una incidencia cloud")}</p>
+        </div>
+    </div>
+    <div style='display:inline-block;background:{badgeBg};color:#ffffff;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;'>{sevLabel}</div>
 </div>
-<h3 style='font-size:15px;color:#374151;margin:0 0 12px;'>{(isEn ? "Details" : "Detalles")}</h3>
-<div style='background:#f9fafb;padding:16px;border-radius:8px;margin-bottom:20px;'>
-    {string.Join("\n    ", details)}
+
+<div style='display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;'>
+    <div style='background:#f9fafb;padding:16px;border-radius:8px;border:1px solid #e5e7eb;'>
+        <p style='margin:0 0 4px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:#6b7280;'>{(isEn ? "Provider" : "Proveedor")}</p>
+        <p style='margin:0;font-size:15px;font-weight:500;color:#1f2937;'>{providerName}</p>
+    </div>
+    <div style='background:#f9fafb;padding:16px;border-radius:8px;border:1px solid #e5e7eb;'>
+        <p style='margin:0 0 4px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:#6b7280;'>{(isEn ? "Severity" : "Severidad")}</p>
+        <p style='margin:0;font-size:15px;font-weight:500;color:{titleColor};'>{sevLabel}</p>
+    </div>
 </div>
+
+{(pref.IncludeMetrics ? $"<div style='background:#f9fafb;padding:16px;border-radius:8px;border:1px solid #e5e7eb;margin-bottom:24px;'>
+    <p style='margin:0 0 8px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:#6b7280;'>{(isEn ? "Description" : "Descripción")}</p>
+    <p style='margin:0;font-size:14px;color:#4b5563;line-height:1.6;'>{incidentDescription}</p>
+</div>" : "")}
+
+<div style='background:#f9fafb;padding:16px;border-radius:8px;border:1px solid #e5e7eb;margin-bottom:24px;'>
+    <p style='margin:0 0 4px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:#6b7280;'>{(isEn ? "Detected at" : "Detectado a las")}</p>
+    <p style='margin:0;font-size:14px;color:#4b5563;'>{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss} UTC</p>
+</div>
+
 {directLink}");
 
             return Task.FromResult((subject, body));
