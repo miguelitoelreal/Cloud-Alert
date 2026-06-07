@@ -5,6 +5,7 @@ using MonitoringPlatform.API.Services;
 using MonitoringPlatform.Application.DTOs;
 using MonitoringPlatform.Application.Interfaces;
 using MonitoringPlatform.Domain.Entities;
+using MonitoringPlatform.Domain.Enums;
 using MonitoringPlatform.Infrastructure.Persistence;
 
 namespace MonitoringPlatform.API.Controllers
@@ -188,6 +189,24 @@ namespace MonitoringPlatform.API.Controllers
             string body;
             var tenantName = tenant?.Name ?? "MonitoringPlatform";
 
+            // Convert DTO to entity for template renderer
+            var prefEntity = new UserAlertPreference
+            {
+                EmailEnabled = pref.EmailEnabled,
+                CloudIncidentCriticalAlerts = pref.CloudIncidentCriticalAlerts,
+                CloudIncidentMajorAlerts = pref.CloudIncidentMajorAlerts,
+                CloudIncidentMinorAlerts = pref.CloudIncidentMinorAlerts,
+                MonitorDownAlerts = pref.MonitorDownAlerts,
+                MinimumSeverity = pref.MinimumSeverity,
+                SelectedCloudProviderIds = pref.SelectedCloudProviderIds,
+                IncludeMetrics = pref.IncludeMetrics,
+                IncludeDirectLinks = pref.IncludeDirectLinks,
+                Language = pref.Language,
+                CustomTenantName = pref.CustomTenantName,
+                CustomTenantLogoUrl = pref.CustomTenantLogoUrl,
+                CustomTenantColor = pref.CustomTenantColor,
+            };
+
             if (alertType == "critical" || alertType == "major" || alertType == "minor")
             {
                 // Cloud incident test - use the improved cloud incident template
@@ -200,14 +219,14 @@ namespace MonitoringPlatform.API.Controllers
                 };
 
                 var providerName = providerNames.Any() ? providerNames[new Random().Next(providerNames.Count)] : "Cloud Provider";
-                var title = realIncident?.Title ?? incidentTitle;
-                var description = realIncident?.Description ?? (alertType == "critical" 
-                    ? "Se ha detectado una incidencia crítica que afecta múltiples servicios." 
-                    : alertType == "major" 
-                        ? "Se ha detectado una incidencia mayor con degradación de servicios." 
+                var title = realIncident?.Title ?? (alertType == "critical" ? "Incidencia Crítica" : alertType == "major" ? "Incidencia Mayor" : "Incidencia Menor");
+                var description = realIncident?.Description ?? (alertType == "critical"
+                    ? "Se ha detectado una incidencia crítica que afecta múltiples servicios."
+                    : alertType == "major"
+                        ? "Se ha detectado una incidencia mayor con degradación de servicios."
                         : "Se ha detectado una incidencia menor con impacto limitado.");
 
-                (subject, body) = await _templateRenderer.RenderCloudIncidentAsync(pref, providerName, title, description, severity, tenantName);
+                (subject, body) = await _templateRenderer.RenderCloudIncidentAsync(prefEntity, providerName, title, description, severity, tenantName);
                 subject = $"[PRUEBA] {subject}";
             }
             else
@@ -217,7 +236,7 @@ namespace MonitoringPlatform.API.Controllers
                 var monitorUrl = "https://api.example.com";
                 var errorMessage = "Connection timeout - No response from server";
 
-                (subject, body) = await _templateRenderer.RenderMonitorDownAsync(pref, monitorName, monitorUrl, errorMessage, tenantName);
+                (subject, body) = await _templateRenderer.RenderMonitorDownAsync(prefEntity, monitorName, monitorUrl, errorMessage, tenantName);
                 subject = $"[PRUEBA] {subject}";
             }
 
