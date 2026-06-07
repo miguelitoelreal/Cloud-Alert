@@ -293,14 +293,10 @@ builder.Services.AddHostedService<CloudProviderUptimeSnapshotBackgroundService>(
 
 var app = builder.Build();
 
-static async Task EnsureCloudProvidersAsync(IServiceProvider serviceProvider)
+static async Task EnsureCloudProvidersAsync(AppDbContext db, IOptions<CloudStatusOptions> cloudOptions)
 {
     try
     {
-        var scope = serviceProvider.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        var cloudOptions = scope.ServiceProvider.GetRequiredService<IOptions<CloudStatusOptions>>();
-
         if (!cloudOptions.Value.Enabled || cloudOptions.Value.Providers.Count == 0)
         {
             Console.WriteLine("[Startup] Cloud status is disabled or no providers configured.");
@@ -364,6 +360,7 @@ static async Task EnsureCloudProvidersAsync(IServiceProvider serviceProvider)
     catch (Exception ex)
     {
         Console.WriteLine($"[Startup] Cloud providers init failed: {ex.Message}");
+        Console.WriteLine($"[Startup] Stack trace: {ex.StackTrace}");
     }
 }
 
@@ -372,13 +369,14 @@ try
 {
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    var cloudOptions = scope.ServiceProvider.GetRequiredService<IOptions<CloudStatusOptions>>();
     db.Database.EnsureCreated();
 
     // Asegurar que columnas nuevas existan en bases de datos deployadas previamente
     await DbSchemaInitializer.EnsureLatencyColumnsAsync(db);
 
     // Inicializar proveedores cloud en producción
-    await EnsureCloudProvidersAsync(scope.ServiceProvider);
+    await EnsureCloudProvidersAsync(db, cloudOptions);
 }
 catch (Exception ex)
 {
