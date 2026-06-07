@@ -96,7 +96,7 @@ export function SupportPage() {
   };
 
   return (
-    <div className="flex h-screen flex-col bg-slate-50 dark:bg-slate-950">
+    <div className="flex min-h-screen flex-col bg-slate-50 dark:bg-slate-950">
       {/* Header - Fixed height */}
       <div className="flex-shrink-0 border-b border-slate-200 bg-white px-8 py-5 dark:border-slate-800 dark:bg-slate-900">
         <div className="flex items-center gap-4">
