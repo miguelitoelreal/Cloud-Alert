@@ -296,7 +296,8 @@ namespace MonitoringPlatform.API.Services
                     if (!wantsThisType) continue;
                     if (!MeetsMinimumSeverity(severity, pref.MinimumSeverity)) continue;
 
-                    var wantsThisProvider = pref.GetSelectedProviderIds().Contains(providerId);
+                    var selectedProviderIds = pref.GetSelectedProviderIds();
+                    var wantsThisProvider = selectedProviderIds.Count == 0 || selectedProviderIds.Contains(providerId);
                     if (!wantsThisProvider) continue;
 
                     if (IsInQuietHours(pref, nowUtc))
