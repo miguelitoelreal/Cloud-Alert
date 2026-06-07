@@ -280,23 +280,31 @@ namespace MonitoringPlatform.API.Services
         {
             var client = _httpClientFactory.CreateClient("CloudStatusHttpClient");
 
-            // 1. MyMemory (funcionaba bien antes, gratuito)
-            try
+            async Task<string> TryMyMemoryAsync()
             {
-                return await TranslateWithMyMemoryAsync(client, text, cancellationToken);
-            }
-            catch (TranslationProviderException ex) when (ex.IsRateLimited)
-            {
-                _logger.LogWarning("MyMemory rate limited. Trying DeepL if configured.");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "MyMemory failed. Trying DeepL if configured.");
+                try
+                {
+                    return await TranslateWithMyMemoryAsync(client, text, cancellationToken);
+                }
+                catch (TranslationProviderException ex) when (ex.IsRateLimited)
+                {
+                    _logger.LogWarning("MyMemory rate limited.");
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "MyMemory failed.");
+                    throw;
+                }
             }
 
-            // 2. DeepL (más confiable, requiere API key)
-            if (!string.IsNullOrWhiteSpace(_options.TranslationApiKey))
+            async Task<string> TryDeepLAsync()
             {
+                if (string.IsNullOrWhiteSpace(_options.TranslationApiKey))
+                {
+                    throw new InvalidOperationException("DeepL API key is not configured.");
+                }
+
                 try
                 {
                     return await TranslateWithDeepLAsync(client, text, cancellationToken);
@@ -304,11 +312,61 @@ namespace MonitoringPlatform.API.Services
                 catch (Exception ex)
                 {
                     _logger.LogWarning(ex, "DeepL translation failed.");
+                    throw;
+                }
+            }
+
+            async Task<string> TryLibreTranslateAsync()
+            {
+                try
+                {
+                    return await TranslateWithLibreTranslateAsync(client, text, cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "LibreTranslate translation failed.");
+                    throw;
+                }
+            }
+
+            var providerPreference = _options.TranslationProvider?.Trim().ToLowerInvariant();
+            var candidateProviders = providerPreference switch
+            {
+                "mymemory" => new Func<Task<string>>[] { TryMyMemoryAsync, TryDeepLAsync, TryLibreTranslateAsync },
+                "libretranslate" => new Func<Task<string>>[] { TryLibreTranslateAsync, TryMyMemoryAsync, TryDeepLAsync },
+                _ => new Func<Task<string>>[] { TryMyMemoryAsync, TryDeepLAsync, TryLibreTranslateAsync },
+            };
+
+            foreach (var provider in candidateProviders)
+            {
+                try
+                {
+                    return await provider();
+                }
+                catch (InvalidOperationException)
+                {
+                    // Missing configuration for this provider, try next one.
+                }
+                catch (TranslationProviderException ex) when (ex.IsRateLimited)
+                {
+                    _logger.LogWarning(ex, "Translation provider rate limited; trying next provider if available.");
+                }
+                catch (TranslationProviderException ex)
+                {
+                    _logger.LogWarning(ex, "Translation provider failed; trying next provider if available.");
+                }
+                catch (HttpRequestException ex)
+                {
+                    _logger.LogWarning(ex, "Translation HTTP request failed; trying next provider if available.");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Unexpected translation error; trying next provider if available.");
                 }
             }
 
             throw new TranslationProviderException(
-                "No se pudo traducir. El servicio gratuito está temporalmente saturado. Configura una API key de DeepL para traducciones ilimitadas.",
+                "No se pudo traducir. El servicio de traducción no está disponible en este momento.",
                 isTransient: true,
                 isRateLimited: true);
         }
