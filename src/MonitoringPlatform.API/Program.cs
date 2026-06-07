@@ -291,19 +291,92 @@ builder.Services.AddHostedService<CloudProviderUptimeSnapshotBackgroundService>(
 
 var app = builder.Build();
 
+static async Task EnsureCloudProvidersAsync(IServiceProvider serviceProvider)
+{
+    try
+    {
+        var scope = serviceProvider.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var cloudOptions = scope.ServiceProvider.GetRequiredService<IOptions<CloudStatusOptions>>();
+
+        if (!cloudOptions.Value.Enabled || cloudOptions.Value.Providers.Count == 0)
+        {
+            Console.WriteLine("[Startup] Cloud status is disabled or no providers configured.");
+            return;
+        }
+
+        // Check if system tenant exists
+        const string systemTenantSlug = "system-cloud-status";
+        var systemTenant = await db.Tenants.FirstOrDefaultAsync(t => t.Slug == systemTenantSlug);
+        if (systemTenant == null)
+        {
+            systemTenant = new Tenant
+            {
+                Id = Guid.NewGuid(),
+                Name = "System Cloud Status",
+                Slug = systemTenantSlug,
+                CreatedAtUtc = DateTime.UtcNow,
+            };
+            db.Tenants.Add(systemTenant);
+            await db.SaveChangesAsync();
+            Console.WriteLine($"[Startup] Created system tenant: {systemTenant.Id}");
+        }
+
+        // Check if providers already exist for system tenant
+        var existingProviders = await db.CloudProviders
+            .Where(p => p.TenantId == systemTenant.Id)
+            .ToListAsync();
+
+        if (existingProviders.Count > 0)
+        {
+            Console.WriteLine($"[Startup] Cloud providers already exist: {existingProviders.Count}");
+            return;
+        }
+
+        // Create providers from configuration
+        var now = DateTime.UtcNow;
+        foreach (var providerConfig in cloudOptions.Value.Providers)
+        {
+            var provider = new CloudProvider
+            {
+                Id = Guid.NewGuid(),
+                TenantId = systemTenant.Id,
+                Name = providerConfig.Name,
+                Slug = providerConfig.Slug,
+                LogoUrl = providerConfig.LogoUrl,
+                SourceType = providerConfig.SourceType,
+                SourceUrl = providerConfig.SourceUrl,
+                StatusPageUrl = providerConfig.StatusPageUrl,
+                MetadataJson = providerConfig.MetadataJson,
+                IsEnabled = providerConfig.IsEnabled,
+                CreatedAt = now,
+                UpdatedAt = now,
+            };
+            db.CloudProviders.Add(provider);
+            Console.WriteLine($"[Startup] Added provider: {provider.Name} ({provider.Slug})");
+        }
+
+        await db.SaveChangesAsync();
+        Console.WriteLine($"[Startup] Created {cloudOptions.Value.Providers.Count} cloud providers for system tenant");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"[Startup] Cloud providers init failed: {ex.Message}");
+    }
+}
+
 // Create database schema automatically on startup (required for Docker/Render deploys)
 try
 {
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    var cloudOptions = scope.ServiceProvider.GetRequiredService<IOptions<CloudStatusOptions>>();
     db.Database.EnsureCreated();
 
     // Asegurar que columnas nuevas existan en bases de datos deployadas previamente
     await DbSchemaInitializer.EnsureLatencyColumnsAsync(db);
 
     // Inicializar proveedores cloud en producción
-    await DbSchemaInitializer.EnsureCloudProvidersAsync(db, cloudOptions);
+    await EnsureCloudProvidersAsync(scope.ServiceProvider);
 }
 catch (Exception ex)
 {
