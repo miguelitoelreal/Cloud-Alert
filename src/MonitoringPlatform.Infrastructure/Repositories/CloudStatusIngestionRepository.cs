@@ -275,7 +275,8 @@ namespace MonitoringPlatform.Infrastructure.Repositories
                 }
 
                 providerEntity.LastSyncedAt = syncedAtUtc;
-                providerEntity.LastSyncError = error;
+                // Truncate error to avoid database length limit issues
+                providerEntity.LastSyncError = error.Length > 500 ? error.Substring(0, 500) + "..." : error;
                 providerEntity.UpdatedAt = syncedAtUtc;
                 await _context.SaveChangesAsync(cancellationToken);
 
