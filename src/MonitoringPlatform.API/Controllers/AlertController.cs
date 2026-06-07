@@ -198,7 +198,6 @@ namespace MonitoringPlatform.API.Controllers
                 CloudIncidentMinorAlerts = pref.CloudIncidentMinorAlerts,
                 MonitorDownAlerts = pref.MonitorDownAlerts,
                 MinimumSeverity = pref.MinimumSeverity,
-                SelectedCloudProviderIds = pref.SelectedCloudProviderIds,
                 IncludeMetrics = pref.IncludeMetrics,
                 IncludeDirectLinks = pref.IncludeDirectLinks,
                 Language = pref.Language,
@@ -206,6 +205,7 @@ namespace MonitoringPlatform.API.Controllers
                 CustomTenantLogoUrl = pref.CustomTenantLogoUrl,
                 CustomTenantColor = pref.CustomTenantColor,
             };
+            prefEntity.SetSelectedProviderIds(pref.SelectedCloudProviderIds ?? new List<Guid>());
 
             if (alertType == "critical" || alertType == "major" || alertType == "minor")
             {
@@ -218,7 +218,7 @@ namespace MonitoringPlatform.API.Controllers
                     _ => CloudIncidentSeverity.Minor,
                 };
 
-                var providerName = providerNames.Any() ? providerNames[new Random().Next(providerNames.Count)] : "Cloud Provider";
+                var providerName = providerNames.Count > 0 ? providerNames[new Random().Next(providerNames.Count)] : "Cloud Provider";
                 var title = realIncident?.Title ?? (alertType == "critical" ? "Incidencia Crítica" : alertType == "major" ? "Incidencia Mayor" : "Incidencia Menor");
                 var description = realIncident?.Description ?? (alertType == "critical"
                     ? "Se ha detectado una incidencia crítica que afecta múltiples servicios."
