@@ -99,9 +99,10 @@ namespace MonitoringPlatform.Infrastructure.Repositories
 
         public async Task<IReadOnlyList<CloudProviderIngestionTargetDto>> GetEnabledProvidersAsync(CancellationToken cancellationToken)
         {
+            var systemTenantId = await GetOrCreateSystemTenantIdAsync(DateTime.UtcNow, cancellationToken);
             return await _context.CloudProviders
                 .AsNoTracking()
-                .Where(x => x.IsEnabled)
+                .Where(x => x.IsEnabled && x.TenantId == systemTenantId)
                 .OrderBy(x => x.Name)
                 .Select(x => new CloudProviderIngestionTargetDto
                 {

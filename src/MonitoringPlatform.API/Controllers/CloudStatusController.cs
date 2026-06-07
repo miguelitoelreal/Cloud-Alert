@@ -107,22 +107,35 @@ namespace MonitoringPlatform.API.Controllers
         [HttpPost("refresh")]
         public async Task<IActionResult> Refresh(CancellationToken cancellationToken)
         {
-            var result = await _coordinator.IngestAsync(_options.ToSeedDtos(), cancellationToken);
-
-            if (result.ChangedIncidents > 0)
+            _logger.LogInformation("Manual refresh requested by user {UserId}", _currentUser.UserId);
+            
+            try
             {
-                await _hubContext.Clients.All.SendAsync(
-                    "CloudStatusChanged",
-                    new
-                    {
-                        updatedAt = DateTime.UtcNow,
-                        changedIncidents = result.ChangedIncidents,
-                        source = "manual-refresh",
-                    },
-                    cancellationToken);
-            }
+                var result = await _coordinator.IngestAsync(_options.ToSeedDtos(), cancellationToken);
 
-            return Ok(result);
+                _logger.LogInformation("Refresh completed: Processed={Processed}, Successful={Successful}, Failed={Failed}, Changed={Changed}",
+                    result.ProcessedProviders, result.SuccessfulProviders, result.FailedProviders, result.ChangedIncidents);
+
+                if (result.ChangedIncidents > 0)
+                {
+                    await _hubContext.Clients.All.SendAsync(
+                        "CloudStatusChanged",
+                        new
+                        {
+                            updatedAt = DateTime.UtcNow,
+                            changedIncidents = result.ChangedIncidents,
+                            source = "manual-refresh",
+                        },
+                        cancellationToken);
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Manual refresh failed for user {UserId}", _currentUser.UserId);
+                return StatusCode(500, new { error = "Error al actualizar el estado cloud", message = ex.Message });
+            }
         }
 
         [EnableRateLimiting("general")]
