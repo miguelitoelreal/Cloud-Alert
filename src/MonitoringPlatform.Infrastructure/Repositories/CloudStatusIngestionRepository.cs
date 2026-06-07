@@ -255,22 +255,83 @@ namespace MonitoringPlatform.Infrastructure.Repositories
             string error,
             CancellationToken cancellationToken)
         {
-            var providerEntity = await _context.CloudProviders.FirstAsync(x => x.Id == provider.Id, cancellationToken);
-            providerEntity.LastSyncedAt = syncedAtUtc;
-            providerEntity.LastSyncError = error;
-            providerEntity.UpdatedAt = syncedAtUtc;
-            await _context.SaveChangesAsync(cancellationToken);
-
-            return new CloudStatusProviderIngestionResultDto
+            try
             {
-                ProviderName = provider.Name,
-                ProviderSlug = provider.Slug,
-                Success = false,
-                FetchedIncidents = 0,
-                InsertedIncidents = 0,
-                UpdatedIncidents = 0,
-                Error = error,
-            };
+                var providerEntity = await _context.CloudProviders
+                    .FirstOrDefaultAsync(x => x.Id == provider.Id, cancellationToken);
+                
+                if (providerEntity == null)
+                {
+                    return new CloudStatusProviderIngestionResultDto
+                    {
+                        ProviderName = provider.Name,
+                        ProviderSlug = provider.Slug,
+                        Success = false,
+                        FetchedIncidents = 0,
+                        InsertedIncidents = 0,
+                        UpdatedIncidents = 0,
+                        Error = $"Provider not found: {provider.Id}",
+                    };
+                }
+
+                providerEntity.LastSyncedAt = syncedAtUtc;
+                providerEntity.LastSyncError = error;
+                providerEntity.UpdatedAt = syncedAtUtc;
+                await _context.SaveChangesAsync(cancellationToken);
+
+                return new CloudStatusProviderIngestionResultDto
+                {
+                    ProviderName = provider.Name,
+                    ProviderSlug = provider.Slug,
+                    Success = false,
+                    FetchedIncidents = 0,
+                    InsertedIncidents = 0,
+                    UpdatedIncidents = 0,
+                    Error = error,
+                };
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                // Handle concurrency conflicts
+                return new CloudStatusProviderIngestionResultDto
+                {
+                    ProviderName = provider.Name,
+                    ProviderSlug = provider.Slug,
+                    Success = false,
+                    FetchedIncidents = 0,
+                    InsertedIncidents = 0,
+                    UpdatedIncidents = 0,
+                    Error = $"Concurrency error: {ex.Message}",
+                };
+            }
+            catch (DbUpdateException ex)
+            {
+                // Handle database update errors
+                return new CloudStatusProviderIngestionResultDto
+                {
+                    ProviderName = provider.Name,
+                    ProviderSlug = provider.Slug,
+                    Success = false,
+                    FetchedIncidents = 0,
+                    InsertedIncidents = 0,
+                    UpdatedIncidents = 0,
+                    Error = $"Database update error: {ex.Message}",
+                };
+            }
+            catch (Exception ex)
+            {
+                // Handle other errors
+                return new CloudStatusProviderIngestionResultDto
+                {
+                    ProviderName = provider.Name,
+                    ProviderSlug = provider.Slug,
+                    Success = false,
+                    FetchedIncidents = 0,
+                    InsertedIncidents = 0,
+                    UpdatedIncidents = 0,
+                    Error = $"Unexpected error: {ex.Message}",
+                };
+            }
         }
 
         private static bool ApplyIncident(CloudIncident entity, CloudIncidentIngestionDto dto, DateTime syncedAtUtc)
