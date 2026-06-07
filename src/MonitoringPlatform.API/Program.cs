@@ -296,10 +296,14 @@ try
 {
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    var cloudOptions = scope.ServiceProvider.GetRequiredService<IOptions<CloudStatusOptions>>();
     db.Database.EnsureCreated();
 
     // Asegurar que columnas nuevas existan en bases de datos deployadas previamente
     await DbSchemaInitializer.EnsureLatencyColumnsAsync(db);
+
+    // Inicializar proveedores cloud en producción
+    await DbSchemaInitializer.EnsureCloudProvidersAsync(db, cloudOptions);
 }
 catch (Exception ex)
 {
