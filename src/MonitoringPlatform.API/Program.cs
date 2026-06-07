@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using MonitoringPlatform.Domain.Entities;
+using MonitoringPlatform.Domain.Enums;
 using Npgsql;
 using MonitoringPlatform.API.Configurations;
 using MonitoringPlatform.API.Hubs;
