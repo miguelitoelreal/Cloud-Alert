@@ -41,7 +41,7 @@ public static class DbSchemaInitializer
                     IF EXISTS (SELECT 1 FROM information_schema.columns WHERE lower(table_name) = 'useralertpreferences' AND lower(column_name) = 'emailenabled' AND data_type = 'integer') THEN
                         ALTER TABLE "UserAlertPreferences" ALTER COLUMN "EmailEnabled" TYPE boolean USING ("EmailEnabled" = 1);
                     END IF;
-                    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE lower(table_name) = 'tenantsettings' AND lower(column_name) = 'useSsl' AND data_type = 'integer') THEN
+                    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE lower(table_name) = 'tenantsettings' AND lower(column_name) = 'usesl' AND data_type = 'integer') THEN
                         ALTER TABLE "TenantSettings" ALTER COLUMN "UseSsl" TYPE boolean USING ("UseSsl" = 1);
                     END IF;
                     IF EXISTS (SELECT 1 FROM information_schema.columns WHERE lower(table_name) = 'tenantsettings' AND lower(column_name) = 'emailenabled' AND data_type = 'integer') THEN
