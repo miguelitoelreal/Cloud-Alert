@@ -16,33 +16,77 @@ namespace MonitoringPlatform.Infrastructure.Migrations
             migrationBuilder.Sql(@"
                 DO $$
                 BEGIN
-                    -- Only run this on PostgreSQL
                     IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'UserAlertPreferences' AND column_name = 'EmailEnabled' AND data_type = 'integer') THEN
-                        ALTER TABLE ""UserAlertPreferences"" 
-                            ALTER COLUMN ""EmailEnabled"" TYPE boolean USING (""EmailEnabled"" = 1),
-                            ALTER COLUMN ""MonitorDownAlerts"" TYPE boolean USING (""MonitorDownAlerts"" = 1),
-                            ALTER COLUMN ""MonitorRecoveredAlerts"" TYPE boolean USING (""MonitorRecoveredAlerts"" = 1),
-                            ALTER COLUMN ""HighLatencyAlerts"" TYPE boolean USING (""HighLatencyAlerts"" = 1),
-                            ALTER COLUMN ""CertificateExpiringAlerts"" TYPE boolean USING (""CertificateExpiringAlerts"" = 1),
-                            ALTER COLUMN ""CertificateExpiredAlerts"" TYPE boolean USING (""CertificateExpiredAlerts"" = 1),
-                            ALTER COLUMN ""CloudIncidentCriticalAlerts"" TYPE boolean USING (""CloudIncidentCriticalAlerts"" = 1),
-                            ALTER COLUMN ""CloudIncidentMajorAlerts"" TYPE boolean USING (""CloudIncidentMajorAlerts"" = 1),
-                            ALTER COLUMN ""CloudIncidentMinorAlerts"" TYPE boolean USING (""CloudIncidentMinorAlerts"" = 1),
-                            ALTER COLUMN ""ScheduledMaintenanceAlerts"" TYPE boolean USING (""ScheduledMaintenanceAlerts"" = 1),
-                            ALTER COLUMN ""IncidentResolvedAlerts"" TYPE boolean USING (""IncidentResolvedAlerts"" = 1),
-                            ALTER COLUMN ""IntegrationErrorAlerts"" TYPE boolean USING (""IntegrationErrorAlerts"" = 1),
-                            ALTER COLUMN ""CloudImportFailureAlerts"" TYPE boolean USING (""CloudImportFailureAlerts"" = 1),
-                            ALTER COLUMN ""BackgroundJobFailureAlerts"" TYPE boolean USING (""BackgroundJobFailureAlerts"" = 1),
-                            ALTER COLUMN ""SummaryEnabled"" TYPE boolean USING (""SummaryEnabled"" = 1),
-                            ALTER COLUMN ""SummaryIncludeMonitors"" TYPE boolean USING (""SummaryIncludeMonitors"" = 1),
-                            ALTER COLUMN ""SummaryIncludeCloud"" TYPE boolean USING (""SummaryIncludeCloud"" = 1),
-                            ALTER COLUMN ""QuietHoursEnabled"" TYPE boolean USING (""QuietHoursEnabled"" = 1),
-                            ALTER COLUMN ""QuietHoursExcludeWeekends"" TYPE boolean USING (""QuietHoursExcludeWeekends"" = 1),
-                            ALTER COLUMN ""GroupSimilarIncidents"" TYPE boolean USING (""GroupSimilarIncidents"" = 1),
-                            ALTER COLUMN ""IncludeTimeline"" TYPE boolean USING (""IncludeTimeline"" = 1),
-                            ALTER COLUMN ""IncludeMetrics"" TYPE boolean USING (""IncludeMetrics"" = 1),
-                            ALTER COLUMN ""IncludeDirectLinks"" TYPE boolean USING (""IncludeDirectLinks"" = 1),
-                            ALTER COLUMN ""IncludeCurrentStatus"" TYPE boolean USING (""IncludeCurrentStatus"" = 1);
+                        ALTER TABLE ""UserAlertPreferences"" ALTER COLUMN ""EmailEnabled"" TYPE boolean USING (""EmailEnabled"" = 1);
+                    END IF;
+                    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'UserAlertPreferences' AND column_name = 'MonitorDownAlerts' AND data_type = 'integer') THEN
+                        ALTER TABLE ""UserAlertPreferences"" ALTER COLUMN ""MonitorDownAlerts"" TYPE boolean USING (""MonitorDownAlerts"" = 1);
+                    END IF;
+                    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'UserAlertPreferences' AND column_name = 'MonitorRecoveredAlerts' AND data_type = 'integer') THEN
+                        ALTER TABLE ""UserAlertPreferences"" ALTER COLUMN ""MonitorRecoveredAlerts"" TYPE boolean USING (""MonitorRecoveredAlerts"" = 1);
+                    END IF;
+                    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'UserAlertPreferences' AND column_name = 'HighLatencyAlerts' AND data_type = 'integer') THEN
+                        ALTER TABLE ""UserAlertPreferences"" ALTER COLUMN ""HighLatencyAlerts"" TYPE boolean USING (""HighLatencyAlerts"" = 1);
+                    END IF;
+                    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'UserAlertPreferences' AND column_name = 'CertificateExpiringAlerts' AND data_type = 'integer') THEN
+                        ALTER TABLE ""UserAlertPreferences"" ALTER COLUMN ""CertificateExpiringAlerts"" TYPE boolean USING (""CertificateExpiringAlerts"" = 1);
+                    END IF;
+                    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'UserAlertPreferences' AND column_name = 'CertificateExpiredAlerts' AND data_type = 'integer') THEN
+                        ALTER TABLE ""UserAlertPreferences"" ALTER COLUMN ""CertificateExpiredAlerts"" TYPE boolean USING (""CertificateExpiredAlerts"" = 1);
+                    END IF;
+                    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'UserAlertPreferences' AND column_name = 'CloudIncidentCriticalAlerts' AND data_type = 'integer') THEN
+                        ALTER TABLE ""UserAlertPreferences"" ALTER COLUMN ""CloudIncidentCriticalAlerts"" TYPE boolean USING (""CloudIncidentCriticalAlerts"" = 1);
+                    END IF;
+                    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'UserAlertPreferences' AND column_name = 'CloudIncidentMajorAlerts' AND data_type = 'integer') THEN
+                        ALTER TABLE ""UserAlertPreferences"" ALTER COLUMN ""CloudIncidentMajorAlerts"" TYPE boolean USING (""CloudIncidentMajorAlerts"" = 1);
+                    END IF;
+                    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'UserAlertPreferences' AND column_name = 'CloudIncidentMinorAlerts' AND data_type = 'integer') THEN
+                        ALTER TABLE ""UserAlertPreferences"" ALTER COLUMN ""CloudIncidentMinorAlerts"" TYPE boolean USING (""CloudIncidentMinorAlerts"" = 1);
+                    END IF;
+                    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'UserAlertPreferences' AND column_name = 'ScheduledMaintenanceAlerts' AND data_type = 'integer') THEN
+                        ALTER TABLE ""UserAlertPreferences"" ALTER COLUMN ""ScheduledMaintenanceAlerts"" TYPE boolean USING (""ScheduledMaintenanceAlerts"" = 1);
+                    END IF;
+                    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'UserAlertPreferences' AND column_name = 'IncidentResolvedAlerts' AND data_type = 'integer') THEN
+                        ALTER TABLE ""UserAlertPreferences"" ALTER COLUMN ""IncidentResolvedAlerts"" TYPE boolean USING (""IncidentResolvedAlerts"" = 1);
+                    END IF;
+                    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'UserAlertPreferences' AND column_name = 'IntegrationErrorAlerts' AND data_type = 'integer') THEN
+                        ALTER TABLE ""UserAlertPreferences"" ALTER COLUMN ""IntegrationErrorAlerts"" TYPE boolean USING (""IntegrationErrorAlerts"" = 1);
+                    END IF;
+                    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'UserAlertPreferences' AND column_name = 'CloudImportFailureAlerts' AND data_type = 'integer') THEN
+                        ALTER TABLE ""UserAlertPreferences"" ALTER COLUMN ""CloudImportFailureAlerts"" TYPE boolean USING (""CloudImportFailureAlerts"" = 1);
+                    END IF;
+                    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'UserAlertPreferences' AND column_name = 'BackgroundJobFailureAlerts' AND data_type = 'integer') THEN
+                        ALTER TABLE ""UserAlertPreferences"" ALTER COLUMN ""BackgroundJobFailureAlerts"" TYPE boolean USING (""BackgroundJobFailureAlerts"" = 1);
+                    END IF;
+                    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'UserAlertPreferences' AND column_name = 'SummaryEnabled' AND data_type = 'integer') THEN
+                        ALTER TABLE ""UserAlertPreferences"" ALTER COLUMN ""SummaryEnabled"" TYPE boolean USING (""SummaryEnabled"" = 1);
+                    END IF;
+                    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'UserAlertPreferences' AND column_name = 'SummaryIncludeMonitors' AND data_type = 'integer') THEN
+                        ALTER TABLE ""UserAlertPreferences"" ALTER COLUMN ""SummaryIncludeMonitors"" TYPE boolean USING (""SummaryIncludeMonitors"" = 1);
+                    END IF;
+                    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'UserAlertPreferences' AND column_name = 'SummaryIncludeCloud' AND data_type = 'integer') THEN
+                        ALTER TABLE ""UserAlertPreferences"" ALTER COLUMN ""SummaryIncludeCloud"" TYPE boolean USING (""SummaryIncludeCloud"" = 1);
+                    END IF;
+                    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'UserAlertPreferences' AND column_name = 'QuietHoursEnabled' AND data_type = 'integer') THEN
+                        ALTER TABLE ""UserAlertPreferences"" ALTER COLUMN ""QuietHoursEnabled"" TYPE boolean USING (""QuietHoursEnabled"" = 1);
+                    END IF;
+                    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'UserAlertPreferences' AND column_name = 'QuietHoursExcludeWeekends' AND data_type = 'integer') THEN
+                        ALTER TABLE ""UserAlertPreferences"" ALTER COLUMN ""QuietHoursExcludeWeekends"" TYPE boolean USING (""QuietHoursExcludeWeekends"" = 1);
+                    END IF;
+                    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'UserAlertPreferences' AND column_name = 'GroupSimilarIncidents' AND data_type = 'integer') THEN
+                        ALTER TABLE ""UserAlertPreferences"" ALTER COLUMN ""GroupSimilarIncidents"" TYPE boolean USING (""GroupSimilarIncidents"" = 1);
+                    END IF;
+                    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'UserAlertPreferences' AND column_name = 'IncludeTimeline' AND data_type = 'integer') THEN
+                        ALTER TABLE ""UserAlertPreferences"" ALTER COLUMN ""IncludeTimeline"" TYPE boolean USING (""IncludeTimeline"" = 1);
+                    END IF;
+                    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'UserAlertPreferences' AND column_name = 'IncludeMetrics' AND data_type = 'integer') THEN
+                        ALTER TABLE ""UserAlertPreferences"" ALTER COLUMN ""IncludeMetrics"" TYPE boolean USING (""IncludeMetrics"" = 1);
+                    END IF;
+                    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'UserAlertPreferences' AND column_name = 'IncludeDirectLinks' AND data_type = 'integer') THEN
+                        ALTER TABLE ""UserAlertPreferences"" ALTER COLUMN ""IncludeDirectLinks"" TYPE boolean USING (""IncludeDirectLinks"" = 1);
+                    END IF;
+                    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'UserAlertPreferences' AND column_name = 'IncludeCurrentStatus' AND data_type = 'integer') THEN
+                        ALTER TABLE ""UserAlertPreferences"" ALTER COLUMN ""IncludeCurrentStatus"" TYPE boolean USING (""IncludeCurrentStatus"" = 1);
                     END IF;
                 END $$;
             ");
@@ -50,10 +94,11 @@ namespace MonitoringPlatform.Infrastructure.Migrations
             migrationBuilder.Sql(@"
                 DO $$
                 BEGIN
+                    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'TenantSettings' AND column_name = 'UseSsl' AND data_type = 'integer') THEN
+                        ALTER TABLE ""TenantSettings"" ALTER COLUMN ""UseSsl"" TYPE boolean USING (""UseSsl"" = 1);
+                    END IF;
                     IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'TenantSettings' AND column_name = 'EmailEnabled' AND data_type = 'integer') THEN
-                        ALTER TABLE ""TenantSettings"" 
-                            ALTER COLUMN ""UseSsl"" TYPE boolean USING (""UseSsl"" = 1),
-                            ALTER COLUMN ""EmailEnabled"" TYPE boolean USING (""EmailEnabled"" = 1);
+                        ALTER TABLE ""TenantSettings"" ALTER COLUMN ""EmailEnabled"" TYPE boolean USING (""EmailEnabled"" = 1);
                     END IF;
                 END $$;
             ");
