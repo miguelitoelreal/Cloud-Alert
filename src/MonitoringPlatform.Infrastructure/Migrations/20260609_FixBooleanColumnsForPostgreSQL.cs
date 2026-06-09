@@ -1,10 +1,13 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
+using MonitoringPlatform.Infrastructure.Persistence;
 
 #nullable disable
 
 namespace MonitoringPlatform.Infrastructure.Migrations
 {
-    /// <inheritdoc />
+    [DbContext(typeof(AppDbContext))]
+    [Migration("20260609_FixBooleanColumnsForPostgreSQL")]
     public partial class FixBooleanColumnsForPostgreSQL : Migration
     {
         /// <inheritdoc />
@@ -41,6 +44,17 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                             ALTER COLUMN ""IncludeMetrics"" TYPE boolean USING ""IncludeMetrics""::boolean,
                             ALTER COLUMN ""IncludeDirectLinks"" TYPE boolean USING ""IncludeDirectLinks""::boolean,
                             ALTER COLUMN ""IncludeCurrentStatus"" TYPE boolean USING ""IncludeCurrentStatus""::boolean;
+                    END IF;
+                END $$;
+            ");
+
+            migrationBuilder.Sql(@"
+                DO $$
+                BEGIN
+                    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'TenantSettings' AND column_name = 'EmailEnabled' AND data_type = 'integer') THEN
+                        ALTER TABLE ""TenantSettings"" 
+                            ALTER COLUMN ""UseSsl"" TYPE boolean USING ""UseSsl""::boolean,
+                            ALTER COLUMN ""EmailEnabled"" TYPE boolean USING ""EmailEnabled""::boolean;
                     END IF;
                 END $$;
             ");
