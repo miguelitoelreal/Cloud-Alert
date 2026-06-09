@@ -13,9 +13,11 @@ services:
       - key: Jwt__Secret
         generateValue: true
       - key: ConnectionStrings__DefaultConnection
-        value: Data Source=/app/data/monitoringplatform.db
-    disk:
-      name: sqlite-data
-      mountPath: /app/data
-      sizeGB: 1
+        fromDatabase:
+          name: cloud-alert-db
+          property: connectionString
+    databases:
+      - name: cloud-alert-db
+        databaseName: cloud_alert
+        user: cloud_alert_user
     healthCheckPath: /api/cloud-status/overview

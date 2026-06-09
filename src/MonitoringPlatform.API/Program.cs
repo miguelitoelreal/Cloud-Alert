@@ -155,8 +155,8 @@ if (builder.Environment.IsDevelopment())
         usePostgres = true;
         conn.Close();
     }
-    catch 
-    { 
+    catch
+    {
         // No se puede conectar a PostgreSQL, usar SQLite
         usePostgres = false;
     }
