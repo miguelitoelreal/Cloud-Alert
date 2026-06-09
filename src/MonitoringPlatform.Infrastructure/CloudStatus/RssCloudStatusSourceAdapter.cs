@@ -31,22 +31,22 @@ namespace MonitoringPlatform.Infrastructure.CloudStatus
                 .Where(x => x.Name.LocalName == "item")
                 .Select(item =>
                 {
-                    var title = item.Elements().FirstOrDefault(x => x.Name.LocalName == "title")?.Value?.Trim();
-                    if (string.IsNullOrWhiteSpace(title))
+                    var titleCandidate = item.Elements().FirstOrDefault(x => x.Name.LocalName == "title")?.Value;
+                    if (string.IsNullOrWhiteSpace(titleCandidate))
                     {
                         return null;
                     }
 
-                    var link = item.Elements().FirstOrDefault(x => x.Name.LocalName == "guid")?.Value?.Trim();
-                    if (string.IsNullOrWhiteSpace(link))
-                    {
-                        link = item.Elements().FirstOrDefault(x => x.Name.LocalName == "link")?.Value?.Trim();
-                    }
+                    var title = titleCandidate.Trim();
+                    var linkCandidate = item.Elements().FirstOrDefault(x => x.Name.LocalName == "guid")?.Value;
+                    var link = !string.IsNullOrWhiteSpace(linkCandidate)
+                        ? linkCandidate.Trim()
+                        : item.Elements().FirstOrDefault(x => x.Name.LocalName == "link")?.Value?.Trim();
 
                     var description = item.Elements().FirstOrDefault(x => x.Name.LocalName == "description")?.Value;
                     var statusText = item.Elements().FirstOrDefault(x => x.Name.LocalName == "status")?.Value?.Trim();
                     var pubDate = item.Elements().FirstOrDefault(x => x.Name.LocalName == "pubDate")?.Value?.Trim();
-                    Console.WriteLine($"[RSS-RAW] Provider={provider.Name} Title='{title?.Substring(0, Math.Min(30, title?.Length ?? 0))}' pubDateRaw='{pubDate}'");
+                    Console.WriteLine($"[RSS-RAW] Provider={provider.Name} Title='{title.Substring(0, Math.Min(30, title.Length))}' pubDateRaw='{pubDate}'");
                     var occurredAt = CloudStatusParsingHelpers.ParseDateTime(pubDate, DateTime.UtcNow);
 
                     var isAwsFeed = string.Equals(provider.Slug, "aws", StringComparison.OrdinalIgnoreCase);
