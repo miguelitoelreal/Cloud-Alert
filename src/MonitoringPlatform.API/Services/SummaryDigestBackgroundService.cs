@@ -62,17 +62,21 @@ namespace MonitoringPlatform.API.Services
                 .ToListAsync(cancellationToken);
 
             var userIds = usersWithSummary.Select(u => u.Id).ToList();
+            // Get all preferences with summary enabled, without filtering on the specific logic yet
             var preferences = await context.UserAlertPreferences
                 .AsNoTracking()
                 .Where(p => userIds.Contains(p.UserId) && p.EmailEnabled && p.SummaryEnabled)
                 .ToListAsync(cancellationToken);
 
-            foreach (var pref in preferences)
+            // Filter preferences in-memory to avoid PostgreSQL enum comparison issues
+            var preferencesToSend = preferences
+                .Where(p => ShouldSendNow(p, nowUtc))
+                .ToList();
+
+            foreach (var pref in preferencesToSend)
             {
                 var user = usersWithSummary.FirstOrDefault(u => u.Id == pref.UserId);
                 if (user == null || string.IsNullOrWhiteSpace(user.Email)) continue;
-
-                if (!ShouldSendNow(pref, nowUtc)) continue;
 
                 var window = GetSummaryWindow(pref);
                 var alerts = await historyRepo.GetRecentByTenantAsync(pref.TenantId, window);
