@@ -378,6 +378,7 @@ try
 
     // Asegurar que columnas nuevas existan en bases de datos deployadas previamente
     await DbSchemaInitializer.EnsureLatencyColumnsAsync(db);
+    await DbSchemaInitializer.EnsurePostgresBooleanColumnsAsync(db);
 
     // Inicializar proveedores cloud en producción
     await EnsureCloudProvidersAsync(db, cloudOptions);
