@@ -6,7 +6,6 @@ using MonitoringPlatform.Infrastructure.Persistence;
 
 namespace MonitoringPlatform.Infrastructure.Migrations
 {
-    [DbContext(typeof(AppDbContext))]
     [Migration("20260609_FixBooleanColumnsForPostgreSQL")]
     public partial class FixBooleanColumnsForPostgreSQL : Migration
     {
