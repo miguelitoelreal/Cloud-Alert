@@ -148,7 +148,7 @@ namespace MonitoringPlatform.Infrastructure.Persistence
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
                 entity.Property(e => e.TenantId).IsRequired();
-                entity.Property(e => e.Url).IsRequired().HasMaxLength(2000);
+                entity.Property(e => e.Url).IsRequired();
                 entity.Property(e => e.IntervalInSeconds).IsRequired();
                 entity.Property(e => e.Status).IsRequired();
                 entity.Property(e => e.CreatedAt).IsRequired();
@@ -179,15 +179,15 @@ namespace MonitoringPlatform.Infrastructure.Persistence
                 entity.HasIndex(e => new { e.TenantId, e.Slug }).IsUnique();
                 entity.Property(e => e.Name).IsRequired().HasMaxLength(120);
                 entity.Property(e => e.Slug).IsRequired().HasMaxLength(80);
-                entity.Property(e => e.LogoUrl).IsRequired().HasMaxLength(2000);
+                entity.Property(e => e.LogoUrl).IsRequired();
                 entity.Property(e => e.SourceType).IsRequired();
                 entity.Property(e => e.SourceUrl).IsRequired().HasMaxLength(1000);
-                entity.Property(e => e.StatusPageUrl).HasMaxLength(2000);
+                entity.Property(e => e.StatusPageUrl);
                 entity.Property(e => e.MetadataJson);
                 entity.Property(e => e.IsEnabled).IsRequired();
                 entity.Property(e => e.CreatedAt).IsRequired();
                 entity.Property(e => e.UpdatedAt).IsRequired();
-                entity.Property(e => e.LastSyncError).HasMaxLength(2000);
+                entity.Property(e => e.LastSyncError);
                 entity.HasOne(e => e.Tenant)
                     .WithMany(t => t.CloudProviders)
                     .HasForeignKey(e => e.TenantId)
@@ -204,7 +204,7 @@ namespace MonitoringPlatform.Infrastructure.Persistence
                 entity.HasIndex(e => new { e.CloudProviderId, e.ExternalId }).IsUnique();
                 entity.HasIndex(e => new { e.CloudProviderId, e.IsActive });
                 entity.Property(e => e.ExternalId).IsRequired().HasMaxLength(200);
-                entity.Property(e => e.Title).IsRequired().HasMaxLength(2000);
+                entity.Property(e => e.Title).IsRequired();
                 entity.Property(e => e.Description).IsRequired();
                 entity.Property(e => e.Severity).IsRequired();
                 entity.Property(e => e.Status).IsRequired();
@@ -232,7 +232,6 @@ namespace MonitoringPlatform.Infrastructure.Persistence
                 .IsRequired();
 
                 entity.Property(x => x.ClientSecret)
-                .HasMaxLength(2000)
                 .IsRequired();
 
                 entity.HasOne(x => x.Tenant)
@@ -251,7 +250,7 @@ namespace MonitoringPlatform.Infrastructure.Persistence
                 entity.Property(e => e.IsEnabled).IsRequired();
                 entity.Property(e => e.ThrottleMinutes).IsRequired();
                 entity.Property(e => e.RecipientEmails).IsRequired().HasMaxLength(1000);
-                entity.Property(e => e.SelectedCloudProviderIds).IsRequired().HasMaxLength(2000);
+                entity.Property(e => e.SelectedCloudProviderIds).IsRequired();
                 entity.Property(e => e.CreatedAt).IsRequired();
                 entity.Property(e => e.UpdatedAt).IsRequired();
                 entity.HasOne(e => e.Tenant)
@@ -321,10 +320,10 @@ namespace MonitoringPlatform.Infrastructure.Persistence
                 entity.Property(e => e.CloudImportFailureAlerts).IsRequired();
                 entity.Property(e => e.BackgroundJobFailureAlerts).IsRequired();
                 entity.Property(e => e.MinimumSeverity).IsRequired();
-                entity.Property(e => e.SelectedCloudProviderIds).IsRequired().HasMaxLength(2000);
+                entity.Property(e => e.SelectedCloudProviderIds).IsRequired();
                 entity.Property(e => e.MonitorSelectionMode).IsRequired().HasMaxLength(20);
-                entity.Property(e => e.SelectedMonitorIds).IsRequired().HasMaxLength(2000);
-                entity.Property(e => e.ExcludedMonitorIds).IsRequired().HasMaxLength(2000);
+                entity.Property(e => e.SelectedMonitorIds).IsRequired();
+                entity.Property(e => e.ExcludedMonitorIds).IsRequired();
                 entity.Property(e => e.SummaryEnabled).IsRequired();
                 entity.Property(e => e.SummaryFrequency).IsRequired();
                 entity.Property(e => e.SummaryDay).IsRequired();
@@ -371,7 +370,7 @@ namespace MonitoringPlatform.Infrastructure.Persistence
                 entity.Property(e => e.ContactPhone).HasMaxLength(50);
                 entity.Property(e => e.CustomerType).IsRequired();
                 entity.Property(e => e.Industry).HasMaxLength(120);
-                entity.Property(e => e.Notes).HasMaxLength(2000);
+                entity.Property(e => e.Notes);
                 entity.Property(e => e.IsActive).IsRequired();
                 entity.Property(e => e.CreatedAt).IsRequired();
                 entity.Property(e => e.UpdatedAt).IsRequired();

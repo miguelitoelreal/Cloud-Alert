@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MonitoringPlatform.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260611210325_IncreaseVarcharLengths")]
-    partial class IncreaseVarcharLengths
+    [Migration("20260611211401_RemoveVarcharLengths")]
+    partial class RemoveVarcharLengths
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -236,8 +236,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
 
                     b.Property<string>("SelectedCloudProviderIds")
                         .IsRequired()
-                        .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)");
+                        .HasColumnType("text");
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid");
@@ -518,8 +517,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -698,16 +696,14 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<string>("LastSyncError")
-                        .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("LastSyncedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("LogoUrl")
                         .IsRequired()
-                        .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)");
+                        .HasColumnType("text");
 
                     b.Property<string>("MetadataJson")
                         .HasColumnType("text");
@@ -731,8 +727,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                         .HasColumnType("character varying(1000)");
 
                     b.Property<string>("StatusPageUrl")
-                        .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)");
+                        .HasColumnType("text");
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid");
@@ -860,8 +855,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<string>("Notes")
-                        .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)");
+                        .HasColumnType("text");
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid");
@@ -904,8 +898,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
 
                     b.Property<string>("ClientSecret")
                         .IsRequired()
-                        .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("timestamp with time zone");
@@ -956,8 +949,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
 
                     b.Property<string>("Url")
                         .IsRequired()
-                        .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -1410,8 +1402,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
 
                     b.Property<string>("ExcludedMonitorIds")
                         .IsRequired()
-                        .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)");
+                        .HasColumnType("text");
 
                     b.Property<bool>("GroupSimilarIncidents")
                         .HasColumnType("boolean");
@@ -1476,13 +1467,11 @@ namespace MonitoringPlatform.Infrastructure.Migrations
 
                     b.Property<string>("SelectedCloudProviderIds")
                         .IsRequired()
-                        .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)");
+                        .HasColumnType("text");
 
                     b.Property<string>("SelectedMonitorIds")
                         .IsRequired()
-                        .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)");
+                        .HasColumnType("text");
 
                     b.Property<int>("SummaryDay")
                         .HasColumnType("integer");
