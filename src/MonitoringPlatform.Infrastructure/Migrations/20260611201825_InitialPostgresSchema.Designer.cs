@@ -11,7 +11,7 @@ using MonitoringPlatform.Infrastructure.Persistence;
 namespace MonitoringPlatform.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260611201012_InitialPostgresSchema")]
+    [Migration("20260611201825_InitialPostgresSchema")]
     partial class InitialPostgresSchema
     {
         /// <inheritdoc />
