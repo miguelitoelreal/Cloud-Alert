@@ -100,6 +100,11 @@ namespace MonitoringPlatform.Infrastructure.Persistence
                     {
                         property.SetColumnType("timestamp with time zone");
                     }
+                    // Configure TimeSpan columns as interval for PostgreSQL
+                    else if (property.ClrType == typeof(TimeSpan) || property.ClrType == typeof(TimeSpan?))
+                    {
+                        property.SetColumnType("interval");
+                    }
                 }
             }
 
