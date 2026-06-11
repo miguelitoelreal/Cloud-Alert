@@ -32,7 +32,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "TEXT", maxLength: 120, nullable: false),
                     Slug = table.Column<string>(type: "TEXT", maxLength: 80, nullable: false),
-                    CreatedAtUtc = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
+                    CreatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -73,8 +73,8 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                     ThrottleMinutes = table.Column<int>(type: "INTEGER", nullable: false),
                     RecipientEmails = table.Column<string>(type: "TEXT", maxLength: 1000, nullable: false),
                     SelectedCloudProviderIds = table.Column<string>(type: "TEXT", maxLength: 2000, nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -94,8 +94,8 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     FullName = table.Column<string>(type: "TEXT", maxLength: 120, nullable: false),
                     TenantId = table.Column<Guid>(type: "uuid", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UserName = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
@@ -134,13 +134,13 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                     ActionType = table.Column<int>(type: "INTEGER", nullable: false),
                     ActionConfigJson = table.Column<string>(type: "TEXT", nullable: false),
                     IsEnabled = table.Column<bool>(type: "boolean", nullable: false),
-                    LastTriggeredAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
+                    LastTriggeredAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
-                    DeletedAtUtc = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
+                    DeletedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     CreatedByUserId = table.Column<Guid>(type: "TEXT", nullable: true),
                     UpdatedByUserId = table.Column<Guid>(type: "TEXT", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -172,11 +172,11 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                     CooldownMinutes = table.Column<int>(type: "INTEGER", nullable: false),
                     GroupSimilarIncidents = table.Column<bool>(type: "boolean", nullable: false),
                     IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
-                    DeletedAtUtc = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
+                    DeletedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     CreatedByUserId = table.Column<Guid>(type: "TEXT", nullable: true),
                     UpdatedByUserId = table.Column<Guid>(type: "TEXT", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -197,9 +197,9 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                     TenantId = table.Column<Guid>(type: "uuid", nullable: false),
                     Title = table.Column<string>(type: "TEXT", maxLength: 200, nullable: false),
                     RootCause = table.Column<string>(type: "TEXT", maxLength: 500, nullable: true),
-                    DetectedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
+                    DetectedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -226,9 +226,9 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                     StatusPageUrl = table.Column<string>(type: "TEXT", maxLength: 500, nullable: true),
                     MetadataJson = table.Column<string>(type: "TEXT", nullable: true),
                     IsEnabled = table.Column<bool>(type: "boolean", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    LastSyncedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    LastSyncedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     LastSyncError = table.Column<string>(type: "TEXT", maxLength: 2000, nullable: true)
                 },
                 constraints: table =>
@@ -252,8 +252,8 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                     CloudIncidentId = table.Column<Guid>(type: "TEXT", nullable: true),
                     CloudProviderId = table.Column<Guid>(type: "TEXT", nullable: true),
                     PayloadJson = table.Column<string>(type: "TEXT", nullable: true),
-                    OccurredAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
+                    OccurredAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -280,8 +280,8 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                     Industry = table.Column<string>(type: "TEXT", maxLength: 120, nullable: true),
                     Notes = table.Column<string>(type: "TEXT", maxLength: 2000, nullable: true),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -304,7 +304,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                     ClientId = table.Column<string>(type: "TEXT", maxLength: 120, nullable: false),
                     ClientSecret = table.Column<string>(type: "TEXT", maxLength: 500, nullable: false),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),
-                    CreatedAtUtc = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
+                    CreatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -327,8 +327,8 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                     Url = table.Column<string>(type: "TEXT", maxLength: 500, nullable: false),
                     IntervalInSeconds = table.Column<int>(type: "INTEGER", nullable: false),
                     Status = table.Column<int>(type: "INTEGER", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -352,11 +352,11 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                     ConfigJson = table.Column<string>(type: "TEXT", nullable: false),
                     IsEnabled = table.Column<bool>(type: "boolean", nullable: false),
                     IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
-                    DeletedAtUtc = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
+                    DeletedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     CreatedByUserId = table.Column<Guid>(type: "TEXT", nullable: true),
                     UpdatedByUserId = table.Column<Guid>(type: "TEXT", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -380,11 +380,11 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                     TargetUptimePercent = table.Column<decimal>(type: "TEXT", nullable: false),
                     MeasurementWindowDays = table.Column<int>(type: "INTEGER", nullable: false),
                     IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
-                    DeletedAtUtc = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
+                    DeletedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     CreatedByUserId = table.Column<Guid>(type: "TEXT", nullable: true),
                     UpdatedByUserId = table.Column<Guid>(type: "TEXT", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -413,8 +413,8 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                     EmailEnabled = table.Column<bool>(type: "boolean", nullable: false),
                     EmailProvider = table.Column<string>(type: "TEXT", nullable: false),
                     BrevoApiKey = table.Column<string>(type: "TEXT", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -442,11 +442,11 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                     ShowIncidents = table.Column<bool>(type: "boolean", nullable: false),
                     PublicDomain = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
                     IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
-                    DeletedAtUtc = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
+                    DeletedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     CreatedByUserId = table.Column<Guid>(type: "TEXT", nullable: true),
                     UpdatedByUserId = table.Column<Guid>(type: "TEXT", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -471,7 +471,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                     Subject = table.Column<string>(type: "TEXT", maxLength: 500, nullable: false),
                     Message = table.Column<string>(type: "TEXT", nullable: false),
                     RecipientEmail = table.Column<string>(type: "TEXT", maxLength: 256, nullable: false),
-                    SentAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    SentAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     IsSuccess = table.Column<bool>(type: "boolean", nullable: false),
                     ErrorMessage = table.Column<string>(type: "TEXT", maxLength: 2000, nullable: true)
                 },
@@ -584,9 +584,9 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     UserId = table.Column<Guid>(type: "uuid", nullable: false),
                     TokenHash = table.Column<string>(type: "TEXT", maxLength: 256, nullable: false),
-                    ExpiresAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    RevokedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
+                    ExpiresAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    RevokedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     ReplacedByTokenHash = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true)
                 },
                 constraints: table =>
@@ -649,8 +649,8 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                     CustomTenantName = table.Column<string>(type: "TEXT", maxLength: 120, nullable: true),
                     CustomTenantLogoUrl = table.Column<string>(type: "TEXT", maxLength: 500, nullable: true),
                     CustomTenantColor = table.Column<string>(type: "TEXT", maxLength: 7, nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -681,8 +681,8 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                     ResourceTitle = table.Column<string>(type: "TEXT", maxLength: 500, nullable: true),
                     ResourceUrl = table.Column<string>(type: "TEXT", maxLength: 1000, nullable: true),
                     IsRead = table.Column<bool>(type: "boolean", nullable: false),
-                    CreatedAtUtc = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    ReadAtUtc = table.Column<DateTime>(type: "timestamp without time zone", nullable: true)
+                    CreatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ReadAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -708,7 +708,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     SubscriptionId = table.Column<Guid>(type: "uuid", nullable: false),
                     RegionName = table.Column<string>(type: "TEXT", maxLength: 200, nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -728,7 +728,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     SubscriptionId = table.Column<Guid>(type: "uuid", nullable: false),
                     ServiceName = table.Column<string>(type: "TEXT", maxLength: 200, nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -748,7 +748,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     SubscriptionId = table.Column<Guid>(type: "uuid", nullable: false),
                     CloudProviderId = table.Column<Guid>(type: "uuid", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -783,11 +783,11 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                     Source = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
                     OfficialUrl = table.Column<string>(type: "TEXT", maxLength: 1000, nullable: false),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),
-                    OccurredAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    LastUpdatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    ResolvedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
+                    OccurredAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    LastUpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ResolvedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -807,12 +807,12 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     TenantId = table.Column<Guid>(type: "uuid", nullable: false),
                     CloudProviderId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Date = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    Date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UptimePercent = table.Column<decimal>(type: "TEXT", nullable: false),
                     IncidentCount = table.Column<int>(type: "INTEGER", nullable: false),
                     AvgMttrMinutes = table.Column<int>(type: "INTEGER", nullable: false),
                     DowntimeMinutes = table.Column<int>(type: "INTEGER", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -868,7 +868,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                     ConnectTimeMs = table.Column<long>(type: "INTEGER", nullable: true),
                     TlsTimeMs = table.Column<long>(type: "INTEGER", nullable: true),
                     TtfbTimeMs = table.Column<long>(type: "INTEGER", nullable: true),
-                    CheckedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    CheckedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     ErrorMessage = table.Column<string>(type: "TEXT", maxLength: 1000, nullable: true)
                 },
                 constraints: table =>
@@ -892,9 +892,9 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                     TargetMonitorId = table.Column<Guid>(type: "uuid", nullable: false),
                     DependencyType = table.Column<int>(type: "INTEGER", nullable: false),
                     IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
-                    DeletedAtUtc = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
+                    DeletedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -926,12 +926,12 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     TenantId = table.Column<Guid>(type: "uuid", nullable: false),
                     SlaDefinitionId = table.Column<Guid>(type: "uuid", nullable: false),
-                    PeriodStart = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    PeriodEnd = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    PeriodStart = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    PeriodEnd = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     ActualUptimePercent = table.Column<decimal>(type: "TEXT", nullable: false),
                     DowntimeMinutes = table.Column<int>(type: "INTEGER", nullable: false),
                     BreachCount = table.Column<int>(type: "INTEGER", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -959,7 +959,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                     CloudIncidentId = table.Column<Guid>(type: "uuid", nullable: false),
                     CorrelationScore = table.Column<double>(type: "REAL", nullable: false),
                     CorrelationReason = table.Column<string>(type: "TEXT", maxLength: 500, nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -989,8 +989,8 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                     PreviousSeverity = table.Column<int>(type: "INTEGER", nullable: true),
                     NewSeverity = table.Column<int>(type: "INTEGER", nullable: true),
                     EventDescription = table.Column<string>(type: "TEXT", maxLength: 1000, nullable: true),
-                    OccurredAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
+                    OccurredAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -1015,8 +1015,8 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                     AffectedRegion = table.Column<string>(type: "TEXT", maxLength: 200, nullable: true),
                     AffectedService = table.Column<string>(type: "TEXT", maxLength: 200, nullable: true),
                     Reason = table.Column<string>(type: "TEXT", maxLength: 500, nullable: true),
-                    CalculatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
+                    CalculatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
