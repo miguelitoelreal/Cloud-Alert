@@ -515,8 +515,8 @@ namespace MonitoringPlatform.Infrastructure.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -703,8 +703,8 @@ namespace MonitoringPlatform.Infrastructure.Migrations
 
                     b.Property<string>("LogoUrl")
                         .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
 
                     b.Property<string>("MetadataJson")
                         .HasColumnType("text");
@@ -728,8 +728,8 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                         .HasColumnType("character varying(1000)");
 
                     b.Property<string>("StatusPageUrl")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid");
@@ -901,8 +901,8 @@ namespace MonitoringPlatform.Infrastructure.Migrations
 
                     b.Property<string>("ClientSecret")
                         .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
 
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("timestamp with time zone");
@@ -953,8 +953,8 @@ namespace MonitoringPlatform.Infrastructure.Migrations
 
                     b.Property<string>("Url")
                         .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
 
                     b.HasKey("Id");
 

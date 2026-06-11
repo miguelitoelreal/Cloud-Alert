@@ -148,7 +148,7 @@ namespace MonitoringPlatform.Infrastructure.Persistence
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
                 entity.Property(e => e.TenantId).IsRequired();
-                entity.Property(e => e.Url).IsRequired().HasMaxLength(500);
+                entity.Property(e => e.Url).IsRequired().HasMaxLength(2000);
                 entity.Property(e => e.IntervalInSeconds).IsRequired();
                 entity.Property(e => e.Status).IsRequired();
                 entity.Property(e => e.CreatedAt).IsRequired();
@@ -179,10 +179,10 @@ namespace MonitoringPlatform.Infrastructure.Persistence
                 entity.HasIndex(e => new { e.TenantId, e.Slug }).IsUnique();
                 entity.Property(e => e.Name).IsRequired().HasMaxLength(120);
                 entity.Property(e => e.Slug).IsRequired().HasMaxLength(80);
-                entity.Property(e => e.LogoUrl).IsRequired().HasMaxLength(500);
+                entity.Property(e => e.LogoUrl).IsRequired().HasMaxLength(2000);
                 entity.Property(e => e.SourceType).IsRequired();
                 entity.Property(e => e.SourceUrl).IsRequired().HasMaxLength(1000);
-                entity.Property(e => e.StatusPageUrl).HasMaxLength(500);
+                entity.Property(e => e.StatusPageUrl).HasMaxLength(2000);
                 entity.Property(e => e.MetadataJson);
                 entity.Property(e => e.IsEnabled).IsRequired();
                 entity.Property(e => e.CreatedAt).IsRequired();
@@ -204,7 +204,7 @@ namespace MonitoringPlatform.Infrastructure.Persistence
                 entity.HasIndex(e => new { e.CloudProviderId, e.ExternalId }).IsUnique();
                 entity.HasIndex(e => new { e.CloudProviderId, e.IsActive });
                 entity.Property(e => e.ExternalId).IsRequired().HasMaxLength(200);
-                entity.Property(e => e.Title).IsRequired().HasMaxLength(500);
+                entity.Property(e => e.Title).IsRequired().HasMaxLength(2000);
                 entity.Property(e => e.Description).IsRequired();
                 entity.Property(e => e.Severity).IsRequired();
                 entity.Property(e => e.Status).IsRequired();
@@ -232,7 +232,7 @@ namespace MonitoringPlatform.Infrastructure.Persistence
                 .IsRequired();
 
                 entity.Property(x => x.ClientSecret)
-                .HasMaxLength(500)
+                .HasMaxLength(2000)
                 .IsRequired();
 
                 entity.HasOne(x => x.Tenant)
