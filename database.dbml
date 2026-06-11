@@ -1,0 +1,599 @@
+// Cloud-Alert Database Schema
+// Generated from MonitoringPlatform.Domain entities
+
+Table Tenant {
+  Id Guid [pk]
+  Name string [not null]
+  Slug string [not null, unique]
+  CreatedAtUtc datetime [not null]
+}
+
+Table ApplicationUser {
+  Id Guid [pk]
+  FullName string [not null]
+  TenantId Guid [not null]
+  CreatedAt datetime [not null]
+  UpdatedAt datetime [not null]
+}
+
+Table RefreshToken {
+  Id Guid [pk]
+  TokenHash string [not null, unique]
+  ExpiresAt datetime [not null]
+  CreatedAt datetime [not null]
+  ReplacedByTokenHash string
+  UserId Guid [not null]
+}
+
+Table TenantSettings {
+  Id Guid [pk]
+  TenantId Guid [unique, not null]
+  SmtpHost string [not null]
+  SmtpPort int [not null]
+  SmtpUsername string [not null]
+  SmtpPassword string [not null]
+  SenderEmail string [not null]
+  SenderName string [not null]
+  UseSsl bool [not null]
+  EmailEnabled bool [not null]
+  EmailProvider string [not null]
+  BrevoApiKey string [not null]
+  CreatedAt datetime [not null]
+  UpdatedAt datetime [not null]
+}
+
+Table TenantStatusPageSettings {
+  Id Guid [pk]
+  TenantId Guid [unique, not null]
+  IsEnabled bool [not null]
+  Slug string [not null, unique]
+  Title string
+  LogoUrl string
+  PrimaryColor string
+  ShowUptime bool [not null]
+  ShowIncidents bool [not null]
+  PublicDomain string
+  IsDeleted bool [not null]
+  DeletedAtUtc datetime
+  CreatedByUserId Guid
+  UpdatedByUserId Guid
+  CreatedAt datetime [not null]
+  UpdatedAt datetime [not null]
+}
+
+Table Monitor {
+  Id Guid [pk]
+  TenantId Guid [not null]
+  Name string [not null]
+  Url string [not null]
+  IntervalInSeconds int [not null]
+  Status enum [not null]
+  CreatedAt datetime [not null]
+  UpdatedAt datetime [not null]
+}
+
+Table MonitorLog {
+  Id Guid [pk]
+  MonitorId Guid [not null]
+  Status enum [not null]
+  StatusCode int
+  ResponseTimeMs bigint
+  DnsTimeMs bigint
+  ConnectTimeMs bigint
+  TlsTimeMs bigint
+  TtfbTimeMs bigint
+  CheckedAt datetime [not null]
+  ErrorMessage string
+}
+
+Table ServiceDependency {
+  Id Guid [pk]
+  TenantId Guid [not null]
+  SourceMonitorId Guid [not null]
+  TargetMonitorId Guid [not null]
+  DependencyType enum [not null]
+  IsDeleted bool [not null]
+  DeletedAtUtc datetime
+  CreatedAt datetime [not null]
+  UpdatedAt datetime [not null]
+}
+
+Table CloudProvider {
+  Id Guid [pk]
+  TenantId Guid [not null]
+  Name string [not null]
+  Slug string [not null]
+  LogoUrl string [not null]
+  SourceType enum [not null]
+  SourceUrl string [not null]
+  StatusPageUrl string
+  MetadataJson string
+  IsEnabled bool [not null]
+  CreatedAt datetime [not null]
+  UpdatedAt datetime [not null]
+  LastSyncedAt datetime
+  LastSyncError string
+}
+
+Table CloudIncident {
+  Id Guid [pk]
+  CloudProviderId Guid [not null]
+  ExternalId string [not null]
+  Title string [not null]
+  Description string [not null]
+  Severity enum [not null]
+  Status enum [not null]
+  Region string
+  AffectedServicesJson string
+  Source string [not null]
+  OfficialUrl string [not null]
+  IsActive bool [not null]
+  OccurredAt datetime [not null]
+  LastUpdatedAt datetime [not null]
+  ResolvedAt datetime
+  CreatedAt datetime [not null]
+  UpdatedAt datetime [not null]
+}
+
+Table CloudIncidentEvent {
+  Id Guid [pk]
+  CloudIncidentId Guid [not null]
+  PreviousStatus enum [not null]
+  NewStatus enum [not null]
+  PreviousSeverity enum
+  NewSeverity enum
+  EventDescription string
+  OccurredAt datetime [not null]
+  CreatedAt datetime [not null]
+}
+
+Table CloudIncidentGroup {
+  Id Guid [pk]
+  TenantId Guid [not null]
+  Title string [not null]
+  RootCause string
+  DetectedAt datetime [not null]
+  CreatedAt datetime [not null]
+  UpdatedAt datetime [not null]
+}
+
+Table CloudIncidentCorrelation {
+  Id Guid [pk]
+  GroupId Guid [not null]
+  CloudIncidentId Guid [not null]
+  CorrelationScore decimal [not null]
+  CorrelationReason string
+  CreatedAt datetime [not null]
+}
+
+Table CloudIncidentImpact {
+  Id Guid [pk]
+  TenantId Guid [not null]
+  CloudIncidentId Guid [not null]
+  MonitorId Guid [not null]
+  ImpactLevel enum [not null]
+  AffectedRegion string
+  AffectedService string
+  Reason string
+  CalculatedAt datetime [not null]
+  CreatedAt datetime [not null]
+}
+
+Table CloudProviderUptimeSnapshot {
+  Id Guid [pk]
+  TenantId Guid [not null]
+  CloudProviderId Guid [not null]
+  Date datetime [not null]
+  UptimePercent decimal [not null]
+  IncidentCount int [not null]
+  AvgMttrMinutes int [not null]
+  DowntimeMinutes int [not null]
+  CreatedAt datetime [not null]
+}
+
+Table CloudStatusEventLog {
+  Id Guid [pk]
+  TenantId Guid [not null]
+  EventType enum [not null]
+  CloudIncidentId Guid
+  CloudProviderId Guid
+  PayloadJson string
+  OccurredAt datetime [not null]
+  CreatedAt datetime [not null]
+}
+
+Table AlertRule {
+  Id Guid [pk]
+  TenantId Guid [not null]
+  Name string [not null]
+  AlertType enum [not null]
+  Channel enum [not null]
+  IsEnabled bool [not null]
+  ThrottleMinutes int [not null]
+  RecipientEmails string [not null]
+  SelectedCloudProviderIds string [not null]
+  CreatedAt datetime [not null]
+  UpdatedAt datetime [not null]
+}
+
+Table AlertHistory {
+  Id Guid [pk]
+  TenantId Guid [not null]
+  AlertRuleId Guid
+  AlertType enum [not null]
+  Channel enum [not null]
+  Subject string [not null]
+  Message string [not null]
+  RecipientEmail string [not null]
+  SentAt datetime [not null]
+  IsSuccess bool [not null]
+  ErrorMessage string
+}
+
+Table UserAlertPreference {
+  Id Guid [pk]
+  UserId Guid [not null]
+  TenantId Guid [not null]
+  EmailEnabled bool [not null]
+  MonitorDownAlerts bool [not null]
+  MonitorRecoveredAlerts bool [not null]
+  HighLatencyAlerts bool [not null]
+  CertificateExpiringAlerts bool [not null]
+  CertificateExpiredAlerts bool [not null]
+  CloudIncidentCriticalAlerts bool [not null]
+  CloudIncidentMajorAlerts bool [not null]
+  CloudIncidentMinorAlerts bool [not null]
+  ScheduledMaintenanceAlerts bool [not null]
+  IncidentResolvedAlerts bool [not null]
+  IntegrationErrorAlerts bool [not null]
+  CloudImportFailureAlerts bool [not null]
+  BackgroundJobFailureAlerts bool [not null]
+  MinimumSeverity enum [not null]
+  SelectedCloudProviderIds string [not null]
+  MonitorSelectionMode string [not null]
+  SelectedMonitorIds string [not null]
+  ExcludedMonitorIds string [not null]
+  SummaryEnabled bool [not null]
+  SummaryFrequency enum [not null]
+  SummaryDay int [not null]
+  SummaryIncludeMonitors bool [not null]
+  SummaryIncludeCloud bool [not null]
+  QuietHoursEnabled bool [not null]
+  QuietHoursStart time [not null]
+  QuietHoursEnd time [not null]
+  QuietHoursTimezone string [not null]
+  QuietHoursExcludeWeekends bool [not null]
+  DeduplicationMinutes int [not null]
+  GroupSimilarIncidents bool [not null]
+  CooldownMinutes int [not null]
+  AdditionalEmails string [not null]
+  EmailTemplate enum [not null]
+  IncludeTimeline bool [not null]
+  IncludeMetrics bool [not null]
+  IncludeDirectLinks bool [not null]
+  IncludeCurrentStatus bool [not null]
+  Language enum [not null]
+  CustomTenantName string
+  CustomTenantLogoUrl string
+  CustomTenantColor string
+  CreatedAt datetime [not null]
+  UpdatedAt datetime [not null]
+}
+
+Table NotificationChannelConfig {
+  Id Guid [pk]
+  TenantId Guid [not null]
+  ChannelType enum [not null]
+  Name string [not null]
+  ConfigJson string [not null]
+  IsEnabled bool [not null]
+  IsDeleted bool [not null]
+  DeletedAtUtc datetime
+  CreatedByUserId Guid
+  UpdatedByUserId Guid
+  CreatedAt datetime [not null]
+  UpdatedAt datetime [not null]
+}
+
+Table AutomationRule {
+  Id Guid [pk]
+  TenantId Guid [not null]
+  Name string [not null]
+  TriggerType enum [not null]
+  ConditionJson string [not null]
+  ActionType enum [not null]
+  ActionConfigJson string [not null]
+  IsEnabled bool [not null]
+  LastTriggeredAt datetime
+  IsDeleted bool [not null]
+  DeletedAtUtc datetime
+  CreatedByUserId Guid
+  UpdatedByUserId Guid
+  CreatedAt datetime [not null]
+  UpdatedAt datetime [not null]
+}
+
+Table CloudAlertSubscription {
+  Id Guid [pk]
+  TenantId Guid [not null]
+  UserId Guid [not null]
+  Name string [not null]
+  MinSeverity enum [not null]
+  IsEnabled bool [not null]
+  QuietHoursEnabled bool [not null]
+  QuietHoursStart time [not null]
+  QuietHoursEnd time [not null]
+  QuietHoursTimezone string [not null]
+  QuietHoursExcludeWeekends bool [not null]
+  DeduplicationMinutes int [not null]
+  CooldownMinutes int [not null]
+  GroupSimilarIncidents bool [not null]
+  IsDeleted bool [not null]
+  DeletedAtUtc datetime
+  CreatedByUserId Guid
+  UpdatedByUserId Guid
+  CreatedAt datetime [not null]
+  UpdatedAt datetime [not null]
+}
+
+Table CloudAlertSubscriptionProvider {
+  Id Guid [pk]
+  SubscriptionId Guid [not null]
+  CloudProviderId Guid [not null]
+  CreatedAt datetime [not null]
+}
+
+Table CloudAlertSubscriptionService {
+  Id Guid [pk]
+  SubscriptionId Guid [not null]
+  ServiceName string [not null]
+  CreatedAt datetime [not null]
+}
+
+Table CloudAlertSubscriptionRegion {
+  Id Guid [pk]
+  SubscriptionId Guid [not null]
+  RegionName string [not null]
+  CreatedAt datetime [not null]
+}
+
+Table Customer {
+  Id Guid [pk]
+  TenantId Guid [not null]
+  CompanyName string [not null]
+  ContactName string [not null]
+  ContactEmail string [not null]
+  ContactPhone string
+  CustomerType enum [not null]
+  Industry string
+  Notes string
+  IsActive bool [not null]
+  CreatedAt datetime [not null]
+  UpdatedAt datetime [not null]
+}
+
+Table CustomerCloudProvider {
+  CustomerId Guid [pk, not null]
+  CloudProviderId Guid [pk, not null]
+}
+
+Table SlaDefinition {
+  Id Guid [pk]
+  TenantId Guid [not null]
+  Name string [not null]
+  CloudProviderId Guid
+  TargetUptimePercent decimal [not null]
+  MeasurementWindowDays int [not null]
+  IsDeleted bool [not null]
+  DeletedAtUtc datetime
+  CreatedByUserId Guid
+  UpdatedByUserId Guid
+  CreatedAt datetime [not null]
+  UpdatedAt datetime [not null]
+}
+
+Table SlaReport {
+  Id Guid [pk]
+  TenantId Guid [not null]
+  SlaDefinitionId Guid [not null]
+  PeriodStart datetime [not null]
+  PeriodEnd datetime [not null]
+  ActualUptimePercent decimal [not null]
+  DowntimeMinutes int [not null]
+  BreachCount int [not null]
+  CreatedAt datetime [not null]
+}
+
+Table MicrosoftIntegration {
+  Id Guid [pk]
+  TenantId Guid [not null]
+  MicrosoftTenantId string [not null]
+  ClientId string [not null]
+  ClientSecret string [not null]
+  IsActive bool [not null]
+  CreatedAtUtc datetime [not null]
+}
+
+// Relationships
+
+Ref: ApplicationUser.TenantId > Tenant.Id
+Ref: RefreshToken.UserId > ApplicationUser.Id
+
+Ref: TenantSettings.TenantId > Tenant.Id
+Ref: TenantStatusPageSettings.TenantId > Tenant.Id
+
+Ref: Monitor.TenantId > Tenant.Id
+Ref: MonitorLog.MonitorId > Monitor.Id
+Ref: ServiceDependency.TenantId > Tenant.Id
+Ref: ServiceDependency.SourceMonitorId > Monitor.Id
+Ref: ServiceDependency.TargetMonitorId > Monitor.Id
+
+Ref: CloudProvider.TenantId > Tenant.Id
+Ref: CloudIncident.CloudProviderId > CloudProvider.Id
+Ref: CloudIncidentEvent.CloudIncidentId > CloudIncident.Id
+Ref: CloudIncidentGroup.TenantId > Tenant.Id
+Ref: CloudIncidentCorrelation.GroupId > CloudIncidentGroup.Id
+Ref: CloudIncidentCorrelation.CloudIncidentId > CloudIncident.Id
+Ref: CloudIncidentImpact.TenantId > Tenant.Id
+Ref: CloudIncidentImpact.CloudIncidentId > CloudIncident.Id
+Ref: CloudIncidentImpact.MonitorId > Monitor.Id
+Ref: CloudProviderUptimeSnapshot.TenantId > Tenant.Id
+Ref: CloudProviderUptimeSnapshot.CloudProviderId > CloudProvider.Id
+Ref: CloudStatusEventLog.TenantId > Tenant.Id
+
+Ref: AlertRule.TenantId > Tenant.Id
+Ref: AlertHistory.TenantId > Tenant.Id
+Ref: AlertHistory.AlertRuleId > AlertRule.Id
+
+Ref: UserAlertPreference.UserId > ApplicationUser.Id
+Ref: UserAlertPreference.TenantId > Tenant.Id
+
+Ref: NotificationChannelConfig.TenantId > Tenant.Id
+Ref: AutomationRule.TenantId > Tenant.Id
+
+Ref: CloudAlertSubscription.TenantId > Tenant.Id
+Ref: CloudAlertSubscription.UserId > ApplicationUser.Id
+Ref: CloudAlertSubscriptionProvider.SubscriptionId > CloudAlertSubscription.Id
+Ref: CloudAlertSubscriptionProvider.CloudProviderId > CloudProvider.Id
+Ref: CloudAlertSubscriptionService.SubscriptionId > CloudAlertSubscription.Id
+Ref: CloudAlertSubscriptionRegion.SubscriptionId > CloudAlertSubscription.Id
+
+Ref: Customer.TenantId > Tenant.Id
+Ref: CustomerCloudProvider.CustomerId > Customer.Id
+Ref: CustomerCloudProvider.CloudProviderId > CloudProvider.Id
+
+Ref: SlaDefinition.TenantId > Tenant.Id
+Ref: SlaDefinition.CloudProviderId > CloudProvider.Id
+Ref: SlaReport.TenantId > Tenant.Id
+Ref: SlaReport.SlaDefinitionId > SlaDefinition.Id
+
+Ref: MicrosoftIntegration.TenantId > Tenant.Id
+
+// Enums
+enum MonitorStatus {
+  Unknown
+  Online
+  Offline
+}
+
+enum CloudIncidentSeverity {
+  Unknown
+  Minor
+  Major
+  Critical
+}
+
+enum CloudIncidentStatus {
+  Investigating
+  Identified
+  Monitoring
+  Resolved
+}
+
+enum CloudStatusSourceType {
+  StatusPage
+  Rss
+  Api
+}
+
+enum CustomerType {
+  Enterprise
+  Startup
+  Individual
+}
+
+enum AlertType {
+  MonitorDown
+  CloudIncidentCritical
+  CloudIncidentMajor
+  MonitorRecovered
+  HighLatency
+  CertificateExpiring
+  CertificateExpired
+  CloudIncidentMinor
+  ScheduledMaintenance
+  IncidentResolved
+  IntegrationError
+  CloudImportFailure
+  BackgroundJobFailure
+  Test
+}
+
+enum AlertChannel {
+  Email
+  Webhook
+}
+
+enum NotificationChannelType {
+  Email
+  Slack
+  Teams
+  Discord
+  Telegram
+  Webhook
+}
+
+enum DependencyType {
+  DependsOn
+  RequiredBy
+  Related
+}
+
+enum ImpactLevel {
+  None
+  Low
+  Medium
+  High
+  Critical
+}
+
+enum SummaryFrequency {
+  Instant
+  Every15Min
+  Hourly
+  Daily
+  Weekly
+}
+
+enum NotificationSeverity {
+  Critical
+  High
+  Medium
+  Low
+}
+
+enum EmailTemplateType {
+  Compact
+  Detailed
+}
+
+enum NotificationLanguage {
+  Spanish
+  English
+}
+
+enum CloudStatusEventType {
+  IncidentCreated
+  IncidentUpdated
+  IncidentResolved
+  CorrelationDetected
+  ImpactDetected
+  ProviderSynced
+  ProviderSyncFailed
+}
+
+enum AutomationTriggerType {
+  MonitorDown
+  CloudIncidentActive
+  CloudIncidentResolved
+  CertificateExpiring
+  HighLatency
+  Scheduled
+}
+
+enum AutomationActionType {
+  SendEmail
+  SendWebhook
+  NotifyChannel
+  Escalate
+}
