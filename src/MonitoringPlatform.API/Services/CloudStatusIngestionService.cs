@@ -88,14 +88,27 @@ namespace MonitoringPlatform.API.Services
                 result.FailedProviders,
                 result.ChangedIncidents);
 
-            // Invalidate cache to ensure fresh data
+            // Always invalidate cache to ensure fresh data after every sync cycle
             try
             {
-                var keys = new[] { "cs_overview_all_all_False_80", "cs_overview_all_all_True_80" };
+                // Clear all cloud status cache by using a pattern-based approach
+                // Since IDistributedCache doesn't support pattern matching, we'll clear common keys
+                var keys = new[] 
+                { 
+                    "cs_overview_all_all_False_80", 
+                    "cs_overview_all_all_True_80",
+                    "cs_overview_all_all_False_200",
+                    "cs_overview_all_all_True_200",
+                    "cs_overview_all_all_False_10",
+                    "cs_overview_all_all_True_10",
+                    "cs_overview_all_all_False_50",
+                    "cs_overview_all_all_True_50"
+                };
                 foreach (var key in keys)
                 {
                     await _cache.RemoveAsync(key, cancellationToken);
                 }
+                _logger.LogInformation("Invalidated cloud status cache keys");
             }
             catch (Exception ex)
             {
