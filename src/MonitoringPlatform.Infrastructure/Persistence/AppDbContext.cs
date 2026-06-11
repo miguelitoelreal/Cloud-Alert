@@ -90,6 +90,16 @@ namespace MonitoringPlatform.Infrastructure.Persistence
                     {
                         property.SetColumnType("uuid");
                     }
+                    // Configure DateTime columns as timestamp for PostgreSQL
+                    else if (property.ClrType == typeof(DateTime) || property.ClrType == typeof(DateTime?))
+                    {
+                        property.SetColumnType("timestamp without time zone");
+                    }
+                    // Configure DateTimeOffset columns as timestamptz for PostgreSQL
+                    else if (property.ClrType == typeof(DateTimeOffset) || property.ClrType == typeof(DateTimeOffset?))
+                    {
+                        property.SetColumnType("timestamp with time zone");
+                    }
                 }
             }
 
