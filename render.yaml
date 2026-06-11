@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: cloud-alert-hub
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: oregon
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ASPNETCORE_URLS
+        value: http://+:8080
+      - key: Jwt__Secret
+        generateValue: true
+      - key: ConnectionStrings__DefaultConnection
+        fromDatabase:
+          name: cloud-alert-db
+          property: connectionString
+    databases:
+      - name: cloud-alert-db
+        databaseName: cloud_alert
+        user: cloud_alert_user
+    healthCheckPath: /api/cloud-status/overview
