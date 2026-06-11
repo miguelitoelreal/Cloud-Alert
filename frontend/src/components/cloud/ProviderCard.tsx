@@ -87,7 +87,6 @@ export function ProviderCard({
         {trendPoints && trendPoints.length > 0 && (
           <div className="mt-3 flex-1">
             <div className="flex items-end justify-between gap-2">
-              <span className="text-[10px] text-slate-400 dark:text-slate-500">14 días</span>
               <MiniSparkline
                 data={trendPoints}
                 color={provider.activeIncidents > 0 ? "#f87171" : "#34d399"}

@@ -254,6 +254,7 @@ export function CloudStatusPage() {
   const [toast, setToast] = useState<{ message: string; severity: number } | null>(null);
   const prevIncidentIds = useRef<Set<string>>(new Set());
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isFirstLoad = useRef(true);
 
   // Track newly arrived incidents for "Nuevo" badge
   const [newIncidentIds, setNewIncidentIds] = useState<Set<string>>(new Set());
@@ -307,7 +308,7 @@ export function CloudStatusPage() {
       const oldIds = prevIncidentIds.current;
       const newIds = new Set(data.incidents.map((i) => i.id));
       const added = data.incidents.filter((i) => !oldIds.has(i.id));
-      if (added.length > 0) {
+      if (added.length > 0 && !isFirstLoad.current) {
         const critical = added.filter((i) => i.severity >= CloudIncidentSeverity.Critical);
         const msg =
           critical.length > 0
@@ -318,6 +319,7 @@ export function CloudStatusPage() {
         toastTimer.current = setTimeout(() => setToast(null), 5000);
       }
       prevIncidentIds.current = newIds;
+      isFirstLoad.current = false;
       if (added.length > 0) {
         setNewIncidentIds((current) => {
           const next = new Set(current);
@@ -925,7 +927,7 @@ export function CloudStatusPage() {
                 key={provider.id}
                 provider={provider}
                 msIntegrationConfigured={msIntegrationConfigured}
-                trendPoints={providerTrends.find((t) => t.providerSlug === provider.slug)?.points.map((p) => p.totalCount)}
+                trendPoints={providerTrends.find((t) => t.providerSlug === provider.slug)?.points?.map((p) => p.totalCount)}
               />
             ))}
           </div>

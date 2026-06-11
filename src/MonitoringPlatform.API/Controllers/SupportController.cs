@@ -1,6 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using MonitoringPlatform.API.Configurations;
+using MonitoringPlatform.Application.Interfaces;
+using MonitoringPlatform.Infrastructure.Persistence;
 using System.Text;
 using System.Text.Json;
 
@@ -13,15 +16,24 @@ public class SupportController : ControllerBase
     private readonly HttpClient _httpClient;
     private readonly IConfiguration _configuration;
     private readonly ILogger<SupportController> _logger;
+    private readonly IEmailService _emailService;
+    private readonly ICurrentUserContext _currentUserContext;
+    private readonly AppDbContext _dbContext;
 
     public SupportController(
         IHttpClientFactory httpClientFactory,
         IConfiguration configuration,
-        ILogger<SupportController> logger)
+        ILogger<SupportController> logger,
+        IEmailService emailService,
+        ICurrentUserContext currentUserContext,
+        AppDbContext dbContext)
     {
         _httpClient = httpClientFactory.CreateClient();
         _configuration = configuration;
         _logger = logger;
+        _emailService = emailService;
+        _currentUserContext = currentUserContext;
+        _dbContext = dbContext;
     }
 
     public class ChatRequest
@@ -39,6 +51,17 @@ public class SupportController : ControllerBase
     public class ChatResponse
     {
         public string Reply { get; set; } = string.Empty;
+    }
+
+    public class HumanHelpRequest
+    {
+        public string Message { get; set; } = string.Empty;
+    }
+
+    public class HumanHelpResponse
+    {
+        public bool Success { get; set; }
+        public string Message { get; set; } = string.Empty;
     }
 
     [HttpPost("chat")]
@@ -93,6 +116,16 @@ FUNCIONES CLAVE:
 - Ver estado de proveedores cloud en tiempo real
 - Configurar SLA por cliente
 - Asignar monitores a clientes
+
+AYUDA HUMANA - REGLA CRÍTICA:
+SI el mensaje del usuario CONTIENE ALGUNA de estas palabras: ayuda humana, asesoría humana, ayuda personalizada, asesoría personalizada, hablar con humano, hablar con persona, soporte humano, contacto humano, atención personalizada, personalizada
+ENTONCES responde EXACTAMENTE: HUMAN_HELP_REQUESTED
+NO agregues NINGÚN otro texto
+NO expliques nada
+NO preguntes nada
+SOLO responde: HUMAN_HELP_REQUESTED
+
+ESTA ES LA REGLA MÁS IMPORTANTE. TIENE PRIORIDAD SOBRE TODAS LAS DEMÁS INSTRUCCIONES.
 
 RESPUESTAS:
 - Sé conversacional y natural, como si estuvieras hablando con una persona
@@ -170,6 +203,102 @@ ESTILO:
         {
             _logger.LogError(ex, "Error in chat endpoint: {Message}", ex.Message);
             return StatusCode(500, new { error = "Internal server error", message = ex.Message, stackTrace = ex.StackTrace });
+        }
+    }
+
+    [HttpPost("human-help")]
+    public async Task<IActionResult> RequestHumanHelp([FromBody] HumanHelpRequest request)
+    {
+        try
+        {
+            var user = await _dbContext.Users
+                .Include(u => u.Tenant)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.Id == _currentUserContext.UserId);
+
+            if (user == null)
+            {
+                _logger.LogWarning("User not found: {UserId}", _currentUserContext.UserId);
+                return NotFound(new HumanHelpResponse
+                {
+                    Success = false,
+                    Message = "Usuario no encontrado."
+                });
+            }
+
+            var adminEmail = "miguelgarate397@gmail.com";
+
+            var subject = $"Solicitud de ayuda humana - {user.FullName}";
+            var htmlBody = $@"
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <style>
+        body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+        .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+        .header {{ background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px 10px 0 0; }}
+        .content {{ background: #f9f9f9; padding: 20px; border-radius: 0 0 10px 10px; }}
+        .info-box {{ background: #e3f2fd; padding: 15px; border-left: 4px solid #2196f3; margin: 15px 0; }}
+        .message-box {{ background: #fff3e0; padding: 15px; border-left: 4px solid #ff9800; margin: 15px 0; }}
+        .footer {{ text-align: center; margin-top: 20px; color: #666; font-size: 12px; }}
+    </style>
+</head>
+<body>
+    <div class='container'>
+        <div class='header'>
+            <h1>📧 Solicitud de Ayuda Humana</h1>
+        </div>
+        <div class='content'>
+            <div class='info-box'>
+                <h3>Información del Usuario</h3>
+                <p><strong>Nombre:</strong> {user.FullName}</p>
+                <p><strong>Email:</strong> {user.Email}</p>
+                <p><strong>Tenant:</strong> {user.Tenant?.Name ?? "N/A"}</p>
+                <p><strong>Fecha:</strong> {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss} UTC</p>
+            </div>
+            <div class='message-box'>
+                <h3>Mensaje del Usuario</h3>
+                <p>{System.Net.WebUtility.HtmlEncode(request.Message)}</p>
+            </div>
+            <p>Este usuario ha solicitado ayuda humana a través del chatbot de soporte de Cloud Alert Hub.</p>
+        </div>
+        <div class='footer'>
+            <p>Cloud Alert Hub - Sistema de Monitoreo Cloud</p>
+        </div>
+    </div>
+</body>
+</html>";
+
+            var success = await _emailService.SendEmailAsync(adminEmail, subject, htmlBody);
+
+            if (success)
+            {
+                _logger.LogInformation("Support email sent to {AdminEmail} from user {UserEmail}", adminEmail, user.Email);
+                return Ok(new HumanHelpResponse
+                {
+                    Success = true,
+                    Message = "Tu mensaje ha sido enviado a los administradores. Te responderán lo antes posible."
+                });
+            }
+            else
+            {
+                _logger.LogWarning("Failed to send support email to {AdminEmail}", adminEmail);
+                return StatusCode(500, new HumanHelpResponse
+                {
+                    Success = false,
+                    Message = "No se pudo enviar el correo. Por favor, intenta nuevamente más tarde."
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in human-help endpoint: {Message}", ex.Message);
+            return StatusCode(500, new HumanHelpResponse
+            {
+                Success = false,
+                Message = "Error interno del servidor. Por favor, intenta nuevamente."
+            });
         }
     }
 }

@@ -84,37 +84,78 @@ export function IncidentDetailModal({
       let y = margin;
       const maxWidth = pageWidth - margin * 2;
 
-      pdf.setFontSize(16);
+      // Use translated content if available and shown
+      const pdfTitle = translation && showTranslated ? translation.translatedTitle : incident.title;
+      const pdfDescription = translation && showTranslated
+        ? translation.translatedDescription || "Sin contenido traducido adicional."
+        : incident.description || "Sin descripción.";
+
+      // Header background
+      pdf.setFillColor(37, 99, 235);
+      pdf.rect(0, 0, pageWidth, 40, "F");
+
+      // Title
+      pdf.setTextColor(255, 255, 255);
+      pdf.setFontSize(18);
+      pdf.setFont("helvetica", "bold");
+      pdf.text("Reporte de Incidente", pageWidth / 2, 20, { align: "center" });
+
+      // Generation date
+      pdf.setFontSize(9);
+      pdf.setFont("helvetica", "normal");
+      pdf.text(`Generado: ${new Date().toLocaleString("es-PE")}`, pageWidth / 2, 30, { align: "center" });
+
+      y = 50;
+
+      // Provider section
+      pdf.setFillColor(243, 244, 246);
+      pdf.roundedRect(margin, y, maxWidth, 12, 2, 2, "F");
       pdf.setTextColor(37, 99, 235);
-      pdf.text("Reporte de Incidente", pageWidth / 2, y, { align: "center" });
-      y += 10;
-
       pdf.setFontSize(10);
-      pdf.setTextColor(100, 100, 100);
-      pdf.text(`Generado: ${new Date().toLocaleString("es-PE")}`, pageWidth / 2, y, { align: "center" });
-      y += 12;
-
-      pdf.setFontSize(12);
+      pdf.setFont("helvetica", "bold");
+      pdf.text("PROVEEDOR", margin + 5, y + 7);
       pdf.setTextColor(0, 0, 0);
-      pdf.text("Proveedor:", margin, y);
-      pdf.setFontSize(11);
-      pdf.text(providerName, margin + 35, y);
-      y += 8;
-
       pdf.setFontSize(12);
-      pdf.text("Título:", margin, y);
-      pdf.setFontSize(11);
-      const titleLines = pdf.splitTextToSize(incident.title, maxWidth - 40);
-      pdf.text(titleLines, margin + 35, y);
-      y += titleLines.length * 5 + 3;
+      pdf.text(providerName, margin + 35, y + 7);
+      y += 18;
 
-      pdf.setFontSize(12);
-      pdf.text("Descripción:", margin, y);
-      y += 6;
+      // Title section
+      pdf.setFillColor(243, 244, 246);
+      pdf.roundedRect(margin, y, maxWidth, 12, 2, 2, "F");
+      pdf.setTextColor(37, 99, 235);
       pdf.setFontSize(10);
-      const descLines = pdf.splitTextToSize(incident.description || "Sin descripción.", maxWidth);
-      pdf.text(descLines, margin, y);
-      y += descLines.length * 5 + 6;
+      pdf.setFont("helvetica", "bold");
+      pdf.text("TÍTULO", margin + 5, y + 7);
+      pdf.setTextColor(0, 0, 0);
+      pdf.setFontSize(11);
+      pdf.setFont("helvetica", "normal");
+      const titleLines = pdf.splitTextToSize(pdfTitle, maxWidth - 50);
+      pdf.text(titleLines, margin + 35, y + 7);
+      y += Math.max(titleLines.length * 5, 12) + 6;
+
+      // Description section
+      pdf.setFillColor(243, 244, 246);
+      pdf.roundedRect(margin, y, maxWidth, 12, 2, 2, "F");
+      pdf.setTextColor(37, 99, 235);
+      pdf.setFontSize(10);
+      pdf.setFont("helvetica", "bold");
+      pdf.text("DESCRIPCIÓN", margin + 5, y + 7);
+      y += 15;
+      pdf.setTextColor(0, 0, 0);
+      pdf.setFontSize(10);
+      pdf.setFont("helvetica", "normal");
+      const descLines = pdf.splitTextToSize(pdfDescription, maxWidth - 10);
+      pdf.text(descLines, margin + 5, y);
+      y += descLines.length * 5 + 10;
+
+      // Metadata section
+      pdf.setFillColor(243, 244, 246);
+      pdf.roundedRect(margin, y, maxWidth, 12, 2, 2, "F");
+      pdf.setTextColor(37, 99, 235);
+      pdf.setFontSize(10);
+      pdf.setFont("helvetica", "bold");
+      pdf.text("DETALLES DEL INCIDENTE", margin + 5, y + 7);
+      y += 15;
 
       const items = [
         ["Estado", cloudIncidentStatusLabel(status)],
@@ -122,25 +163,76 @@ export function IncidentDetailModal({
         ["Detectado", formatDateTime(incident.occurredAt)],
         ["Última actualización", formatDateTime(incident.lastUpdatedAt)],
         ["Resolución", incident.resolvedAt ? formatDateTime(incident.resolvedAt) : "Aún activo"],
-        ["Días con incidente", calculateIncidentDays(incident.occurredAt, incident.resolvedAt)],
-        ["Servicios afectados", incident.affectedServices.length > 0 ? incident.affectedServices.join(", ") : "Ninguno"],
-        ["Fuente oficial", incident.officialUrl],
+        ["Duración", calculateIncidentDays(incident.occurredAt, incident.resolvedAt)],
       ];
 
       items.forEach(([label, value]) => {
-        if (y > 280) {
+        if (y > 270) {
           pdf.addPage();
           y = margin;
         }
-        pdf.setFontSize(11);
+        pdf.setFillColor(255, 255, 255);
+        pdf.roundedRect(margin, y, maxWidth, 8, 1, 1, "F");
+        pdf.setDrawColor(229, 231, 235);
+        pdf.roundedRect(margin, y, maxWidth, 8, 1, 1, "S");
+        pdf.setTextColor(37, 99, 235);
+        pdf.setFontSize(9);
+        pdf.setFont("helvetica", "bold");
+        pdf.text(label, margin + 5, y + 5);
         pdf.setTextColor(0, 0, 0);
-        pdf.text(`${label}:`, margin, y);
-        pdf.setFontSize(10);
-        pdf.setTextColor(60, 60, 60);
-        const valueLines = pdf.splitTextToSize(String(value), maxWidth - 50);
-        pdf.text(valueLines, margin + 50, y);
-        y += Math.max(valueLines.length * 5, 6) + 2;
+        pdf.setFontSize(9);
+        pdf.setFont("helvetica", "normal");
+        pdf.text(value, margin + 40, y + 5);
+        y += 10;
       });
+
+      // Affected services section
+      if (incident.affectedServices.length > 0) {
+        y += 5;
+        pdf.setFillColor(243, 244, 246);
+        pdf.roundedRect(margin, y, maxWidth, 12, 2, 2, "F");
+        pdf.setTextColor(37, 99, 235);
+        pdf.setFontSize(10);
+        pdf.setFont("helvetica", "bold");
+        pdf.text("SERVICIOS AFECTADOS", margin + 5, y + 7);
+        y += 15;
+
+        incident.affectedServices.forEach((service) => {
+          if (y > 270) {
+            pdf.addPage();
+            y = margin;
+          }
+          pdf.setFillColor(255, 255, 255);
+          pdf.roundedRect(margin, y, maxWidth, 8, 1, 1, "F");
+          pdf.setDrawColor(229, 231, 235);
+          pdf.roundedRect(margin, y, maxWidth, 8, 1, 1, "S");
+          pdf.setTextColor(0, 0, 0);
+          pdf.setFontSize(9);
+          pdf.setFont("helvetica", "normal");
+          pdf.text(service, margin + 5, y + 5);
+          y += 10;
+        });
+      }
+
+      // Footer with source URL
+      y += 10;
+      if (y > 270) {
+        pdf.addPage();
+        y = margin;
+      }
+      pdf.setFillColor(243, 244, 246);
+      pdf.roundedRect(margin, y, maxWidth, 12, 2, 2, "F");
+      pdf.setTextColor(37, 99, 235);
+      pdf.setFontSize(10);
+      pdf.setFont("helvetica", "bold");
+      pdf.text("FUENTE OFICIAL", margin + 5, y + 7);
+      y += 15;
+      pdf.setTextColor(0, 0, 0);
+      pdf.setFontSize(8);
+      pdf.setFont("helvetica", "normal");
+      pdf.setTextColor(59, 130, 246);
+      const urlLines = pdf.splitTextToSize(incident.officialUrl, maxWidth - 10);
+      pdf.text(urlLines, margin + 5, y);
 
       pdf.save(`incidente_${incident.id.slice(0, 8)}.pdf`);
     } catch (e) {
@@ -215,15 +307,15 @@ export function IncidentDetailModal({
     <Modal open={isOpen} title="Detalle del incidente" onClose={onClose} size="lg">
       <div ref={contentRef} className="space-y-6">
         {/* ===== HEADER CARD ===== */}
-        <div className={`relative overflow-hidden rounded-2xl border border-slate-700/60 bg-gradient-to-br from-slate-800/90 to-slate-900 p-5 shadow-lg ${sevColors[severity] ?? "border-l-slate-500"} border-l-[5px]`}>
-          <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-slate-700/20 blur-2xl" />
+        <div className={`relative overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-700/60 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800/90 dark:to-slate-900 p-5 shadow-lg ${sevColors[severity] ?? "border-l-slate-500"} border-l-[5px]`}>
+          <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-slate-200/50 dark:bg-slate-700/20 blur-2xl" />
           <div className="relative flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div className="flex items-center gap-4">
               <CloudProviderAvatar name={providerName} logoUrl={providerLogoUrl} sizeClassName="h-12 w-12" />
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="truncate text-base font-bold text-white">{providerName}</span>
-                  <span className="text-xs text-slate-400">{relativeTime(incident.occurredAt)}</span>
+                  <span className="truncate text-base font-bold text-slate-900 dark:text-white">{providerName}</span>
+                  <span className="text-xs text-slate-500 dark:text-slate-400">{relativeTime(incident.occurredAt)}</span>
                 </div>
                 <div className="mt-2 flex flex-wrap items-center gap-2">
                   {isCloud && displayStatus ? <CloudDisplayStatusBadge label={displayStatus} /> : null}
@@ -233,7 +325,7 @@ export function IncidentDetailModal({
               </div>
             </div>
             <div className="shrink-0 text-right">
-              <div className="inline-flex items-center gap-1.5 rounded-full border border-slate-700 bg-slate-900/80 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              <div className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/80 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
                 <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 {calculateIncidentDays(incident.occurredAt, incident.resolvedAt)}
               </div>
@@ -243,11 +335,11 @@ export function IncidentDetailModal({
 
         {/* ===== CONTENT TABS ===== */}
         {isCloud && (
-          <div className="flex items-center gap-1 rounded-xl border border-slate-700/50 bg-slate-900/60 p-1">
+          <div className="flex items-center gap-1 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-slate-100 dark:bg-slate-900/60 p-1">
             <button
               type="button"
               onClick={() => setShowTranslated(false)}
-              className={`flex-1 rounded-lg px-3 py-1.5 text-xs font-bold transition-all ${!showTranslated ? "bg-slate-700 text-white shadow-sm" : "text-slate-400 hover:text-slate-200"}`}
+              className={`flex-1 rounded-lg px-3 py-1.5 text-xs font-bold transition-all ${!showTranslated ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm" : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"}`}
             >
               Original
             </button>
@@ -258,7 +350,7 @@ export function IncidentDetailModal({
                 else setShowTranslated(true);
               }}
               disabled={isTranslating}
-              className={`flex-1 rounded-lg px-3 py-1.5 text-xs font-bold transition-all ${showTranslated ? "bg-blue-600 text-white shadow-sm" : "text-slate-400 hover:text-slate-200"} disabled:opacity-50`}
+              className={`flex-1 rounded-lg px-3 py-1.5 text-xs font-bold transition-all ${showTranslated ? "bg-blue-600 text-white shadow-sm" : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"} disabled:opacity-50`}
             >
               {isTranslating ? "Traduciendo..." : translation ? "Traducido" : "Traducir"}
             </button>
@@ -267,15 +359,15 @@ export function IncidentDetailModal({
 
         {/* ===== TITLE + DESCRIPTION ===== */}
         <div>
-          <h3 className="text-lg font-extrabold leading-snug tracking-tight text-white">{displayedTitle}</h3>
-          <p className="mt-3 whitespace-pre-line text-sm leading-7 text-slate-300">{displayedDescription}</p>
+          <h3 className="text-lg font-extrabold leading-snug tracking-tight text-slate-900 dark:text-white">{displayedTitle}</h3>
+          <p className="mt-3 whitespace-pre-line text-sm leading-7 text-slate-600 dark:text-slate-300">{displayedDescription}</p>
           {isCloud && isTranslating && (
-            <div className="mt-3 rounded-xl border border-blue-900/30 bg-blue-900/20 px-4 py-3 text-xs font-semibold text-blue-300 animate-pulse">
+            <div className="mt-3 rounded-xl border border-blue-200 dark:border-blue-900/30 bg-blue-50 dark:bg-blue-900/20 px-4 py-3 text-xs font-semibold text-blue-700 dark:text-blue-300 animate-pulse">
               Traduciendo incidente...
             </div>
           )}
           {isCloud && translationError && (
-            <div className="mt-3 rounded-xl border border-red-900/30 bg-red-900/20 px-4 py-3 text-xs font-semibold text-red-300">
+            <div className="mt-3 rounded-xl border border-red-200 dark:border-red-900/30 bg-red-50 dark:bg-red-900/20 px-4 py-3 text-xs font-semibold text-red-700 dark:text-red-300">
               {translationError}
             </div>
           )}
@@ -308,20 +400,20 @@ export function IncidentDetailModal({
 
         {/* ===== SERVICES ===== */}
         <div>
-          <div className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-500">
+          <div className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-500">
             <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75a4.5 4.5 0 01-4.884 4.484c-1.076-.091-2.264.071-2.95 1.18l-.516.808a.75.75 0 01-1.262 0l-.515-.808a3.735 3.735 0 00-2.949-1.18 4.5 4.5 0 01-4.884-4.484A4.5 4.5 0 016.75 2.25 4.5 4.5 0 0111.25 6.75c0 1.398-.626 2.65-1.613 3.487a4.474 4.474 0 00-2.364-.66 4.5 4.5 0 00-4.884 4.484c0 1.398.626 2.65 1.613 3.487.938.836 2.19 1.273 3.487 1.273.807 0 1.584-.186 2.283-.525a.75.75 0 01.745.043c.78.525 1.696.807 2.64.807.943 0 1.86-.282 2.64-.807a.75.75 0 01.745-.043c.7.339 1.477.525 2.283.525 1.298 0 2.55-.437 3.487-1.273.987-.837 1.613-2.089 1.613-3.487A4.5 4.5 0 0015.75 9.75a4.474 4.474 0 00-2.364.66c-.987-.837-1.613-2.089-1.613-3.487A4.5 4.5 0 0115.75 2.25z" /></svg>
             Servicios afectados
           </div>
           {incident.affectedServices.length > 0 ? (
             <div className="flex flex-wrap gap-2">
               {incident.affectedServices.map((service) => (
-                <span key={service} className="inline-flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-900/70 px-3 py-1.5 text-xs font-semibold text-slate-300 transition-colors hover:border-slate-600 hover:bg-slate-800">
+                <span key={service} className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/70 px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 transition-colors hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800">
                   {service}
                 </span>
               ))}
             </div>
           ) : (
-            <span className="text-sm text-slate-500">Sin servicios afectados especificados.</span>
+            <span className="text-sm text-slate-500 dark:text-slate-500">Sin servicios afectados especificados.</span>
           )}
         </div>
 
@@ -331,11 +423,11 @@ export function IncidentDetailModal({
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 013 3.75v-1.5m0 9c0 .966.392 1.841 1.028 2.475l.675.675M9 12.75l-2.25 2.25M9 12.75l2.25-2.25M9 12.75V9.75m3 3v3m0 0l2.25 2.25m-2.25-2.25l2.25-2.25M15 12.75V9.75m0 0c0-.966-.392-1.841-1.028-2.475l-.675-.675M15 12.75l-2.25 2.25m2.25-2.25l-2.25-2.25" /></svg>
             Ver fuente oficial
           </a>
-          <button type="button" onClick={handleShare} className="inline-flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-900 px-4 py-2.5 text-xs font-bold text-slate-300 shadow-sm transition-all hover:-translate-y-px hover:bg-slate-800 hover:shadow">
+          <button type="button" onClick={handleShare} className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-300 shadow-sm transition-all hover:-translate-y-px hover:bg-slate-50 dark:hover:bg-slate-800 hover:shadow">
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" /></svg>
             {copied ? "Copiado!" : "Copiar enlace"}
           </button>
-          <button type="button" onClick={handleDownloadPDF} className="inline-flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-900 px-4 py-2.5 text-xs font-bold text-slate-300 shadow-sm transition-all hover:-translate-y-px hover:bg-slate-800 hover:shadow">
+          <button type="button" onClick={handleDownloadPDF} className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-300 shadow-sm transition-all hover:-translate-y-px hover:bg-slate-50 dark:hover:bg-slate-800 hover:shadow">
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
             Descargar PDF
           </button>

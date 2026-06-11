@@ -54,16 +54,6 @@ namespace MonitoringPlatform.Infrastructure.CloudStatus
             };
         }
 
-        public static CloudIncidentSeverity MapAwsSeverity(string title)
-        {
-            var normalized = title.Trim().ToLowerInvariant();
-            if (normalized.Contains("disruption")) return CloudIncidentSeverity.Critical;
-            if (normalized.Contains("degradation")) return CloudIncidentSeverity.Major;
-            if (normalized.Contains("impact")) return CloudIncidentSeverity.Major;
-            if (normalized.Contains("maintenance")) return CloudIncidentSeverity.Informational;
-            return CloudIncidentSeverity.Minor;
-        }
-
         public static CloudIncidentSeverity MapGenericRssSeverity(string? title, string? description, string? status)
         {
             var normalized = string.Join(" ", new[] { status, title, description }
@@ -324,22 +314,152 @@ namespace MonitoringPlatform.Infrastructure.CloudStatus
                 return null;
             }
 
-            var awsRegion = AwsRegionRegex().Match(text);
-            if (awsRegion.Success)
+            var normalized = text.ToLowerInvariant();
+
+            // Azure regions (more comprehensive matching)
+            var azureRegion = InferAzureRegionFromText(normalized);
+            if (azureRegion != null)
             {
-                return awsRegion.Value;
+                Console.WriteLine($"[REGION-INFERENCE] Azure region detected: {azureRegion} from: {title?.Substring(0, Math.Min(50, title?.Length ?? 0))}");
+                return azureRegion;
             }
 
+            // GCP regions
+            var gcpRegion = InferGcpRegionFromText(normalized);
+            if (gcpRegion != null)
+            {
+                Console.WriteLine($"[REGION-INFERENCE] GCP region detected: {gcpRegion} from: {title?.Substring(0, Math.Min(50, title?.Length ?? 0))}");
+                return gcpRegion;
+            }
+
+            // Airport codes
             var airportCode = AirportCodeRegex().Match(text);
             if (airportCode.Success)
             {
+                Console.WriteLine($"[REGION-INFERENCE] Airport code detected: {airportCode.Value} from: {title?.Substring(0, Math.Min(50, title?.Length ?? 0))}");
                 return airportCode.Value;
             }
 
+            // Geography hints
             var geographyHint = GeographyHintRegex().Match(text);
             if (geographyHint.Success)
             {
+                Console.WriteLine($"[REGION-INFERENCE] Geography hint detected: {geographyHint.Value.Trim()} from: {title?.Substring(0, Math.Min(50, title?.Length ?? 0))}");
                 return geographyHint.Value.Trim();
+            }
+
+            Console.WriteLine($"[REGION-INFERENCE] No region detected for: {title?.Substring(0, Math.Min(50, title?.Length ?? 0))}");
+            return null;
+        }
+
+        private static string? InferAzureRegionFromText(string normalized)
+        {
+            var azureRegions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "east us", "East US" },
+                { "east us 2", "East US 2" },
+                { "west us", "West US" },
+                { "west us 2", "West US 2" },
+                { "west us 3", "West US 3" },
+                { "central us", "Central US" },
+                { "north central us", "North Central US" },
+                { "south central us", "South Central US" },
+                { "west central us", "West Central US" },
+                { "brazil south", "Brazil South" },
+                { "brazil southeast", "Brazil Southeast" },
+                { "canada central", "Canada Central" },
+                { "canada east", "Canada East" },
+                { "north europe", "North Europe" },
+                { "west europe", "West Europe" },
+                { "uk south", "UK South" },
+                { "uk west", "UK West" },
+                { "france central", "France Central" },
+                { "germany west central", "Germany West Central" },
+                { "norway east", "Norway East" },
+                { "switzerland north", "Switzerland North" },
+                { "sweden central", "Sweden Central" },
+                { "poland central", "Poland Central" },
+                { "spain central", "Spain Central" },
+                { "east asia", "East Asia" },
+                { "southeast asia", "Southeast Asia" },
+                { "australia east", "Australia East" },
+                { "australia southeast", "Australia Southeast" },
+                { "japan east", "Japan East" },
+                { "japan west", "Japan West" },
+                { "korea central", "Korea Central" },
+                { "korea south", "Korea South" },
+                { "central india", "Central India" },
+                { "south india", "South India" },
+                { "west india", "West India" },
+                { "india central", "Central India" },
+                { "india south", "South India" },
+                { "india west", "West India" },
+                { "uae north", "UAE North" },
+                { "israel central", "Israel Central" },
+                { "south africa north", "South Africa North" },
+                { "qatar central", "Qatar Central" },
+            };
+
+            foreach (var kvp in azureRegions)
+            {
+                if (normalized.Contains(kvp.Key))
+                {
+                    return kvp.Value;
+                }
+            }
+
+            return null;
+        }
+
+        private static string? InferGcpRegionFromText(string normalized)
+        {
+            var gcpRegions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "us-central1", "Iowa" },
+                { "us-east1", "South Carolina" },
+                { "us-east4", "Northern Virginia" },
+                { "us-east5", "Columbus" },
+                { "us-south1", "Dallas" },
+                { "us-west1", "Oregon" },
+                { "us-west2", "Los Angeles" },
+                { "us-west3", "Salt Lake City" },
+                { "us-west4", "Las Vegas" },
+                { "northamerica-northeast1", "Montréal" },
+                { "northamerica-northeast2", "Toronto" },
+                { "southamerica-east1", "São Paulo" },
+                { "southamerica-west1", "Santiago" },
+                { "europe-west1", "Belgium" },
+                { "europe-west2", "London" },
+                { "europe-west3", "Frankfurt" },
+                { "europe-west4", "Netherlands" },
+                { "europe-west6", "Zurich" },
+                { "europe-west8", "Milan" },
+                { "europe-west9", "Paris" },
+                { "europe-north1", "Finland" },
+                { "europe-central2", "Warsaw" },
+                { "europe-southwest1", "Madrid" },
+                { "me-west1", "Tel Aviv" },
+                { "me-central1", "Doha" },
+                { "africa-south1", "Johannesburg" },
+                { "asia-east1", "Taiwan" },
+                { "asia-east2", "Hong Kong" },
+                { "asia-northeast1", "Tokyo" },
+                { "asia-northeast2", "Osaka" },
+                { "asia-northeast3", "Seoul" },
+                { "asia-southeast1", "Singapore" },
+                { "asia-southeast2", "Jakarta" },
+                { "asia-south1", "Mumbai" },
+                { "asia-south2", "Delhi" },
+                { "australia-southeast1", "Sydney" },
+                { "australia-southeast2", "Melbourne" },
+            };
+
+            foreach (var kvp in gcpRegions)
+            {
+                if (normalized.Contains(kvp.Key))
+                {
+                    return kvp.Value;
+                }
             }
 
             return null;
@@ -357,25 +477,6 @@ namespace MonitoringPlatform.Infrastructure.CloudStatus
             }
 
             return ["OpenAI Platform"];
-        }
-
-        public static IReadOnlyList<string> InferAwsServices(string title, string? link)
-        {
-            if (!string.IsNullOrWhiteSpace(link) && link.Contains("multipleservices", StringComparison.OrdinalIgnoreCase))
-            {
-                return ["Multiple AWS services"];
-            }
-
-            if (title.Contains(':'))
-            {
-                var suffix = title[(title.IndexOf(':') + 1)..].Trim();
-                if (!string.IsNullOrWhiteSpace(suffix))
-                {
-                    return [suffix];
-                }
-            }
-
-            return ["AWS service event"];
         }
 
         public static CloudIncidentStatus MapMicrosoftGraphStatus(string? status, bool isResolved)
@@ -576,9 +677,6 @@ namespace MonitoringPlatform.Infrastructure.CloudStatus
                 .Replace("&nbsp;", " ", StringComparison.OrdinalIgnoreCase)
                 .Trim();
         }
-
-        [GeneratedRegex("[a-z]{2}(?:-gov)?-[a-z]+-\\d", RegexOptions.IgnoreCase)]
-        private static partial Regex AwsRegionRegex();
 
         [GeneratedRegex("\\(([A-Z]{3})\\)")]
         private static partial Regex AirportCodeRegex();

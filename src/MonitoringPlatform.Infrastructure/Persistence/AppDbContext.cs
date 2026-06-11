@@ -30,6 +30,7 @@ using SlaReportEntity = MonitoringPlatform.Domain.Entities.SlaReport;
 using AutomationRuleEntity = MonitoringPlatform.Domain.Entities.AutomationRule;
 using CloudProviderUptimeSnapshotEntity = MonitoringPlatform.Domain.Entities.CloudProviderUptimeSnapshot;
 using CloudStatusEventLogEntity = MonitoringPlatform.Domain.Entities.CloudStatusEventLog;
+using UserNotificationEntity = MonitoringPlatform.Domain.Entities.UserNotification;
 
 namespace MonitoringPlatform.Infrastructure.Persistence
 {
@@ -68,6 +69,7 @@ namespace MonitoringPlatform.Infrastructure.Persistence
         public DbSet<AutomationRuleEntity> AutomationRules => Set<AutomationRuleEntity>();
         public DbSet<CloudProviderUptimeSnapshotEntity> CloudProviderUptimeSnapshots => Set<CloudProviderUptimeSnapshotEntity>();
         public DbSet<CloudStatusEventLogEntity> CloudStatusEventLogs => Set<CloudStatusEventLogEntity>();
+        public DbSet<UserNotificationEntity> UserNotifications => Set<UserNotificationEntity>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -639,6 +641,28 @@ namespace MonitoringPlatform.Infrastructure.Persistence
                 entity.Property(e => e.PayloadJson);
                 entity.Property(e => e.OccurredAt).IsRequired();
                 entity.Property(e => e.CreatedAt).IsRequired();
+                entity.HasOne(e => e.Tenant)
+                    .WithMany()
+                    .HasForeignKey(e => e.TenantId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<UserNotificationEntity>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.HasIndex(e => new { e.UserId, e.IsRead });
+                entity.HasIndex(e => new { e.UserId, e.NotificationType, e.ResourceId });
+                entity.Property(e => e.NotificationType).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.ResourceId).HasMaxLength(200);
+                entity.Property(e => e.ResourceTitle).HasMaxLength(500);
+                entity.Property(e => e.ResourceUrl).HasMaxLength(1000);
+                entity.Property(e => e.IsRead).IsRequired();
+                entity.Property(e => e.CreatedAtUtc).IsRequired();
+                entity.Property(e => e.ReadAtUtc);
+                entity.HasOne<ApplicationUser>()
+                    .WithMany()
+                    .HasForeignKey(e => e.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
                 entity.HasOne(e => e.Tenant)
                     .WithMany()
                     .HasForeignKey(e => e.TenantId)

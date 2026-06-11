@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { AuthCard } from "../components/AuthCard";
 import { useAuth } from "../hooks/useAuth";
 import { authService } from "../services/auth";
@@ -9,7 +9,6 @@ function isValidEmail(value: string): boolean {
 }
 
 export function LoginPage() {
-  const navigate = useNavigate();
   const location = useLocation();
   useAuth();
   const [email, setEmail] = useState("");
@@ -25,7 +24,7 @@ export function LoginPage() {
 
   const fromPath =
     (location.state as { from?: { pathname?: string } } | null)?.from
-      ?.pathname ?? "/centro-estado-cloud";
+      ?.pathname ?? null;
 
   const errors = useMemo(() => {
     const nextErrors: Record<string, string | null> = {
@@ -64,8 +63,16 @@ export function LoginPage() {
         password,
       });
       const isAdmin = session.user.roles.includes("Admin");
-      const target = isAdmin && fromPath === "/centro-estado-cloud" ? "/admin" : fromPath;
-      navigate(target, { replace: true });
+      let target: string;
+      if (fromPath) {
+        target = fromPath;
+      } else if (isAdmin) {
+        target = "/admin";
+      } else {
+        target = "/centro-estado-cloud";
+      }
+      // Forzar recarga completa para limpiar cualquier estado de navegación
+      window.location.href = target;
     } catch (submissionError) {
       const raw = submissionError instanceof Error ? submissionError.message : "";
       const msg = raw.toLowerCase();

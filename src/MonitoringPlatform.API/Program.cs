@@ -320,42 +320,67 @@ static async Task EnsureCloudProvidersAsync(AppDbContext db, IOptions<CloudStatu
             Console.WriteLine($"[Startup] Created system tenant: {systemTenant.Id}");
         }
 
-        // Check if providers already exist for system tenant
+        // Get existing providers for system tenant
         var existingProviders = await db.CloudProviders
             .Where(p => p.TenantId == systemTenant.Id)
             .ToListAsync();
 
-        if (existingProviders.Count > 0)
-        {
-            Console.WriteLine($"[Startup] Cloud providers already exist: {existingProviders.Count}");
-            return;
-        }
-
-        // Create providers from configuration
         var now = DateTime.UtcNow;
+        var configuredSlugs = cloudOptions.Value.Providers.Select(p => p.Slug).ToHashSet();
+
+        // Update or create providers from configuration
         foreach (var providerConfig in cloudOptions.Value.Providers)
         {
-            var provider = new CloudProvider
+            var existing = existingProviders.FirstOrDefault(p => p.Slug == providerConfig.Slug);
+            
+            if (existing != null)
             {
-                Id = Guid.NewGuid(),
-                TenantId = systemTenant.Id,
-                Name = providerConfig.Name,
-                Slug = providerConfig.Slug,
-                LogoUrl = providerConfig.LogoUrl,
-                SourceType = providerConfig.SourceType,
-                SourceUrl = providerConfig.SourceUrl,
-                StatusPageUrl = providerConfig.StatusPageUrl,
-                MetadataJson = providerConfig.MetadataJson,
-                IsEnabled = providerConfig.IsEnabled,
-                CreatedAt = now,
-                UpdatedAt = now,
-            };
-            db.CloudProviders.Add(provider);
-            Console.WriteLine($"[Startup] Added provider: {provider.Name} ({provider.Slug})");
+                // Update existing provider
+                existing.Name = providerConfig.Name;
+                existing.LogoUrl = providerConfig.LogoUrl;
+                existing.SourceType = providerConfig.SourceType;
+                existing.SourceUrl = providerConfig.SourceUrl;
+                existing.StatusPageUrl = providerConfig.StatusPageUrl;
+                existing.MetadataJson = providerConfig.MetadataJson;
+                existing.IsEnabled = providerConfig.IsEnabled;
+                existing.UpdatedAt = now;
+                Console.WriteLine($"[Startup] Updated provider: {providerConfig.Name} ({providerConfig.Slug})");
+            }
+            else
+            {
+                // Create new provider
+                var provider = new CloudProvider
+                {
+                    Id = Guid.NewGuid(),
+                    TenantId = systemTenant.Id,
+                    Name = providerConfig.Name,
+                    Slug = providerConfig.Slug,
+                    LogoUrl = providerConfig.LogoUrl,
+                    SourceType = providerConfig.SourceType,
+                    SourceUrl = providerConfig.SourceUrl,
+                    StatusPageUrl = providerConfig.StatusPageUrl,
+                    MetadataJson = providerConfig.MetadataJson,
+                    IsEnabled = providerConfig.IsEnabled,
+                    CreatedAt = now,
+                    UpdatedAt = now,
+                };
+                db.CloudProviders.Add(provider);
+                Console.WriteLine($"[Startup] Added provider: {provider.Name} ({provider.Slug})");
+            }
+        }
+
+        // Remove providers that are no longer in configuration
+        foreach (var existing in existingProviders)
+        {
+            if (!configuredSlugs.Contains(existing.Slug))
+            {
+                db.CloudProviders.Remove(existing);
+                Console.WriteLine($"[Startup] Removed provider: {existing.Name} ({existing.Slug})");
+            }
         }
 
         await db.SaveChangesAsync();
-        Console.WriteLine($"[Startup] Created {cloudOptions.Value.Providers.Count} cloud providers for system tenant");
+        Console.WriteLine($"[Startup] Synced {cloudOptions.Value.Providers.Count} cloud providers for system tenant");
     }
     catch (Exception ex)
     {

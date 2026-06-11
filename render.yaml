@@ -12,6 +12,24 @@ services:
         value: http://+:8080
       - key: Jwt__Secret
         generateValue: true
+      - key: Groq__ApiKey
+        sync: false
+      - key: Email__SmtpHost
+        sync: false
+      - key: Email__SmtpPort
+        value: "587"
+      - key: Email__SmtpUsername
+        sync: false
+      - key: Email__SmtpPassword
+        sync: false
+      - key: Email__SenderEmail
+        sync: false
+      - key: Email__SenderName
+        value: Cloud Alert Hub
+      - key: Email__UseSsl
+        value: "true"
+      - key: Email__Enabled
+        value: "true"
       - key: ConnectionStrings__DefaultConnection
         fromDatabase:
           name: cloud-alert-db

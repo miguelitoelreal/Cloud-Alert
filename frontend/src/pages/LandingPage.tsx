@@ -163,7 +163,7 @@ const featureCards = [
   {
     title: "Estado cloud unificado",
     description:
-      "Centraliza el estado de Cloudflare, GitHub, OpenAI, AWS, Microsoft 365 y Power Platform en un solo tablero.",
+      "Centraliza el estado de Cloudflare, GitHub, OpenAI, Vercel, Google Cloud, Oracle Cloud, Netlify, Render, GitLab, Microsoft 365 y Power Platform en un solo tablero.",
     icon: IconCloud,
     accent: "from-sky-500 to-blue-600",
     shadow: "shadow-sky-500/20",
@@ -254,19 +254,16 @@ const providerBadges = [
   { name: "Cloudflare", color: "border-orange-500/30 text-orange-200 bg-orange-500/10" },
   { name: "GitHub", color: "border-slate-500/30 text-slate-200 bg-slate-500/10" },
   { name: "OpenAI", color: "border-emerald-500/30 text-emerald-200 bg-emerald-500/10" },
-  { name: "AWS", color: "border-amber-500/30 text-amber-200 bg-amber-500/10" },
-  { name: "Microsoft 365", color: "border-blue-500/30 text-blue-200 bg-blue-500/10" },
-  { name: "Power Platform", color: "border-sky-500/30 text-sky-200 bg-sky-500/10" },
+  { name: "Vercel", color: "border-slate-500/30 text-slate-200 bg-slate-500/10" },
+  { name: "Twilio", color: "border-red-500/30 text-red-200 bg-red-500/10" },
+  { name: "DigitalOcean", color: "border-sky-500/30 text-sky-200 bg-sky-500/10" },
   { name: "Google Cloud", color: "border-blue-500/30 text-blue-200 bg-blue-500/10" },
-  { name: "Azure", color: "border-cyan-500/30 text-cyan-200 bg-cyan-500/10" },
   { name: "Oracle Cloud", color: "border-red-500/30 text-red-200 bg-red-500/10" },
-  { name: "Salesforce", color: "border-indigo-500/30 text-indigo-200 bg-indigo-500/10" },
-  { name: "Datadog", color: "border-violet-500/30 text-violet-200 bg-violet-500/10" },
-  { name: "Heroku", color: "border-purple-500/30 text-purple-200 bg-purple-500/10" },
   { name: "Netlify", color: "border-teal-500/30 text-teal-200 bg-teal-500/10" },
   { name: "Render", color: "border-emerald-500/30 text-emerald-200 bg-emerald-500/10" },
   { name: "GitLab", color: "border-orange-600/30 text-orange-200 bg-orange-600/10" },
-  { name: "DigitalOcean", color: "border-sky-500/30 text-sky-200 bg-sky-500/10" },
+  { name: "Microsoft 365", color: "border-blue-500/30 text-blue-200 bg-blue-500/10" },
+  { name: "Power Platform", color: "border-sky-500/30 text-sky-200 bg-sky-500/10" },
 ];
 
 const details = [
@@ -617,8 +614,8 @@ export function LandingPage() {
                     </div>
                     <div className="mt-3 space-y-2">
                       {[
-                        { name: "AWS us-east-1", sev: "Critical", color: "bg-red-500" },
                         { name: "Cloudflare CDN", sev: "Minor", color: "bg-amber-500" },
+                        { name: "GitLab CI", sev: "Critical", color: "bg-red-500" },
                       ].map((inc) => (
                         <div key={inc.name} className="flex items-center justify-between rounded-lg bg-slate-900/50 px-3 py-2">
                           <div className="flex items-center gap-2">

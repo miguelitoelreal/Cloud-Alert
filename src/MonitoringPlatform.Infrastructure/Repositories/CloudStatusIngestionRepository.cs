@@ -100,7 +100,9 @@ namespace MonitoringPlatform.Infrastructure.Repositories
         public async Task<IReadOnlyList<CloudProviderIngestionTargetDto>> GetEnabledProvidersAsync(CancellationToken cancellationToken)
         {
             var systemTenantId = await GetOrCreateSystemTenantIdAsync(DateTime.UtcNow, cancellationToken);
-            return await _context.CloudProviders
+
+            // Get providers from system tenant (public providers)
+            var systemProviders = await _context.CloudProviders
                 .AsNoTracking()
                 .Where(x => x.IsEnabled && x.TenantId == systemTenantId)
                 .OrderBy(x => x.Name)
@@ -118,6 +120,28 @@ namespace MonitoringPlatform.Infrastructure.Repositories
                     IsEnabled = x.IsEnabled,
                 })
                 .ToListAsync(cancellationToken);
+
+            // Also get Microsoft Graph providers from all user tenants (Microsoft 365, Power Platform)
+            var microsoftProviders = await _context.CloudProviders
+                .AsNoTracking()
+                .Where(x => x.IsEnabled && x.SourceType == CloudStatusSourceType.MicrosoftGraphServiceHealth && x.TenantId != systemTenantId)
+                .OrderBy(x => x.Name)
+                .Select(x => new CloudProviderIngestionTargetDto
+                {
+                    Id = x.Id,
+                    TenantId = x.TenantId,
+                    Name = x.Name,
+                    Slug = x.Slug,
+                    LogoUrl = x.LogoUrl,
+                    SourceType = x.SourceType,
+                    SourceUrl = x.SourceUrl,
+                    StatusPageUrl = x.StatusPageUrl,
+                    MetadataJson = x.MetadataJson,
+                    IsEnabled = x.IsEnabled,
+                })
+                .ToListAsync(cancellationToken);
+
+            return systemProviders.Concat(microsoftProviders).ToList();
         }
 
         private async Task<Guid> GetOrCreateSystemTenantIdAsync(DateTime now, CancellationToken cancellationToken)

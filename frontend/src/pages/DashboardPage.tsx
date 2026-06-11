@@ -480,7 +480,7 @@ export function DashboardPage() {
                   {monitors.map((m) => (
                     <tr
                       key={m.id}
-                      className="group transition-colors hover:bg-slate-100 dark:bg-slate-800/40"
+                      className="group transition-colors hover:bg-slate-100 dark:hover:bg-slate-700/50 dark:bg-slate-800/40"
                     >
                       <td className="px-3 py-3">
                         <Link
