@@ -75,6 +75,24 @@ namespace MonitoringPlatform.Infrastructure.Persistence
         {
             base.OnModelCreating(modelBuilder);
 
+            // Configure PostgreSQL-specific mappings
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+            {
+                foreach (var property in entityType.GetProperties())
+                {
+                    // Configure boolean columns as boolean for PostgreSQL
+                    if (property.ClrType == typeof(bool))
+                    {
+                        property.SetColumnType("boolean");
+                    }
+                    // Configure Guid columns as uuid for PostgreSQL
+                    else if (property.ClrType == typeof(Guid))
+                    {
+                        property.SetColumnType("uuid");
+                    }
+                }
+            }
+
             modelBuilder.Entity<ApplicationUser>(entity =>
             {
                 entity.Property(e => e.FullName).IsRequired().HasMaxLength(120);

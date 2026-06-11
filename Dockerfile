@@ -51,9 +51,6 @@ COPY --from=backend-build /app/publish .
 # Copy frontend build into wwwroot so ASP.NET can serve it as static files
 COPY --from=frontend-build /app/frontend/dist ./wwwroot
 
-# Ensure SQLite DB directory exists and is writable
-RUN mkdir -p /app/data && chmod 777 /app/data
-
 # Expose the port Render will use
 EXPOSE 8080
 

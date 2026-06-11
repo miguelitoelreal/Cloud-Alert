@@ -11,8 +11,8 @@ using MonitoringPlatform.Infrastructure.Persistence;
 namespace MonitoringPlatform.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260611134719_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20260611185415_InitialSchema")]
+    partial class InitialSchema
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,7 +24,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -60,7 +60,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("RoleId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -82,7 +82,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("UserId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -103,7 +103,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("UserId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.HasKey("LoginProvider", "ProviderKey");
 
@@ -115,10 +115,10 @@ namespace MonitoringPlatform.Infrastructure.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<System.Guid>", b =>
                 {
                     b.Property<Guid>("UserId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("RoleId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.HasKey("UserId", "RoleId");
 
@@ -130,7 +130,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
                 {
                     b.Property<Guid>("UserId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("LoginProvider")
                         .HasColumnType("TEXT");
@@ -150,10 +150,10 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid?>("AlertRuleId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<int>("AlertType")
                         .HasColumnType("INTEGER");
@@ -166,7 +166,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("IsSuccess")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Message")
                         .IsRequired()
@@ -186,7 +186,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("TenantId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -201,7 +201,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<int>("AlertType")
                         .HasColumnType("INTEGER");
@@ -213,7 +213,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("IsEnabled")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -231,7 +231,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("TenantId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<int>("ThrottleMinutes")
                         .HasColumnType("INTEGER");
@@ -250,7 +250,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("ActionConfigJson")
                         .IsRequired()
@@ -273,10 +273,10 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("IsEnabled")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<DateTime?>("LastTriggeredAt")
                         .HasColumnType("TEXT");
@@ -287,7 +287,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("TenantId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<int>("TriggerType")
                         .HasColumnType("INTEGER");
@@ -309,7 +309,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<int>("CooldownMinutes")
                         .HasColumnType("INTEGER");
@@ -327,13 +327,13 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("GroupSimilarIncidents")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("IsEnabled")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<int>("MinSeverity")
                         .HasColumnType("INTEGER");
@@ -344,13 +344,13 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("QuietHoursEnabled")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<TimeSpan>("QuietHoursEnd")
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("QuietHoursExcludeWeekends")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<TimeSpan>("QuietHoursStart")
                         .HasColumnType("TEXT");
@@ -361,7 +361,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("TenantId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("TEXT");
@@ -370,7 +370,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("UserId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -383,16 +383,16 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("CloudProviderId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("SubscriptionId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -407,7 +407,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
@@ -418,7 +418,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("SubscriptionId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -431,7 +431,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
@@ -442,7 +442,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("SubscriptionId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -455,13 +455,13 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("AffectedServicesJson")
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("CloudProviderId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
@@ -476,7 +476,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<DateTime>("LastUpdatedAt")
                         .HasColumnType("TEXT");
@@ -529,10 +529,10 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("CloudIncidentId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("CorrelationReason")
                         .HasMaxLength(500)
@@ -545,7 +545,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("GroupId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -561,10 +561,10 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("CloudIncidentId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
@@ -599,7 +599,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
@@ -612,7 +612,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("TenantId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -633,7 +633,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("AffectedRegion")
                         .HasMaxLength(200)
@@ -647,7 +647,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("CloudIncidentId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
@@ -656,14 +656,14 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<Guid>("MonitorId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Reason")
                         .HasMaxLength(500)
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("TenantId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -680,13 +680,13 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("IsEnabled")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("LastSyncError")
                         .HasMaxLength(2000)
@@ -726,7 +726,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("TenantId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("TEXT");
@@ -743,13 +743,13 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<int>("AvgMttrMinutes")
                         .HasColumnType("INTEGER");
 
                     b.Property<Guid>("CloudProviderId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
@@ -764,7 +764,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<Guid>("TenantId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<decimal>("UptimePercent")
                         .HasColumnType("TEXT");
@@ -782,7 +782,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid?>("CloudIncidentId")
                         .HasColumnType("TEXT");
@@ -803,7 +803,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("TenantId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -816,7 +816,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("CompanyName")
                         .IsRequired()
@@ -848,14 +848,14 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Notes")
                         .HasMaxLength(2000)
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("TenantId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("TEXT");
@@ -870,10 +870,10 @@ namespace MonitoringPlatform.Infrastructure.Migrations
             modelBuilder.Entity("MonitoringPlatform.Domain.Entities.CustomerCloudProvider", b =>
                 {
                     b.Property<Guid>("CustomerId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("CloudProviderId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.HasKey("CustomerId", "CloudProviderId");
 
@@ -886,7 +886,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("ClientId")
                         .IsRequired()
@@ -902,7 +902,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("MicrosoftTenantId")
                         .IsRequired()
@@ -910,7 +910,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("TenantId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -923,7 +923,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
@@ -940,7 +940,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<Guid>("TenantId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("TEXT");
@@ -961,7 +961,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CheckedAt")
                         .HasColumnType("TEXT");
@@ -977,7 +977,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("MonitorId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<long?>("ResponseTimeMs")
                         .HasColumnType("INTEGER");
@@ -1005,7 +1005,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<int>("ChannelType")
                         .HasColumnType("INTEGER");
@@ -1024,10 +1024,10 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("IsEnabled")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -1035,7 +1035,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("TenantId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("TEXT");
@@ -1054,7 +1054,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
@@ -1066,16 +1066,16 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<Guid>("SourceMonitorId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("TargetMonitorId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("TenantId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("TEXT");
@@ -1097,7 +1097,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid?>("CloudProviderId")
                         .HasColumnType("TEXT");
@@ -1112,7 +1112,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<int>("MeasurementWindowDays")
                         .HasColumnType("INTEGER");
@@ -1126,7 +1126,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("TenantId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("TEXT");
@@ -1145,7 +1145,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<decimal>("ActualUptimePercent")
                         .HasColumnType("TEXT");
@@ -1166,10 +1166,10 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("SlaDefinitionId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("TenantId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -1184,7 +1184,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("TEXT");
@@ -1211,7 +1211,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("BrevoApiKey")
                         .IsRequired()
@@ -1221,7 +1221,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("EmailEnabled")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("EmailProvider")
                         .IsRequired()
@@ -1256,13 +1256,13 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("TenantId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("UseSsl")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.HasKey("Id");
 
@@ -1276,7 +1276,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
@@ -1288,10 +1288,10 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("IsEnabled")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("LogoUrl")
                         .HasMaxLength(500)
@@ -1306,10 +1306,10 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("ShowIncidents")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("ShowUptime")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Slug")
                         .IsRequired()
@@ -1317,7 +1317,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("TenantId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Title")
                         .HasMaxLength(120)
@@ -1344,7 +1344,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("AdditionalEmails")
                         .IsRequired()
@@ -1352,25 +1352,25 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("BackgroundJobFailureAlerts")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("CertificateExpiredAlerts")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("CertificateExpiringAlerts")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("CloudImportFailureAlerts")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("CloudIncidentCriticalAlerts")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("CloudIncidentMajorAlerts")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("CloudIncidentMinorAlerts")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<int>("CooldownMinutes")
                         .HasColumnType("INTEGER");
@@ -1394,7 +1394,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<bool>("EmailEnabled")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<int>("EmailTemplate")
                         .HasColumnType("INTEGER");
@@ -1405,28 +1405,28 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("GroupSimilarIncidents")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("HighLatencyAlerts")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("IncidentResolvedAlerts")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("IncludeCurrentStatus")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("IncludeDirectLinks")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("IncludeMetrics")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("IncludeTimeline")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("IntegrationErrorAlerts")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<int>("Language")
                         .HasColumnType("INTEGER");
@@ -1435,10 +1435,10 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<bool>("MonitorDownAlerts")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("MonitorRecoveredAlerts")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("MonitorSelectionMode")
                         .IsRequired()
@@ -1446,13 +1446,13 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("QuietHoursEnabled")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<TimeSpan>("QuietHoursEnd")
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("QuietHoursExcludeWeekends")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<TimeSpan>("QuietHoursStart")
                         .HasColumnType("TEXT");
@@ -1463,7 +1463,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("ScheduledMaintenanceAlerts")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("SelectedCloudProviderIds")
                         .IsRequired()
@@ -1479,25 +1479,25 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<bool>("SummaryEnabled")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<int>("SummaryFrequency")
                         .HasColumnType("INTEGER");
 
                     b.Property<bool>("SummaryIncludeCloud")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("SummaryIncludeMonitors")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<Guid>("TenantId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("UserId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -1513,13 +1513,13 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("IsRead")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("NotificationType")
                         .IsRequired()
@@ -1542,10 +1542,10 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("TenantId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("UserId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -1562,7 +1562,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("INTEGER");
@@ -1579,7 +1579,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("EmailConfirmed")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("FullName")
                         .IsRequired()
@@ -1587,7 +1587,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("LockoutEnabled")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("TEXT");
@@ -1607,16 +1607,16 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("TenantId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<bool>("TwoFactorEnabled")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("TEXT");
@@ -1643,7 +1643,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
@@ -1664,7 +1664,7 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("UserId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
