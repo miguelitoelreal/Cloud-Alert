@@ -32,10 +32,10 @@ services:
         value: "true"
       - key: ConnectionStrings__DefaultConnection
         fromDatabase:
-          name: cloud-alert-db
+          name: DataBase
           property: connectionString
     databases:
-      - name: cloud-alert-db
+      - name: DataBase
         databaseName: cloud_alert
         user: cloud_alert_user
     healthCheckPath: /api/cloud-status/overview
