@@ -31,9 +31,7 @@ services:
       - key: Email__Enabled
         value: "true"
       - key: ConnectionStrings__DefaultConnection
-        fromDatabase:
-          name: DataBase
-          property: connectionString
+        sync: false
     databases:
       - name: DataBase
         databaseName: cloud_alert
