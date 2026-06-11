@@ -10,60 +10,62 @@ namespace MonitoringPlatform.Infrastructure.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            // Fix TenantSettings boolean columns
+            // Fix ALL boolean columns from integer to boolean
             migrationBuilder.Sql(@"
                 DO $$
+                DECLARE
+                    table_name text;
+                    column_name text;
+                    alter_cmd text;
                 BEGIN
-                    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'TenantSettings' AND column_name = 'UseSsl' AND data_type = 'integer') THEN
-                        ALTER TABLE ""TenantSettings"" ALTER COLUMN ""UseSsl"" TYPE boolean USING (""UseSsl"" = 1);
-                    END IF;
-                    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'TenantSettings' AND column_name = 'EmailEnabled' AND data_type = 'integer') THEN
-                        ALTER TABLE ""TenantSettings"" ALTER COLUMN ""EmailEnabled"" TYPE boolean USING (""EmailEnabled"" = 1);
-                    END IF;
+                    -- Convert all integer columns that should be boolean
+                    FOR table_name, column_name IN
+                        SELECT table_name, column_name
+                        FROM information_schema.columns
+                        WHERE data_type = 'integer'
+                        AND column_name ~* '(Enabled|Confirmed|Required|Is[A-Z]|Has[A-Z]|Can[A-Z]|Should[A-Z]|Must[A-Z])'
+                        AND table_schema = 'public'
+                    LOOP
+                        BEGIN
+                            alter_cmd := format('ALTER TABLE %I ALTER COLUMN %I TYPE boolean USING (%I = 1)', table_name, column_name, column_name);
+                            EXECUTE alter_cmd;
+                            RAISE NOTICE 'Converted %I.%I from integer to boolean', table_name, column_name;
+                        EXCEPTION WHEN OTHERS THEN
+                            RAISE NOTICE 'Failed to convert %I.%I: %', table_name, column_name, SQLERRM;
+                        END;
+                    END LOOP;
                 END $$;
             ");
 
-            // Fix AspNetUsers boolean columns
+            // Fix ALL UUID columns from text to uuid
             migrationBuilder.Sql(@"
                 DO $$
+                DECLARE
+                    table_name text;
+                    column_name text;
+                    alter_cmd text;
                 BEGIN
-                    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'AspNetUsers' AND column_name = 'EmailConfirmed' AND data_type = 'integer') THEN
-                        ALTER TABLE ""AspNetUsers"" ALTER COLUMN ""EmailConfirmed"" TYPE boolean USING (""EmailConfirmed"" = 1);
-                    END IF;
-                    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'AspNetUsers' AND column_name = 'LockoutEnabled' AND data_type = 'integer') THEN
-                        ALTER TABLE ""AspNetUsers"" ALTER COLUMN ""LockoutEnabled"" TYPE boolean USING (""LockoutEnabled"" = 1);
-                    END IF;
-                    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'AspNetUsers' AND column_name = 'PhoneNumberConfirmed' AND data_type = 'integer') THEN
-                        ALTER TABLE ""AspNetUsers"" ALTER COLUMN ""PhoneNumberConfirmed"" TYPE boolean USING (""PhoneNumberConfirmed"" = 1);
-                    END IF;
-                    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'AspNetUsers' AND column_name = 'TwoFactorEnabled' AND data_type = 'integer') THEN
-                        ALTER TABLE ""AspNetUsers"" ALTER COLUMN ""TwoFactorEnabled"" TYPE boolean USING (""TwoFactorEnabled"" = 1);
-                    END IF;
-                END $$;
-            ");
-
-            // Fix Tenant Id column type from text to uuid if needed (multiple tables)
-            migrationBuilder.Sql(@"
-                DO $$
-                BEGIN
-                    -- AspNetUsers
-                    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'AspNetUsers' AND column_name = 'TenantId' AND data_type = 'text') THEN
-                        ALTER TABLE ""AspNetUsers"" ALTER COLUMN ""TenantId"" TYPE uuid USING ""TenantId""::uuid;
-                    END IF;
-                    -- UserAlertPreferences
-                    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'UserAlertPreferences' AND column_name = 'UserId' AND data_type = 'text') THEN
-                        ALTER TABLE ""UserAlertPreferences"" ALTER COLUMN ""UserId"" TYPE uuid USING ""UserId""::uuid;
-                    END IF;
-                    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'UserAlertPreferences' AND column_name = 'TenantId' AND data_type = 'text') THEN
-                        ALTER TABLE ""UserAlertPreferences"" ALTER COLUMN ""TenantId"" TYPE uuid USING ""TenantId""::uuid;
-                    END IF;
-                    -- UserNotifications
-                    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'UserNotifications' AND column_name = 'UserId' AND data_type = 'text') THEN
-                        ALTER TABLE ""UserNotifications"" ALTER COLUMN ""UserId"" TYPE uuid USING ""UserId""::uuid;
-                    END IF;
-                    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'UserNotifications' AND column_name = 'TenantId' AND data_type = 'text') THEN
-                        ALTER TABLE ""UserNotifications"" ALTER COLUMN ""TenantId"" TYPE uuid USING ""TenantId""::uuid;
-                    END IF;
+                    -- Convert all text columns that should be uuid
+                    FOR table_name, column_name IN
+                        SELECT table_name, column_name
+                        FROM information_schema.columns
+                        WHERE data_type = 'text'
+                        AND column_name IN (
+                            'Id', 'TenantId', 'UserId', 'MonitorId', 'AlertRuleId', 'CloudProviderId',
+                            'CloudIncidentId', 'SubscriptionId', 'SourceMonitorId', 'TargetMonitorId',
+                            'SlaDefinitionId', 'CreatedByUserId', 'UpdatedByUserId', 'GroupId',
+                            'CustomerId', 'NotificationId', 'ResourceId', 'IncidentId', 'ProviderId'
+                        )
+                        AND table_schema = 'public'
+                    LOOP
+                        BEGIN
+                            alter_cmd := format('ALTER TABLE %I ALTER COLUMN %I TYPE uuid USING %I::uuid', table_name, column_name, column_name);
+                            EXECUTE alter_cmd;
+                            RAISE NOTICE 'Converted %I.%I from text to uuid', table_name, column_name;
+                        EXCEPTION WHEN OTHERS THEN
+                            RAISE NOTICE 'Failed to convert %I.%I: %', table_name, column_name, SQLERRM;
+                        END;
+                    END LOOP;
                 END $$;
             ");
         }
