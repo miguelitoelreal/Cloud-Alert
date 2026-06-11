@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;
 using MonitoringPlatform.API.Configurations;
 using MonitoringPlatform.API.Hubs;
@@ -17,17 +18,20 @@ namespace MonitoringPlatform.API.Services
         private readonly ILogger<CloudStatusIngestionService> _logger;
         private readonly CloudStatusOptions _options;
         private readonly IHubContext<MonitoringHub> _hubContext;
+        private readonly IDistributedCache _cache;
 
         public CloudStatusIngestionService(
             IServiceProvider serviceProvider,
             IOptions<CloudStatusOptions> options,
             ILogger<CloudStatusIngestionService> logger,
-            IHubContext<MonitoringHub> hubContext)
+            IHubContext<MonitoringHub> hubContext,
+            IDistributedCache cache)
         {
             _serviceProvider = serviceProvider;
             _logger = logger;
             _options = options.Value;
             _hubContext = hubContext;
+            _cache = cache;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -83,6 +87,20 @@ namespace MonitoringPlatform.API.Services
                 result.SuccessfulProviders,
                 result.FailedProviders,
                 result.ChangedIncidents);
+
+            // Invalidate cache to ensure fresh data
+            try
+            {
+                var keys = new[] { "cs_overview_all_all_False_80", "cs_overview_all_all_True_80" };
+                foreach (var key in keys)
+                {
+                    await _cache.RemoveAsync(key, cancellationToken);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to invalidate cloud status cache");
+            }
 
             if (result.ChangedIncidents > 0)
             {
