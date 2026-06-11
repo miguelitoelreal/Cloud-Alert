@@ -9,12 +9,12 @@ WORKDIR /app/frontend
 
 # Copy package files first for layer caching
 COPY frontend/package*.json ./
-RUN npm install --legacy-peer-deps
+RUN echo "Installing frontend dependencies..." && npm install --legacy-peer-deps
 
 # Copy source and build
 COPY frontend/ ./
 ENV CI=true
-RUN npx vite build
+RUN echo "Building frontend..." && npx vite build
 
 # ── Stage 2: Build Backend ──
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS backend-build
@@ -27,13 +27,13 @@ COPY src/MonitoringPlatform.Infrastructure/MonitoringPlatform.Infrastructure.csp
 COPY src/MonitoringPlatform.API/MonitoringPlatform.API.csproj src/MonitoringPlatform.API/
 
 # Restore dependencies
-RUN dotnet restore src/MonitoringPlatform.API/MonitoringPlatform.API.csproj
+RUN echo "Restoring .NET dependencies..." && dotnet restore src/MonitoringPlatform.API/MonitoringPlatform.API.csproj
 
 # Copy full source
 COPY src/ ./src/
 
 # Publish backend
-RUN dotnet publish src/MonitoringPlatform.API/MonitoringPlatform.API.csproj \
+RUN echo "Publishing .NET application..." && dotnet publish src/MonitoringPlatform.API/MonitoringPlatform.API.csproj \
     -c Release \
     -o /app/publish \
     --no-restore
@@ -43,7 +43,7 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
 
 # Install curl for healthchecks
-RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
+RUN echo "Installing curl..." && apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
 
 # Copy published backend
 COPY --from=backend-build /app/publish .
