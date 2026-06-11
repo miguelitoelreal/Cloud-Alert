@@ -170,7 +170,10 @@ else
 if (usePostgres)
 {
     builder.Services.AddDbContext<AppDbContext>(options =>
-        options.UseNpgsql(pgConnectionString));
+        options.UseNpgsql(pgConnectionString, o =>
+        {
+            o.EnableRetryOnFailure();
+        }));
 }
 else
 {
@@ -194,7 +197,8 @@ builder.Services.AddIdentityCore<ApplicationUser>(options =>
     })
     .AddRoles<IdentityRole<Guid>>()
     .AddEntityFrameworkStores<AppDbContext>()
-    .AddSignInManager();
+    .AddSignInManager()
+    .AddDefaultTokenProviders();
 
 builder.Services.AddAuthentication(options =>
     {

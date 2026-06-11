@@ -11,8 +11,8 @@ using MonitoringPlatform.Infrastructure.Persistence;
 namespace MonitoringPlatform.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260611110217_AddUserNotifications")]
-    partial class AddUserNotifications
+    [Migration("20260611134719_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
