@@ -81,8 +81,19 @@ namespace MonitoringPlatform.API.Controllers
         [HttpGet("preferences")]
         public async Task<IActionResult> GetMyPreferences(CancellationToken cancellationToken)
         {
-            var preferences = await _preferenceService.GetMyPreferencesAsync(cancellationToken);
-            return Ok(preferences);
+            try
+            {
+                Console.WriteLine($"[AlertController] GetMyPreferences - UserId: {_currentUser.UserId}, TenantId: {_currentUser.TenantId}");
+                var preferences = await _preferenceService.GetMyPreferencesAsync(cancellationToken);
+                Console.WriteLine($"[AlertController] GetMyPreferences - Success");
+                return Ok(preferences);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[AlertController] GetMyPreferences - Error: {ex.Message}");
+                Console.WriteLine($"[AlertController] GetMyPreferences - StackTrace: {ex.StackTrace}");
+                return StatusCode(500, new { message = "An unexpected error occurred.", error = ex.Message });
+            }
         }
 
         [HttpPut("preferences")]

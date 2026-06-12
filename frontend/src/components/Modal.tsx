@@ -32,7 +32,7 @@ export function Modal({ open, title, children, footer, onClose, size = "md" }: M
         onClick={onClose}
       />
 
-      <div className={`relative flex w-full flex-col overflow-hidden rounded-xl border border-slate-200 bg-white max-h-[calc(100vh-2rem)] shadow-2xl shadow-slate-200/40 dark:border-slate-700 dark:bg-slate-900 dark:shadow-black/40 ${size === "lg" ? "max-w-4xl" : "max-w-xl"}`}>
+      <div className={`relative flex w-full flex-col overflow-hidden rounded-xl border border-slate-200 bg-white max-h-[calc(100vh-2rem)] shadow-2xl shadow-slate-200/40 dark:border-slate-700 dark:bg-slate-900 dark:shadow-black/40 ${size === "lg" ? "max-w-4xl" : "max-w-xl"} bg-white dark:bg-slate-900`}>
         <header className="flex items-start justify-between gap-4 border-b border-slate-200 px-5 py-4 dark:border-slate-700">
           <div>
             <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">{title}</div>

@@ -23,6 +23,14 @@ const QUICK_DOMAINS = [
   { label: "Vercel", domain: "vercel.com" },
 ];
 
+const QUICK_LATENCY_URLS = [
+  { label: "Google", url: "www.google.com" },
+  { label: "Cloudflare API", url: "https://api.cloudflare.com/client/v4/ips" },
+  { label: "GitHub API", url: "https://api.github.com" },
+  { label: "JSONPlaceholder", url: "https://jsonplaceholder.typicode.com/posts/1" },
+  { label: "HTTPBin", url: "https://httpbin.org/get" },
+];
+
 interface DnsAnswer {
   name: string;
   type: number;
@@ -121,26 +129,12 @@ export function NetworkToolsPage() {
   // ── SLA Calculator state ──
   const [slaPercentage, setSlaPercentage] = useState(99.9);
   const [slaPeriod, setSlaPeriod] = useState<"day" | "month" | "quarter" | "year">("month");
-  const [slaServices, setSlaServices] = useState(1);
   const [slaCustomDowntime, setSlaCustomDowntime] = useState<string>("");
   const [slaCustomUnit, setSlaCustomUnit] = useState<"seconds" | "minutes" | "hours" | "days">("minutes");
 
-  // Reverse calculator: I had X downtime → what SLA did I achieve?
-  const [revDowntime, setRevDowntime] = useState<string>("");
-  const [revUnit, setRevUnit] = useState<"seconds" | "minutes" | "hours" | "days">("minutes");
-  const [revPeriod, setRevPeriod] = useState<"day" | "month" | "quarter" | "year">("month");
-
-  // Penalty calculator
-  const [penaltySla, setPenaltySla] = useState(99.9);
-  const [penaltyMonthlyCost, setPenaltyMonthlyCost] = useState<string>("1000");
-  const [penaltyDowntime, setPenaltyDowntime] = useState<string>("");
-  const [penaltyUnit, setPenaltyUnit] = useState<"seconds" | "minutes" | "hours" | "days">("minutes");
-  const [penaltyPeriod, setPenaltyPeriod] = useState<"day" | "month" | "quarter" | "year">("month");
-
-  // Compare two SLAs
-  const [compareA, setCompareA] = useState(99.9);
-  const [compareB, setCompareB] = useState(99.99);
-  const [comparePeriod, setComparePeriod] = useState<"day" | "month" | "quarter" | "year">("month");
+  // Credit thresholds (configurable)
+  const [creditThreshold25, setCreditThreshold25] = useState(95);
+  const [creditThreshold10, setCreditThreshold10] = useState(99);
 
   const UNIT_MULTIPLIERS: Record<typeof slaCustomUnit, number> = {
     seconds: 1,
@@ -150,12 +144,10 @@ export function NetworkToolsPage() {
   };
 
   const SLA_PRESETS = [
-    { label: "99%", value: 99, desc: "3.65 dias/ano de downtime" },
-    { label: "99.9%", value: 99.9, desc: "8.76 horas/ano" },
-    { label: "99.95%", value: 99.95, desc: "4.38 horas/ano" },
-    { label: "99.99%", value: 99.99, desc: "52.6 minutos/ano" },
-    { label: "99.999%", value: 99.999, desc: "5.26 minutos/ano" },
-    { label: "99.9999%", value: 99.9999, desc: "31.5 segundos/ano" },
+    { label: "99%", value: 99, desc: "Microsoft estándar" },
+    { label: "99.9%", value: 99.9, desc: "Microsoft 365, Power Platform" },
+    { label: "99.99%", value: 99.99, desc: "Enterprise premium" },
+    { label: "99.999%", value: 99.999, desc: "Mission critical" },
   ];
 
   const PERIOD_SECONDS: Record<typeof slaPeriod, number> = {
@@ -194,8 +186,6 @@ export function NetworkToolsPage() {
   }
 
   const allowedDowntimeSeconds = (100 - slaPercentage) / 100 * PERIOD_SECONDS[slaPeriod];
-  const compoundSla = Math.pow(slaPercentage / 100, slaServices) * 100;
-  const effectiveDowntime = (100 - compoundSla) / 100 * PERIOD_SECONDS[slaPeriod];
 
   // Convert custom downtime to seconds
   const customDowntimeRaw = Number(slaCustomDowntime);
@@ -209,32 +199,14 @@ export function NetworkToolsPage() {
     ? Math.min(100, (customDowntimeSeconds / allowedDowntimeSeconds) * 100)
     : null;
 
-  // Reverse calculator
-  const revDowntimeRaw = Number(revDowntime);
-  const revDowntimeSeconds = !isNaN(revDowntimeRaw) && revDowntimeRaw > 0
-    ? revDowntimeRaw * UNIT_MULTIPLIERS[revUnit]
+  // SLA Credit Calculation (configurable thresholds)
+  const creditPercentage = achievedSla !== null && achievedSla < slaPercentage
+    ? (() => {
+        if (achievedSla < creditThreshold25) return 100; // 100% credit
+        if (achievedSla < creditThreshold10) return 25; // 25% credit
+        return 10; // 10% credit
+      })()
     : 0;
-  const revAchievedSla = revDowntimeSeconds > 0
-    ? Math.max(0, 100 - (revDowntimeSeconds / PERIOD_SECONDS[revPeriod]) * 100)
-    : null;
-
-  // Penalty calculator
-  const penaltyDowntimeRaw = Number(penaltyDowntime);
-  const penaltyDowntimeSeconds = !isNaN(penaltyDowntimeRaw) && penaltyDowntimeRaw > 0
-    ? penaltyDowntimeRaw * UNIT_MULTIPLIERS[penaltyUnit]
-    : 0;
-  const penaltyAllowedSeconds = (100 - penaltySla) / 100 * PERIOD_SECONDS[penaltyPeriod];
-  const penaltyExceededSeconds = Math.max(0, penaltyDowntimeSeconds - penaltyAllowedSeconds);
-  const penaltyMonthlyCostNum = Number(penaltyMonthlyCost) || 0;
-  const penaltyCredit = penaltyExceededSeconds > 0 && penaltyAllowedSeconds > 0
-    ? Math.min(100, (penaltyExceededSeconds / penaltyAllowedSeconds) * 10) // 10% credit per allowed downtime unit exceeded, capped at 100%
-    : 0;
-  const penaltyCreditAmount = penaltyMonthlyCostNum * (penaltyCredit / 100);
-
-  // Compare two SLAs
-  const compareAllowedA = (100 - compareA) / 100 * PERIOD_SECONDS[comparePeriod];
-  const compareAllowedB = (100 - compareB) / 100 * PERIOD_SECONDS[comparePeriod];
-  const compareDiffSeconds = compareAllowedB - compareAllowedA;
 
   function getNinesLabel(pct: number): string {
     if (pct >= 99.9999) return "Six Nines";
@@ -353,8 +325,13 @@ export function NetworkToolsPage() {
 
     try {
       let targetUrl = url;
+      // Agregar https:// si no tiene protocolo
       if (!targetUrl.includes("://")) {
         targetUrl = `https://${targetUrl}`;
+      }
+      // Actualizar el input con la URL completa para que el usuario vea el formato correcto
+      if (targetUrl !== url) {
+        setLatencyUrl(targetUrl);
       }
 
       let responseStatus: number | null = null;
@@ -363,6 +340,7 @@ export function NetworkToolsPage() {
         const res = await fetch(targetUrl, {
           method: "GET",
           signal: controller.signal,
+          mode: 'no-cors',
         });
         responseStatus = res.status;
         responseStatusText = res.statusText;
@@ -374,10 +352,17 @@ export function NetworkToolsPage() {
       await new Promise((r) => setTimeout(r, 150));
 
       const entries = performance.getEntriesByType("resource") as PerformanceResourceTiming[];
+      // Buscar por coincidencia exacta o parcial (para manejar redirecciones y variaciones de URL)
       const entry = entries
         .slice()
         .reverse()
-        .find((e) => e.name === targetUrl || e.name === url);
+        .find((e) => {
+          const entryName = e.name.toLowerCase();
+          const targetLower = targetUrl.toLowerCase();
+          const urlLower = url.toLowerCase();
+          return entryName === targetLower || entryName === urlLower ||
+                 entryName.includes(targetLower) || targetLower.includes(entryName);
+        });
 
       if (!entry) {
         setLatencyError("No se pudo capturar el timing del navegador. Intenta de nuevo.");
@@ -723,7 +708,7 @@ export function NetworkToolsPage() {
       {activeTool === "latency" && (
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 space-y-4">
         <div className="text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900/50 rounded-lg p-3">
-          <strong className="text-slate-700 dark:text-slate-300">Como funciona:</strong> Ingresa la URL completa de un endpoint (ej: <code className="text-blue-600 dark:text-blue-400">https://api.github.com/status</code>). La herramienta mide el ciclo completo del request usando las metricas nativas del navegador. Si ves valores en 0 para algunas fases, es porque el servidor bloquea el acceso a los timings (CORS). Funciona mejor con endpoints de tu propio dominio o con APIs publicas que permiten CORS.
+          <strong className="text-slate-700 dark:text-slate-300">Como funciona:</strong> Ingresa la URL completa de un endpoint (ej: <code className="text-blue-600 dark:text-blue-400">https://api.github.com/status</code>) o simplemente el dominio (ej: <code className="text-blue-600 dark:text-blue-400">www.google.com</code>). La herramienta mide el ciclo completo del request usando las metricas nativas del navegador. Si ves valores en 0 para algunas fases, es porque el servidor bloquea el acceso a los timings (CORS). Funciona mejor con endpoints de tu propio dominio o con APIs publicas que permiten CORS.
         </div>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
           <div className="min-w-0 flex-1">
@@ -752,6 +737,24 @@ export function NetworkToolsPage() {
               {latencyLoading ? "Midiendo..." : "Test"}
             </button>
           </div>
+        </div>
+
+        {/* URLs rapidas para latencia */}
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs text-slate-500">URLs populares:</span>
+          {QUICK_LATENCY_URLS.map((ql) => (
+            <button
+              key={ql.url}
+              type="button"
+              onClick={() => {
+                setLatencyUrl(ql.url);
+                void handleLatencyTest();
+              }}
+              className="rounded-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 px-2.5 py-1 text-[11px] text-slate-600 dark:text-slate-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+            >
+              {ql.label}
+            </button>
+          ))}
         </div>
 
         {latencyError && (
@@ -837,54 +840,43 @@ export function NetworkToolsPage() {
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 space-y-5">
             {/* SLA Target */}
             <div>
-              <label className="block text-xs font-medium uppercase tracking-wider text-slate-500">Objetivo SLA</label>
-              <div className="mt-2 flex flex-wrap gap-2">
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">Selecciona tu objetivo SLA</label>
+              <p className="text-xs text-slate-500 mb-3">Elige el nivel de disponibilidad que necesitas para tu servicio. Valores más altos significan menos downtime permitido.</p>
+              <div className="grid grid-cols-2 gap-3">
                 {SLA_PRESETS.map((p) => (
                   <button
                     key={p.value}
                     type="button"
                     onClick={() => setSlaPercentage(p.value)}
-                    className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
+                    className={`rounded-lg border p-3 text-left transition-all ${
                       slaPercentage === p.value
-                        ? "bg-violet-600 text-white"
-                        : "border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-violet-50 dark:hover:bg-violet-900/20"
+                        ? "border-violet-500 bg-violet-50 dark:bg-violet-900/20 ring-2 ring-violet-500"
+                        : "border-slate-200 dark:border-slate-700 hover:border-violet-300 dark:hover:border-violet-700"
                     }`}
                   >
-                    {p.label}
+                    <div className="font-semibold text-slate-900 dark:text-white">{p.label}</div>
+                    <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">{p.desc}</div>
                   </button>
                 ))}
-              </div>
-              <div className="mt-3 flex items-center gap-3">
-                <input
-                  type="range"
-                  min={90}
-                  max={99.9999}
-                  step={0.0001}
-                  value={slaPercentage}
-                  onChange={(e) => setSlaPercentage(Number(e.target.value))}
-                  className="w-full accent-violet-600"
-                />
-                <span className="text-sm font-mono font-semibold text-slate-800 dark:text-slate-200 min-w-[80px] text-right">
-                  {slaPercentage.toFixed(4)}%
-                </span>
               </div>
             </div>
 
             {/* Periodo */}
             <div>
-              <label className="block text-xs font-medium uppercase tracking-wider text-slate-500">Periodo</label>
-              <div className="mt-2 flex flex-wrap gap-2">
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Periodo de tiempo</label>
+              <p className="text-xs text-slate-500 mb-2">Define el periodo sobre el cual se mide el SLA. El downtime permitido se calcula en base a este periodo.</p>
+              <div className="flex flex-wrap gap-2">
                 {[
-                  { label: "Dia", value: "day" as const },
-                  { label: "Mes (30d)", value: "month" as const },
-                  { label: "Trimestre (90d)", value: "quarter" as const },
-                  { label: "Ano (365d)", value: "year" as const },
+                  { label: "1 día", value: "day" as const },
+                  { label: "1 mes", value: "month" as const },
+                  { label: "1 trimestre", value: "quarter" as const },
+                  { label: "1 año", value: "year" as const },
                 ].map((p) => (
                   <button
                     key={p.value}
                     type="button"
                     onClick={() => setSlaPeriod(p.value)}
-                    className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
+                    className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
                       slaPeriod === p.value
                         ? "bg-violet-600 text-white"
                         : "border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-violet-50 dark:hover:bg-violet-900/20"
@@ -896,39 +888,17 @@ export function NetworkToolsPage() {
               </div>
             </div>
 
-            {/* Servicios en cadena */}
+            {/* Downtime real ocurrido */}
             <div>
-              <label className="block text-xs font-medium uppercase tracking-wider text-slate-500">
-                Servicios en cadena (SLA compuesto)
-              </label>
-              <div className="mt-2 flex items-center gap-3">
-                <input
-                  type="range"
-                  min={1}
-                  max={10}
-                  step={1}
-                  value={slaServices}
-                  onChange={(e) => setSlaServices(Number(e.target.value))}
-                  className="w-48 accent-violet-600"
-                />
-                <span className="text-sm font-mono font-semibold text-slate-800 dark:text-slate-200">
-                  {slaServices} {slaServices === 1 ? "servicio" : "servicios"}
-                </span>
-              </div>
-            </div>
-
-            {/* Downtime real con unidades flexibles */}
-            <div>
-              <label className="block text-xs font-medium uppercase tracking-wider text-slate-500">
-                Downtime real ocurrido — opcional
-              </label>
-              <div className="mt-2 flex items-center gap-2">
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Downtime real ocurrido (opcional)</label>
+              <p className="text-xs text-slate-500 mb-2">Ingresa el tiempo de downtime real que ocurrió para calcular el SLA logrado y verificar si cumples el objetivo.</p>
+              <div className="flex items-center gap-2">
                 <input
                   type="number"
                   value={slaCustomDowntime}
                   onChange={(e) => setSlaCustomDowntime(e.target.value)}
-                  placeholder="ej: 30"
-                  className="w-32 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-800 dark:text-slate-200"
+                  placeholder="0"
+                  className="flex-1 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-800 dark:text-slate-200"
                 />
                 <select
                   value={slaCustomUnit}
@@ -938,237 +908,117 @@ export function NetworkToolsPage() {
                   <option value="seconds">segundos</option>
                   <option value="minutes">minutos</option>
                   <option value="hours">horas</option>
-                  <option value="days">dias</option>
+                  <option value="days">días</option>
                 </select>
               </div>
             </div>
+
+            {/* Umbrales de crédito SLA */}
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Umbrales de crédito SLA</label>
+                <div className="relative group">
+                  <svg className="h-4 w-4 text-slate-400 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <div className="absolute left-0 top-6 z-10 w-72 rounded-lg bg-slate-900 text-white text-xs p-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all shadow-lg">
+                    <div className="font-semibold mb-2">Fórmula Microsoft SLA:</div>
+                    <div className="mb-2">Monthly Uptime % = (User Minutes - Downtime) / User Minutes × 100</div>
+                    <div className="font-semibold mb-1">Créditos:</div>
+                    <div>• 100% crédito: uptime &lt; 95%</div>
+                    <div>• 25% crédito: uptime 95-99%</div>
+                    <div>• 10% crédito: uptime 99-SLA objetivo</div>
+                  </div>
+                </div>
+              </div>
+              <p className="text-xs text-slate-500 mb-2">Define los umbrales de uptime para calcular créditos de compensación. Usa el botón Microsoft para valores estándar de Microsoft 365.</p>
+              <div className="flex items-center gap-4">
+                <div className="flex-1">
+                  <label className="block text-xs text-slate-500 mb-1">Umbral 25% crédito</label>
+                  <input
+                    type="number"
+                    min={0}
+                    max={100}
+                    step={0.1}
+                    value={creditThreshold25}
+                    onChange={(e) => setCreditThreshold25(Number(e.target.value))}
+                    className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-800 dark:text-slate-200"
+                  />
+                </div>
+                <div className="flex-1">
+                  <label className="block text-xs text-slate-500 mb-1">Umbral 10% crédito</label>
+                  <input
+                    type="number"
+                    min={0}
+                    max={100}
+                    step={0.1}
+                    value={creditThreshold10}
+                    onChange={(e) => setCreditThreshold10(Number(e.target.value))}
+                    className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-800 dark:text-slate-200"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCreditThreshold25(95);
+                    setCreditThreshold10(99);
+                  }}
+                  className="rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 px-3 py-2 text-xs text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                >
+                  Microsoft
+                </button>
+              </div>
+            </div>
           </div>
 
-          {/* Resultados principales */}
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 text-center">
-              <div className="text-xs font-medium uppercase tracking-wider text-slate-500">Downtime maximo permitido</div>
-              <div className="mt-2 text-2xl font-bold text-violet-600 dark:text-violet-400">{formatDuration(allowedDowntimeSeconds)}</div>
+          {/* Resultados principales simplificados */}
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5">
+              <div className="text-sm font-medium text-slate-500">Downtime máximo permitido</div>
+              <div className="mt-2 text-3xl font-bold text-violet-600 dark:text-violet-400">{formatDuration(allowedDowntimeSeconds)}</div>
               <div className="mt-1 text-xs text-slate-500">{formatDurationPrecise(allowedDowntimeSeconds)}</div>
             </div>
-            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 text-center">
-              <div className="text-xs font-medium uppercase tracking-wider text-slate-500">Uptime esperado</div>
-              <div className="mt-2 text-2xl font-bold text-emerald-600 dark:text-emerald-400">{slaPercentage.toFixed(4)}%</div>
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5">
+              <div className="text-sm font-medium text-slate-500">SLA objetivo</div>
+              <div className="mt-2 text-3xl font-bold text-emerald-600 dark:text-emerald-400">{slaPercentage.toFixed(2)}%</div>
               <div className="mt-1 text-xs text-slate-500">{getNinesLabel(slaPercentage)}</div>
-            </div>
-            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 text-center">
-              <div className="text-xs font-medium uppercase tracking-wider text-slate-500">SLA compuesto</div>
-              <div className="mt-2 text-2xl font-bold text-cyan-600 dark:text-cyan-400">{compoundSla.toFixed(4)}%</div>
-              <div className="mt-1 text-xs text-slate-500">{slaServices} en serie</div>
-            </div>
-            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 text-center">
-              <div className="text-xs font-medium uppercase tracking-wider text-slate-500">Downtime efectivo (compuesto)</div>
-              <div className="mt-2 text-2xl font-bold text-rose-600 dark:text-rose-400">{formatDuration(effectiveDowntime)}</div>
             </div>
           </div>
 
-          {/* Barra de cumplimiento */}
-          {complianceUsed !== null && (
+          {/* Cumplimiento si hay downtime real */}
+          {achievedSla !== null && (
             <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-medium uppercase tracking-wider text-slate-500">Uso del downtime permitido</span>
-                <span className={`text-sm font-bold ${complianceUsed > 100 ? "text-rose-600" : complianceUsed > 80 ? "text-amber-600" : "text-emerald-600"}`}>
-                  {complianceUsed.toFixed(1)}%
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">SLA logrado con el downtime ingresado</span>
+                <span className={`text-2xl font-bold ${achievedSla >= slaPercentage ? "text-emerald-600" : "text-rose-600"}`}>
+                  {achievedSla.toFixed(2)}%
                 </span>
               </div>
-              <div className="w-full h-3 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
-                <div
-                  className={`h-full rounded-full transition-all ${complianceUsed > 100 ? "bg-rose-500" : complianceUsed > 80 ? "bg-amber-500" : "bg-emerald-500"}`}
-                  style={{ width: `${Math.min(100, complianceUsed)}%` }}
-                />
-              </div>
-              <div className="mt-2 flex justify-between text-xs text-slate-500">
-                <span>Downtime real: {formatDuration(customDowntimeSeconds)}</span>
-                <span>Permitido: {formatDuration(allowedDowntimeSeconds)}</span>
-              </div>
-              {complianceUsed > 100 && (
-                <div className="mt-2 text-sm text-rose-600 dark:text-rose-400 font-semibold">
-                  SLA incumplido — Excedido por {formatDuration(customDowntimeSeconds - allowedDowntimeSeconds)}
-                </div>
+              {complianceUsed !== null && (
+                <>
+                  <div className="w-full h-3 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden mb-2">
+                    <div
+                      className={`h-full rounded-full transition-all ${complianceUsed > 100 ? "bg-rose-500" : complianceUsed > 80 ? "bg-amber-500" : "bg-emerald-500"}`}
+                      style={{ width: `${Math.min(100, complianceUsed)}%` }}
+                    />
+                  </div>
+                  <div className="text-xs text-slate-500 mb-3">
+                    {complianceUsed > 100 ? "⚠️ Excediste el downtime permitido" : complianceUsed > 80 ? "⚠️ Cerca del límite" : "✅ Dentro del límite"}
+                  </div>
+                </>
               )}
-              {achievedSla !== null && (
-                <div className="mt-1 text-sm">
-                  SLA alcanzado: <span className="font-mono font-semibold text-violet-600 dark:text-violet-400">{achievedSla.toFixed(4)}%</span>
+              {/* SLA Credit */}
+              {creditPercentage > 0 && (
+                <div className="rounded-lg bg-violet-50 dark:bg-violet-950/20 border border-violet-200 dark:border-violet-900/30 p-3">
+                  <div className="text-xs font-medium uppercase tracking-wider text-violet-600 dark:text-violet-400">Crédito SLA</div>
+                  <div className="text-xl font-bold text-slate-900 dark:text-white">{creditPercentage}%</div>
+                  <div className="text-xs text-slate-500">
+                    {creditPercentage === 100 ? `Uptime < ${creditThreshold25}%` : creditPercentage === 25 ? `Uptime ${creditThreshold25}-${creditThreshold10}%` : `Uptime ${creditThreshold10}-SLA objetivo`}
+                  </div>
                 </div>
               )}
             </div>
           )}
-
-          {/* Calculadora inversa */}
-          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 space-y-4">
-            <div className="flex items-center gap-2">
-              <svg className="h-5 w-5 text-cyan-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" /></svg>
-              <h2 className="text-sm font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">Calculadora inversa</h2>
-              <span className="text-xs text-slate-400">Tuve X downtime, que SLA logre?</span>
-            </div>
-            <div className="flex flex-wrap items-end gap-3">
-              <div>
-                <label className="block text-xs font-medium uppercase tracking-wider text-slate-500">Downtime ocurrido</label>
-                <div className="mt-1 flex items-center gap-2">
-                  <input type="number" value={revDowntime} onChange={(e) => setRevDowntime(e.target.value)} placeholder="30"
-                    className="w-28 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-800 dark:text-slate-200" />
-                  <select value={revUnit} onChange={(e) => setRevUnit(e.target.value as typeof revUnit)}
-                    className="rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-800 dark:text-slate-200">
-                    <option value="seconds">seg</option><option value="minutes">min</option><option value="hours">hrs</option><option value="days">dias</option>
-                  </select>
-                </div>
-              </div>
-              <div>
-                <label className="block text-xs font-medium uppercase tracking-wider text-slate-500">Periodo</label>
-                <select value={revPeriod} onChange={(e) => setRevPeriod(e.target.value as typeof revPeriod)}
-                  className="mt-1 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-800 dark:text-slate-200">
-                  <option value="day">Dia</option><option value="month">Mes</option><option value="quarter">Trimestre</option><option value="year">Ano</option>
-                </select>
-              </div>
-            </div>
-            {revAchievedSla !== null && (
-              <div className="rounded-lg bg-cyan-50 dark:bg-cyan-950/20 border border-cyan-200 dark:border-cyan-900/30 p-4">
-                <div className="text-xs font-medium uppercase tracking-wider text-cyan-600 dark:text-cyan-400">SLA alcanzado</div>
-                <div className="text-3xl font-bold text-slate-900 dark:text-white">{revAchievedSla.toFixed(4)}%</div>
-                <div className="text-sm text-slate-500">{getNinesLabel(revAchievedSla)}</div>
-              </div>
-            )}
-          </div>
-
-          {/* Calculadora de penalizacion */}
-          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 space-y-4">
-            <div className="flex items-center gap-2">
-              <svg className="h-5 w-5 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-              <h2 className="text-sm font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">Calculadora de penalizacion</h2>
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <div>
-                <label className="block text-xs font-medium uppercase tracking-wider text-slate-500">SLA objetivo</label>
-                <select value={penaltySla} onChange={(e) => setPenaltySla(Number(e.target.value))}
-                  className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-800 dark:text-slate-200">
-                  {SLA_PRESETS.map((p) => (<option key={p.value} value={p.value}>{p.label} — {p.desc}</option>))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs font-medium uppercase tracking-wider text-slate-500">Costo mensual ($)</label>
-                <input type="number" value={penaltyMonthlyCost} onChange={(e) => setPenaltyMonthlyCost(e.target.value)} placeholder="1000"
-                  className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-800 dark:text-slate-200" />
-              </div>
-              <div>
-                <label className="block text-xs font-medium uppercase tracking-wider text-slate-500">Downtime real</label>
-                <div className="mt-1 flex items-center gap-2">
-                  <input type="number" value={penaltyDowntime} onChange={(e) => setPenaltyDowntime(e.target.value)} placeholder="120"
-                    className="w-20 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-800 dark:text-slate-200" />
-                  <select value={penaltyUnit} onChange={(e) => setPenaltyUnit(e.target.value as typeof penaltyUnit)}
-                    className="rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-2 py-2 text-sm text-slate-800 dark:text-slate-200">
-                    <option value="seconds">seg</option><option value="minutes">min</option><option value="hours">hrs</option><option value="days">dias</option>
-                  </select>
-                </div>
-              </div>
-              <div>
-                <label className="block text-xs font-medium uppercase tracking-wider text-slate-500">Periodo</label>
-                <select value={penaltyPeriod} onChange={(e) => setPenaltyPeriod(e.target.value as typeof penaltyPeriod)}
-                  className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-800 dark:text-slate-200">
-                  <option value="day">Dia</option><option value="month">Mes</option><option value="quarter">Trimestre</option><option value="year">Ano</option>
-                </select>
-              </div>
-            </div>
-            {penaltyDowntimeSeconds > 0 && (
-              <div className="grid gap-4 sm:grid-cols-3">
-                <div className="rounded-lg bg-rose-50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/30 p-4 text-center">
-                  <div className="text-xs font-medium uppercase tracking-wider text-rose-600 dark:text-rose-400">Downtime excedido</div>
-                  <div className="mt-1 text-xl font-bold text-slate-900 dark:text-white">{formatDuration(penaltyExceededSeconds)}</div>
-                </div>
-                <div className="rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/30 p-4 text-center">
-                  <div className="text-xs font-medium uppercase tracking-wider text-amber-600 dark:text-amber-400">Credito estimado</div>
-                  <div className="mt-1 text-xl font-bold text-slate-900 dark:text-white">{penaltyCredit.toFixed(1)}%</div>
-                </div>
-                <div className="rounded-lg bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900/30 p-4 text-center">
-                  <div className="text-xs font-medium uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Monto a creditar</div>
-                  <div className="mt-1 text-xl font-bold text-slate-900 dark:text-white">${penaltyCreditAmount.toFixed(2)}</div>
-                  <div className="text-xs text-slate-500">de ${penaltyMonthlyCostNum.toFixed(2)}/mes</div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Comparador de SLAs */}
-          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 space-y-4">
-            <div className="flex items-center gap-2">
-              <svg className="h-5 w-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" /></svg>
-              <h2 className="text-sm font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">Comparador de SLAs</h2>
-            </div>
-            <div className="grid gap-4 sm:grid-cols-3">
-              <div>
-                <label className="block text-xs font-medium uppercase tracking-wider text-slate-500">SLA A</label>
-                <input type="number" min={90} max={99.9999} step={0.01} value={compareA} onChange={(e) => setCompareA(Number(e.target.value))}
-                  className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-800 dark:text-slate-200" />
-                <div className="mt-1 text-xs text-slate-500">{getNinesLabel(compareA)} — {formatDuration(compareAllowedA)} permitido</div>
-              </div>
-              <div>
-                <label className="block text-xs font-medium uppercase tracking-wider text-slate-500">SLA B</label>
-                <input type="number" min={90} max={99.9999} step={0.01} value={compareB} onChange={(e) => setCompareB(Number(e.target.value))}
-                  className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-800 dark:text-slate-200" />
-                <div className="mt-1 text-xs text-slate-500">{getNinesLabel(compareB)} — {formatDuration(compareAllowedB)} permitido</div>
-              </div>
-              <div>
-                <label className="block text-xs font-medium uppercase tracking-wider text-slate-500">Periodo</label>
-                <select value={comparePeriod} onChange={(e) => setComparePeriod(e.target.value as typeof comparePeriod)}
-                  className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-800 dark:text-slate-200">
-                  <option value="day">Dia</option><option value="month">Mes</option><option value="quarter">Trimestre</option><option value="year">Ano</option>
-                </select>
-              </div>
-            </div>
-            <div className="rounded-lg bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900/30 p-4">
-              <div className="text-xs font-medium uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Diferencia de tolerancia</div>
-              <div className="mt-1 text-xl font-bold text-slate-900 dark:text-white">
-                {compareDiffSeconds >= 0 ? "+" : ""}{formatDuration(Math.abs(compareDiffSeconds))}
-              </div>
-              <div className="text-sm text-slate-500">
-                SLA B permite {compareDiffSeconds >= 0 ? "mas" : "menos"} downtime que SLA A en un {comparePeriod === "day" ? "dia" : comparePeriod === "month" ? "mes" : comparePeriod === "quarter" ? "trimestre" : "ano"}.
-              </div>
-            </div>
-          </div>
-
-          {/* Tabla contextual de referencia */}
-          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 overflow-hidden">
-            <div className="px-5 py-3 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60">
-              <div className="text-sm font-semibold text-slate-700 dark:text-slate-300">Referencia de niveles SLA</div>
-              <div className="text-xs text-slate-500">Downtime maximo permitido por ano</div>
-            </div>
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/30">
-                  <th className="px-5 py-2 text-left font-medium text-slate-500 dark:text-slate-400">Nivel</th>
-                  <th className="px-5 py-2 text-right font-medium text-slate-500 dark:text-slate-400">SLA</th>
-                  <th className="px-5 py-2 text-right font-medium text-slate-500 dark:text-slate-400">Downtime/ano</th>
-                  <th className="px-5 py-2 text-right font-medium text-slate-500 dark:text-slate-400">Downtime/mes</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                {[
-                  { label: "One Nine", pct: 90 },
-                  { label: "Two Nines", pct: 99 },
-                  { label: "Three Nines", pct: 99.9 },
-                  { label: "Four Nines", pct: 99.99 },
-                  { label: "Five Nines", pct: 99.999 },
-                  { label: "Six Nines", pct: 99.9999 },
-                ].map((row) => {
-                  const yearly = (100 - row.pct) / 100 * PERIOD_SECONDS.year;
-                  const monthly = (100 - row.pct) / 100 * PERIOD_SECONDS.month;
-                  const isActive = Math.abs(slaPercentage - row.pct) < 0.0001;
-                  return (
-                    <tr key={row.pct} className={isActive ? "bg-violet-50 dark:bg-violet-950/10" : ""}>
-                      <td className={`px-5 py-2 font-medium ${isActive ? "text-violet-700 dark:text-violet-300" : "text-slate-700 dark:text-slate-300"}`}>{row.label}</td>
-                      <td className="px-5 py-2 text-right font-mono text-slate-800 dark:text-slate-200">{row.pct}%</td>
-                      <td className="px-5 py-2 text-right font-mono text-slate-600 dark:text-slate-400">{formatDuration(yearly)}</td>
-                      <td className="px-5 py-2 text-right font-mono text-slate-600 dark:text-slate-400">{formatDuration(monthly)}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
         </div>
       )}
 

@@ -30,6 +30,7 @@ using SlaReportEntity = MonitoringPlatform.Domain.Entities.SlaReport;
 using AutomationRuleEntity = MonitoringPlatform.Domain.Entities.AutomationRule;
 using CloudProviderUptimeSnapshotEntity = MonitoringPlatform.Domain.Entities.CloudProviderUptimeSnapshot;
 using CloudStatusEventLogEntity = MonitoringPlatform.Domain.Entities.CloudStatusEventLog;
+using UserNotificationEntity = MonitoringPlatform.Domain.Entities.UserNotification;
 
 namespace MonitoringPlatform.Infrastructure.Persistence
 {
@@ -68,10 +69,44 @@ namespace MonitoringPlatform.Infrastructure.Persistence
         public DbSet<AutomationRuleEntity> AutomationRules => Set<AutomationRuleEntity>();
         public DbSet<CloudProviderUptimeSnapshotEntity> CloudProviderUptimeSnapshots => Set<CloudProviderUptimeSnapshotEntity>();
         public DbSet<CloudStatusEventLogEntity> CloudStatusEventLogs => Set<CloudStatusEventLogEntity>();
+        public DbSet<UserNotificationEntity> UserNotifications => Set<UserNotificationEntity>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            // Configure PostgreSQL-specific mappings
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+            {
+                foreach (var property in entityType.GetProperties())
+                {
+                    // Configure boolean columns as boolean for PostgreSQL
+                    if (property.ClrType == typeof(bool))
+                    {
+                        property.SetColumnType("boolean");
+                    }
+                    // Configure Guid columns as uuid for PostgreSQL
+                    else if (property.ClrType == typeof(Guid))
+                    {
+                        property.SetColumnType("uuid");
+                    }
+                    // Configure DateTime columns as timestamp with time zone for PostgreSQL
+                    else if (property.ClrType == typeof(DateTime) || property.ClrType == typeof(DateTime?))
+                    {
+                        property.SetColumnType("timestamp with time zone");
+                    }
+                    // Configure DateTimeOffset columns as timestamptz for PostgreSQL
+                    else if (property.ClrType == typeof(DateTimeOffset) || property.ClrType == typeof(DateTimeOffset?))
+                    {
+                        property.SetColumnType("timestamp with time zone");
+                    }
+                    // Configure TimeSpan columns as interval for PostgreSQL
+                    else if (property.ClrType == typeof(TimeSpan) || property.ClrType == typeof(TimeSpan?))
+                    {
+                        property.SetColumnType("interval");
+                    }
+                }
+            }
 
             modelBuilder.Entity<ApplicationUser>(entity =>
             {
@@ -113,7 +148,7 @@ namespace MonitoringPlatform.Infrastructure.Persistence
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
                 entity.Property(e => e.TenantId).IsRequired();
-                entity.Property(e => e.Url).IsRequired().HasMaxLength(500);
+                entity.Property(e => e.Url).IsRequired();
                 entity.Property(e => e.IntervalInSeconds).IsRequired();
                 entity.Property(e => e.Status).IsRequired();
                 entity.Property(e => e.CreatedAt).IsRequired();
@@ -144,15 +179,15 @@ namespace MonitoringPlatform.Infrastructure.Persistence
                 entity.HasIndex(e => new { e.TenantId, e.Slug }).IsUnique();
                 entity.Property(e => e.Name).IsRequired().HasMaxLength(120);
                 entity.Property(e => e.Slug).IsRequired().HasMaxLength(80);
-                entity.Property(e => e.LogoUrl).IsRequired().HasMaxLength(500);
+                entity.Property(e => e.LogoUrl).IsRequired();
                 entity.Property(e => e.SourceType).IsRequired();
                 entity.Property(e => e.SourceUrl).IsRequired().HasMaxLength(1000);
-                entity.Property(e => e.StatusPageUrl).HasMaxLength(500);
+                entity.Property(e => e.StatusPageUrl);
                 entity.Property(e => e.MetadataJson);
                 entity.Property(e => e.IsEnabled).IsRequired();
                 entity.Property(e => e.CreatedAt).IsRequired();
                 entity.Property(e => e.UpdatedAt).IsRequired();
-                entity.Property(e => e.LastSyncError).HasMaxLength(2000);
+                entity.Property(e => e.LastSyncError);
                 entity.HasOne(e => e.Tenant)
                     .WithMany(t => t.CloudProviders)
                     .HasForeignKey(e => e.TenantId)
@@ -169,7 +204,7 @@ namespace MonitoringPlatform.Infrastructure.Persistence
                 entity.HasIndex(e => new { e.CloudProviderId, e.ExternalId }).IsUnique();
                 entity.HasIndex(e => new { e.CloudProviderId, e.IsActive });
                 entity.Property(e => e.ExternalId).IsRequired().HasMaxLength(200);
-                entity.Property(e => e.Title).IsRequired().HasMaxLength(500);
+                entity.Property(e => e.Title).IsRequired();
                 entity.Property(e => e.Description).IsRequired();
                 entity.Property(e => e.Severity).IsRequired();
                 entity.Property(e => e.Status).IsRequired();
@@ -197,7 +232,6 @@ namespace MonitoringPlatform.Infrastructure.Persistence
                 .IsRequired();
 
                 entity.Property(x => x.ClientSecret)
-                .HasMaxLength(500)
                 .IsRequired();
 
                 entity.HasOne(x => x.Tenant)
@@ -216,7 +250,7 @@ namespace MonitoringPlatform.Infrastructure.Persistence
                 entity.Property(e => e.IsEnabled).IsRequired();
                 entity.Property(e => e.ThrottleMinutes).IsRequired();
                 entity.Property(e => e.RecipientEmails).IsRequired().HasMaxLength(1000);
-                entity.Property(e => e.SelectedCloudProviderIds).IsRequired().HasMaxLength(2000);
+                entity.Property(e => e.SelectedCloudProviderIds).IsRequired();
                 entity.Property(e => e.CreatedAt).IsRequired();
                 entity.Property(e => e.UpdatedAt).IsRequired();
                 entity.HasOne(e => e.Tenant)
@@ -286,10 +320,10 @@ namespace MonitoringPlatform.Infrastructure.Persistence
                 entity.Property(e => e.CloudImportFailureAlerts).IsRequired();
                 entity.Property(e => e.BackgroundJobFailureAlerts).IsRequired();
                 entity.Property(e => e.MinimumSeverity).IsRequired();
-                entity.Property(e => e.SelectedCloudProviderIds).IsRequired().HasMaxLength(2000);
+                entity.Property(e => e.SelectedCloudProviderIds).IsRequired();
                 entity.Property(e => e.MonitorSelectionMode).IsRequired().HasMaxLength(20);
-                entity.Property(e => e.SelectedMonitorIds).IsRequired().HasMaxLength(2000);
-                entity.Property(e => e.ExcludedMonitorIds).IsRequired().HasMaxLength(2000);
+                entity.Property(e => e.SelectedMonitorIds).IsRequired();
+                entity.Property(e => e.ExcludedMonitorIds).IsRequired();
                 entity.Property(e => e.SummaryEnabled).IsRequired();
                 entity.Property(e => e.SummaryFrequency).IsRequired();
                 entity.Property(e => e.SummaryDay).IsRequired();
@@ -336,7 +370,7 @@ namespace MonitoringPlatform.Infrastructure.Persistence
                 entity.Property(e => e.ContactPhone).HasMaxLength(50);
                 entity.Property(e => e.CustomerType).IsRequired();
                 entity.Property(e => e.Industry).HasMaxLength(120);
-                entity.Property(e => e.Notes).HasMaxLength(2000);
+                entity.Property(e => e.Notes);
                 entity.Property(e => e.IsActive).IsRequired();
                 entity.Property(e => e.CreatedAt).IsRequired();
                 entity.Property(e => e.UpdatedAt).IsRequired();
@@ -639,6 +673,28 @@ namespace MonitoringPlatform.Infrastructure.Persistence
                 entity.Property(e => e.PayloadJson);
                 entity.Property(e => e.OccurredAt).IsRequired();
                 entity.Property(e => e.CreatedAt).IsRequired();
+                entity.HasOne(e => e.Tenant)
+                    .WithMany()
+                    .HasForeignKey(e => e.TenantId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<UserNotificationEntity>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.HasIndex(e => new { e.UserId, e.IsRead });
+                entity.HasIndex(e => new { e.UserId, e.NotificationType, e.ResourceId });
+                entity.Property(e => e.NotificationType).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.ResourceId).HasMaxLength(200);
+                entity.Property(e => e.ResourceTitle).HasMaxLength(500);
+                entity.Property(e => e.ResourceUrl).HasMaxLength(1000);
+                entity.Property(e => e.IsRead).IsRequired();
+                entity.Property(e => e.CreatedAtUtc).IsRequired();
+                entity.Property(e => e.ReadAtUtc);
+                entity.HasOne<ApplicationUser>()
+                    .WithMany()
+                    .HasForeignKey(e => e.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
                 entity.HasOne(e => e.Tenant)
                     .WithMany()
                     .HasForeignKey(e => e.TenantId)

@@ -23,60 +23,72 @@ namespace MonitoringPlatform.API.Services
 
         public async Task<UserAlertPreferenceDto> GetMyPreferencesAsync(CancellationToken cancellationToken = default)
         {
-            var pref = await _dbContext.UserAlertPreferences
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.UserId == _currentUser.UserId, cancellationToken);
-
-            if (pref == null)
+            try
             {
-                return new UserAlertPreferenceDto();
+                Console.WriteLine($"[UserAlertPreferenceService] GetMyPreferencesAsync - UserId: {_currentUser.UserId}, TenantId: {_currentUser.TenantId}");
+                var pref = await _dbContext.UserAlertPreferences
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(p => p.UserId == _currentUser.UserId, cancellationToken);
+
+                if (pref == null)
+                {
+                    Console.WriteLine($"[UserAlertPreferenceService] No preferences found, returning empty DTO");
+                    return new UserAlertPreferenceDto();
+                }
+
+                Console.WriteLine($"[UserAlertPreferenceService] Found preferences, EmailEnabled: {pref.EmailEnabled}");
+                return new UserAlertPreferenceDto
+                {
+                    EmailEnabled = pref.EmailEnabled,
+                    MonitorDownAlerts = pref.MonitorDownAlerts,
+                    MonitorRecoveredAlerts = pref.MonitorRecoveredAlerts,
+                    HighLatencyAlerts = pref.HighLatencyAlerts,
+                    CertificateExpiringAlerts = pref.CertificateExpiringAlerts,
+                    CertificateExpiredAlerts = pref.CertificateExpiredAlerts,
+                    CloudIncidentCriticalAlerts = pref.CloudIncidentCriticalAlerts,
+                    CloudIncidentMajorAlerts = pref.CloudIncidentMajorAlerts,
+                    CloudIncidentMinorAlerts = pref.CloudIncidentMinorAlerts,
+                    ScheduledMaintenanceAlerts = pref.ScheduledMaintenanceAlerts,
+                    IncidentResolvedAlerts = pref.IncidentResolvedAlerts,
+                    IntegrationErrorAlerts = pref.IntegrationErrorAlerts,
+                    CloudImportFailureAlerts = pref.CloudImportFailureAlerts,
+                    BackgroundJobFailureAlerts = pref.BackgroundJobFailureAlerts,
+                    MinimumSeverity = pref.MinimumSeverity,
+                    SelectedCloudProviderIds = pref.GetSelectedProviderIds(),
+                    MonitorSelectionMode = pref.MonitorSelectionMode,
+                    SelectedMonitorIds = pref.GetSelectedMonitorIds(),
+                    ExcludedMonitorIds = pref.GetExcludedMonitorIds(),
+                    SummaryEnabled = pref.SummaryEnabled,
+                    SummaryFrequency = pref.SummaryFrequency,
+                    SummaryDay = pref.SummaryDay,
+                    SummaryIncludeMonitors = pref.SummaryIncludeMonitors,
+                    SummaryIncludeCloud = pref.SummaryIncludeCloud,
+                    QuietHoursEnabled = pref.QuietHoursEnabled,
+                    QuietHoursStart = pref.QuietHoursStart.ToString(@"hh\:mm"),
+                    QuietHoursEnd = pref.QuietHoursEnd.ToString(@"hh\:mm"),
+                    QuietHoursTimezone = pref.QuietHoursTimezone,
+                    QuietHoursExcludeWeekends = pref.QuietHoursExcludeWeekends,
+                    DeduplicationMinutes = pref.DeduplicationMinutes,
+                    GroupSimilarIncidents = pref.GroupSimilarIncidents,
+                    CooldownMinutes = pref.CooldownMinutes,
+                    AdditionalEmails = pref.GetAdditionalEmails(),
+                    EmailTemplate = pref.EmailTemplate,
+                    IncludeTimeline = pref.IncludeTimeline,
+                    IncludeMetrics = pref.IncludeMetrics,
+                    IncludeDirectLinks = pref.IncludeDirectLinks,
+                    IncludeCurrentStatus = pref.IncludeCurrentStatus,
+                    Language = pref.Language,
+                    CustomTenantName = pref.CustomTenantName,
+                    CustomTenantLogoUrl = pref.CustomTenantLogoUrl,
+                    CustomTenantColor = pref.CustomTenantColor,
+                };
             }
-
-            return new UserAlertPreferenceDto
+            catch (Exception ex)
             {
-                EmailEnabled = pref.EmailEnabled,
-                MonitorDownAlerts = pref.MonitorDownAlerts,
-                MonitorRecoveredAlerts = pref.MonitorRecoveredAlerts,
-                HighLatencyAlerts = pref.HighLatencyAlerts,
-                CertificateExpiringAlerts = pref.CertificateExpiringAlerts,
-                CertificateExpiredAlerts = pref.CertificateExpiredAlerts,
-                CloudIncidentCriticalAlerts = pref.CloudIncidentCriticalAlerts,
-                CloudIncidentMajorAlerts = pref.CloudIncidentMajorAlerts,
-                CloudIncidentMinorAlerts = pref.CloudIncidentMinorAlerts,
-                ScheduledMaintenanceAlerts = pref.ScheduledMaintenanceAlerts,
-                IncidentResolvedAlerts = pref.IncidentResolvedAlerts,
-                IntegrationErrorAlerts = pref.IntegrationErrorAlerts,
-                CloudImportFailureAlerts = pref.CloudImportFailureAlerts,
-                BackgroundJobFailureAlerts = pref.BackgroundJobFailureAlerts,
-                MinimumSeverity = pref.MinimumSeverity,
-                SelectedCloudProviderIds = pref.GetSelectedProviderIds(),
-                MonitorSelectionMode = pref.MonitorSelectionMode,
-                SelectedMonitorIds = pref.GetSelectedMonitorIds(),
-                ExcludedMonitorIds = pref.GetExcludedMonitorIds(),
-                SummaryEnabled = pref.SummaryEnabled,
-                SummaryFrequency = pref.SummaryFrequency,
-                SummaryDay = pref.SummaryDay,
-                SummaryIncludeMonitors = pref.SummaryIncludeMonitors,
-                SummaryIncludeCloud = pref.SummaryIncludeCloud,
-                QuietHoursEnabled = pref.QuietHoursEnabled,
-                QuietHoursStart = pref.QuietHoursStart.ToString(@"hh\:mm"),
-                QuietHoursEnd = pref.QuietHoursEnd.ToString(@"hh\:mm"),
-                QuietHoursTimezone = pref.QuietHoursTimezone,
-                QuietHoursExcludeWeekends = pref.QuietHoursExcludeWeekends,
-                DeduplicationMinutes = pref.DeduplicationMinutes,
-                GroupSimilarIncidents = pref.GroupSimilarIncidents,
-                CooldownMinutes = pref.CooldownMinutes,
-                AdditionalEmails = pref.GetAdditionalEmails(),
-                EmailTemplate = pref.EmailTemplate,
-                IncludeTimeline = pref.IncludeTimeline,
-                IncludeMetrics = pref.IncludeMetrics,
-                IncludeDirectLinks = pref.IncludeDirectLinks,
-                IncludeCurrentStatus = pref.IncludeCurrentStatus,
-                Language = pref.Language,
-                CustomTenantName = pref.CustomTenantName,
-                CustomTenantLogoUrl = pref.CustomTenantLogoUrl,
-                CustomTenantColor = pref.CustomTenantColor,
-            };
+                Console.WriteLine($"[UserAlertPreferenceService] ERROR: {ex.Message}");
+                Console.WriteLine($"[UserAlertPreferenceService] StackTrace: {ex.StackTrace}");
+                throw;
+            }
         }
 
         public async Task UpdateMyPreferencesAsync(UserAlertPreferenceDto dto, CancellationToken cancellationToken = default)

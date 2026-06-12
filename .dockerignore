@@ -34,9 +34,9 @@ Dockerfile*
 docker-compose*
 .docker/
 
-# Misc
-*.md
-LICENSE
+# Misc scripts
+fix_*.py
+Ordencorrecto.md
 
 # Render config (not needed in image)
 render.yaml

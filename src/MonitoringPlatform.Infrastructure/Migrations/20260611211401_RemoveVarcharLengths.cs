@@ -1,12 +1,13 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
 namespace MonitoringPlatform.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class AddLatencyTimingFields : Migration
+    public partial class RemoveVarcharLengths : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,10 +16,10 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 name: "AspNetRoles",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    NormalizedName = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    ConcurrencyStamp = table.Column<string>(type: "TEXT", nullable: true)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    NormalizedName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -29,10 +30,10 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 name: "Tenants",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", maxLength: 120, nullable: false),
-                    Slug = table.Column<string>(type: "TEXT", maxLength: 80, nullable: false),
-                    CreatedAtUtc = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(120)", maxLength: 120, nullable: false),
+                    Slug = table.Column<string>(type: "character varying(80)", maxLength: 80, nullable: false),
+                    CreatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -43,11 +44,11 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 name: "AspNetRoleClaims",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    RoleId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    ClaimType = table.Column<string>(type: "TEXT", nullable: true),
-                    ClaimValue = table.Column<string>(type: "TEXT", nullable: true)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    RoleId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ClaimType = table.Column<string>(type: "text", nullable: true),
+                    ClaimValue = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -64,17 +65,17 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 name: "AlertRules",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    TenantId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", maxLength: 120, nullable: false),
-                    AlertType = table.Column<int>(type: "INTEGER", nullable: false),
-                    Channel = table.Column<int>(type: "INTEGER", nullable: false),
-                    IsEnabled = table.Column<bool>(type: "INTEGER", nullable: false),
-                    ThrottleMinutes = table.Column<int>(type: "INTEGER", nullable: false),
-                    RecipientEmails = table.Column<string>(type: "TEXT", maxLength: 1000, nullable: false),
-                    SelectedCloudProviderIds = table.Column<string>(type: "TEXT", maxLength: 2000, nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(120)", maxLength: 120, nullable: false),
+                    AlertType = table.Column<int>(type: "integer", nullable: false),
+                    Channel = table.Column<int>(type: "integer", nullable: false),
+                    IsEnabled = table.Column<bool>(type: "boolean", nullable: false),
+                    ThrottleMinutes = table.Column<int>(type: "integer", nullable: false),
+                    RecipientEmails = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: false),
+                    SelectedCloudProviderIds = table.Column<string>(type: "text", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -91,25 +92,25 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 name: "AspNetUsers",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    FullName = table.Column<string>(type: "TEXT", maxLength: 120, nullable: false),
-                    TenantId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    UserName = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    NormalizedUserName = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    Email = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    NormalizedEmail = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    EmailConfirmed = table.Column<bool>(type: "INTEGER", nullable: false),
-                    PasswordHash = table.Column<string>(type: "TEXT", nullable: true),
-                    SecurityStamp = table.Column<string>(type: "TEXT", nullable: true),
-                    ConcurrencyStamp = table.Column<string>(type: "TEXT", nullable: true),
-                    PhoneNumber = table.Column<string>(type: "TEXT", nullable: true),
-                    PhoneNumberConfirmed = table.Column<bool>(type: "INTEGER", nullable: false),
-                    TwoFactorEnabled = table.Column<bool>(type: "INTEGER", nullable: false),
-                    LockoutEnd = table.Column<DateTimeOffset>(type: "TEXT", nullable: true),
-                    LockoutEnabled = table.Column<bool>(type: "INTEGER", nullable: false),
-                    AccessFailedCount = table.Column<int>(type: "INTEGER", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    FullName = table.Column<string>(type: "character varying(120)", maxLength: 120, nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    NormalizedUserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    Email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    NormalizedEmail = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    EmailConfirmed = table.Column<bool>(type: "boolean", nullable: false),
+                    PasswordHash = table.Column<string>(type: "text", nullable: true),
+                    SecurityStamp = table.Column<string>(type: "text", nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "text", nullable: true),
+                    PhoneNumber = table.Column<string>(type: "text", nullable: true),
+                    PhoneNumberConfirmed = table.Column<bool>(type: "boolean", nullable: false),
+                    TwoFactorEnabled = table.Column<bool>(type: "boolean", nullable: false),
+                    LockoutEnd = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    LockoutEnabled = table.Column<bool>(type: "boolean", nullable: false),
+                    AccessFailedCount = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -126,21 +127,21 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 name: "AutomationRules",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    TenantId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", maxLength: 120, nullable: false),
-                    TriggerType = table.Column<int>(type: "INTEGER", nullable: false),
-                    ConditionJson = table.Column<string>(type: "TEXT", nullable: false),
-                    ActionType = table.Column<int>(type: "INTEGER", nullable: false),
-                    ActionConfigJson = table.Column<string>(type: "TEXT", nullable: false),
-                    IsEnabled = table.Column<bool>(type: "INTEGER", nullable: false),
-                    LastTriggeredAt = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    IsDeleted = table.Column<bool>(type: "INTEGER", nullable: false),
-                    DeletedAtUtc = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    CreatedByUserId = table.Column<Guid>(type: "TEXT", nullable: true),
-                    UpdatedByUserId = table.Column<Guid>(type: "TEXT", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(120)", maxLength: 120, nullable: false),
+                    TriggerType = table.Column<int>(type: "integer", nullable: false),
+                    ConditionJson = table.Column<string>(type: "text", nullable: false),
+                    ActionType = table.Column<int>(type: "integer", nullable: false),
+                    ActionConfigJson = table.Column<string>(type: "text", nullable: false),
+                    IsEnabled = table.Column<bool>(type: "boolean", nullable: false),
+                    LastTriggeredAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    DeletedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedByUserId = table.Column<Guid>(type: "uuid", nullable: true),
+                    UpdatedByUserId = table.Column<Guid>(type: "uuid", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -157,26 +158,26 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 name: "CloudAlertSubscriptions",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    TenantId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    UserId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", maxLength: 120, nullable: false),
-                    MinSeverity = table.Column<int>(type: "INTEGER", nullable: false),
-                    IsEnabled = table.Column<bool>(type: "INTEGER", nullable: false),
-                    QuietHoursEnabled = table.Column<bool>(type: "INTEGER", nullable: false),
-                    QuietHoursStart = table.Column<TimeSpan>(type: "TEXT", nullable: false),
-                    QuietHoursEnd = table.Column<TimeSpan>(type: "TEXT", nullable: false),
-                    QuietHoursTimezone = table.Column<string>(type: "TEXT", maxLength: 64, nullable: false),
-                    QuietHoursExcludeWeekends = table.Column<bool>(type: "INTEGER", nullable: false),
-                    DeduplicationMinutes = table.Column<int>(type: "INTEGER", nullable: false),
-                    CooldownMinutes = table.Column<int>(type: "INTEGER", nullable: false),
-                    GroupSimilarIncidents = table.Column<bool>(type: "INTEGER", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "INTEGER", nullable: false),
-                    DeletedAtUtc = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    CreatedByUserId = table.Column<Guid>(type: "TEXT", nullable: true),
-                    UpdatedByUserId = table.Column<Guid>(type: "TEXT", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(120)", maxLength: 120, nullable: false),
+                    MinSeverity = table.Column<int>(type: "integer", nullable: false),
+                    IsEnabled = table.Column<bool>(type: "boolean", nullable: false),
+                    QuietHoursEnabled = table.Column<bool>(type: "boolean", nullable: false),
+                    QuietHoursStart = table.Column<TimeSpan>(type: "interval", nullable: false),
+                    QuietHoursEnd = table.Column<TimeSpan>(type: "interval", nullable: false),
+                    QuietHoursTimezone = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
+                    QuietHoursExcludeWeekends = table.Column<bool>(type: "boolean", nullable: false),
+                    DeduplicationMinutes = table.Column<int>(type: "integer", nullable: false),
+                    CooldownMinutes = table.Column<int>(type: "integer", nullable: false),
+                    GroupSimilarIncidents = table.Column<bool>(type: "boolean", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    DeletedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedByUserId = table.Column<Guid>(type: "uuid", nullable: true),
+                    UpdatedByUserId = table.Column<Guid>(type: "uuid", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -193,13 +194,13 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 name: "CloudIncidentGroups",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    TenantId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Title = table.Column<string>(type: "TEXT", maxLength: 200, nullable: false),
-                    RootCause = table.Column<string>(type: "TEXT", maxLength: 500, nullable: true),
-                    DetectedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Title = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    RootCause = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    DetectedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -216,20 +217,20 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 name: "CloudProviders",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    TenantId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", maxLength: 120, nullable: false),
-                    Slug = table.Column<string>(type: "TEXT", maxLength: 80, nullable: false),
-                    LogoUrl = table.Column<string>(type: "TEXT", maxLength: 500, nullable: false),
-                    SourceType = table.Column<int>(type: "INTEGER", nullable: false),
-                    SourceUrl = table.Column<string>(type: "TEXT", maxLength: 1000, nullable: false),
-                    StatusPageUrl = table.Column<string>(type: "TEXT", maxLength: 500, nullable: true),
-                    MetadataJson = table.Column<string>(type: "TEXT", nullable: true),
-                    IsEnabled = table.Column<bool>(type: "INTEGER", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    LastSyncedAt = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    LastSyncError = table.Column<string>(type: "TEXT", maxLength: 2000, nullable: true)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(120)", maxLength: 120, nullable: false),
+                    Slug = table.Column<string>(type: "character varying(80)", maxLength: 80, nullable: false),
+                    LogoUrl = table.Column<string>(type: "text", nullable: false),
+                    SourceType = table.Column<int>(type: "integer", nullable: false),
+                    SourceUrl = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: false),
+                    StatusPageUrl = table.Column<string>(type: "text", nullable: true),
+                    MetadataJson = table.Column<string>(type: "text", nullable: true),
+                    IsEnabled = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    LastSyncedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    LastSyncError = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -246,14 +247,14 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 name: "CloudStatusEventLogs",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    TenantId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    EventType = table.Column<int>(type: "INTEGER", nullable: false),
-                    CloudIncidentId = table.Column<Guid>(type: "TEXT", nullable: true),
-                    CloudProviderId = table.Column<Guid>(type: "TEXT", nullable: true),
-                    PayloadJson = table.Column<string>(type: "TEXT", nullable: true),
-                    OccurredAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    EventType = table.Column<int>(type: "integer", nullable: false),
+                    CloudIncidentId = table.Column<Guid>(type: "uuid", nullable: true),
+                    CloudProviderId = table.Column<Guid>(type: "uuid", nullable: true),
+                    PayloadJson = table.Column<string>(type: "text", nullable: true),
+                    OccurredAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -270,18 +271,18 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 name: "Customers",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    TenantId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    CompanyName = table.Column<string>(type: "TEXT", maxLength: 200, nullable: false),
-                    ContactName = table.Column<string>(type: "TEXT", maxLength: 200, nullable: false),
-                    ContactEmail = table.Column<string>(type: "TEXT", maxLength: 256, nullable: false),
-                    ContactPhone = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
-                    CustomerType = table.Column<int>(type: "INTEGER", nullable: false),
-                    Industry = table.Column<string>(type: "TEXT", maxLength: 120, nullable: true),
-                    Notes = table.Column<string>(type: "TEXT", maxLength: 2000, nullable: true),
-                    IsActive = table.Column<bool>(type: "INTEGER", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CompanyName = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    ContactName = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    ContactEmail = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
+                    ContactPhone = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
+                    CustomerType = table.Column<int>(type: "integer", nullable: false),
+                    Industry = table.Column<string>(type: "character varying(120)", maxLength: 120, nullable: true),
+                    Notes = table.Column<string>(type: "text", nullable: true),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -298,13 +299,13 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 name: "MicrosoftIntegrations",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    TenantId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    MicrosoftTenantId = table.Column<string>(type: "TEXT", maxLength: 120, nullable: false),
-                    ClientId = table.Column<string>(type: "TEXT", maxLength: 120, nullable: false),
-                    ClientSecret = table.Column<string>(type: "TEXT", maxLength: 500, nullable: false),
-                    IsActive = table.Column<bool>(type: "INTEGER", nullable: false),
-                    CreatedAtUtc = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    MicrosoftTenantId = table.Column<string>(type: "character varying(120)", maxLength: 120, nullable: false),
+                    ClientId = table.Column<string>(type: "character varying(120)", maxLength: 120, nullable: false),
+                    ClientSecret = table.Column<string>(type: "text", nullable: false),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -321,14 +322,14 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 name: "Monitors",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    TenantId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
-                    Url = table.Column<string>(type: "TEXT", maxLength: 500, nullable: false),
-                    IntervalInSeconds = table.Column<int>(type: "INTEGER", nullable: false),
-                    Status = table.Column<int>(type: "INTEGER", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Url = table.Column<string>(type: "text", nullable: false),
+                    IntervalInSeconds = table.Column<int>(type: "integer", nullable: false),
+                    Status = table.Column<int>(type: "integer", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -345,18 +346,18 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 name: "NotificationChannelConfigs",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    TenantId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    ChannelType = table.Column<int>(type: "INTEGER", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", maxLength: 120, nullable: false),
-                    ConfigJson = table.Column<string>(type: "TEXT", nullable: false),
-                    IsEnabled = table.Column<bool>(type: "INTEGER", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "INTEGER", nullable: false),
-                    DeletedAtUtc = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    CreatedByUserId = table.Column<Guid>(type: "TEXT", nullable: true),
-                    UpdatedByUserId = table.Column<Guid>(type: "TEXT", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ChannelType = table.Column<int>(type: "integer", nullable: false),
+                    Name = table.Column<string>(type: "character varying(120)", maxLength: 120, nullable: false),
+                    ConfigJson = table.Column<string>(type: "text", nullable: false),
+                    IsEnabled = table.Column<bool>(type: "boolean", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    DeletedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedByUserId = table.Column<Guid>(type: "uuid", nullable: true),
+                    UpdatedByUserId = table.Column<Guid>(type: "uuid", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -373,18 +374,18 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 name: "SlaDefinitions",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    TenantId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", maxLength: 120, nullable: false),
-                    CloudProviderId = table.Column<Guid>(type: "TEXT", nullable: true),
-                    TargetUptimePercent = table.Column<decimal>(type: "TEXT", nullable: false),
-                    MeasurementWindowDays = table.Column<int>(type: "INTEGER", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "INTEGER", nullable: false),
-                    DeletedAtUtc = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    CreatedByUserId = table.Column<Guid>(type: "TEXT", nullable: true),
-                    UpdatedByUserId = table.Column<Guid>(type: "TEXT", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(120)", maxLength: 120, nullable: false),
+                    CloudProviderId = table.Column<Guid>(type: "uuid", nullable: true),
+                    TargetUptimePercent = table.Column<decimal>(type: "numeric", nullable: false),
+                    MeasurementWindowDays = table.Column<int>(type: "integer", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    DeletedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedByUserId = table.Column<Guid>(type: "uuid", nullable: true),
+                    UpdatedByUserId = table.Column<Guid>(type: "uuid", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -401,20 +402,20 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 name: "TenantSettings",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    TenantId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    SmtpHost = table.Column<string>(type: "TEXT", maxLength: 256, nullable: false),
-                    SmtpPort = table.Column<int>(type: "INTEGER", nullable: false),
-                    SmtpUsername = table.Column<string>(type: "TEXT", maxLength: 256, nullable: false),
-                    SmtpPassword = table.Column<string>(type: "TEXT", maxLength: 500, nullable: false),
-                    SenderEmail = table.Column<string>(type: "TEXT", maxLength: 256, nullable: false),
-                    SenderName = table.Column<string>(type: "TEXT", maxLength: 120, nullable: false),
-                    UseSsl = table.Column<bool>(type: "INTEGER", nullable: false),
-                    EmailEnabled = table.Column<bool>(type: "INTEGER", nullable: false),
-                    EmailProvider = table.Column<string>(type: "TEXT", nullable: false),
-                    BrevoApiKey = table.Column<string>(type: "TEXT", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    SmtpHost = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
+                    SmtpPort = table.Column<int>(type: "integer", nullable: false),
+                    SmtpUsername = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
+                    SmtpPassword = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                    SenderEmail = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
+                    SenderName = table.Column<string>(type: "character varying(120)", maxLength: 120, nullable: false),
+                    UseSsl = table.Column<bool>(type: "boolean", nullable: false),
+                    EmailEnabled = table.Column<bool>(type: "boolean", nullable: false),
+                    EmailProvider = table.Column<string>(type: "text", nullable: false),
+                    BrevoApiKey = table.Column<string>(type: "text", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -431,22 +432,22 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 name: "TenantStatusPageSettings",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    TenantId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    IsEnabled = table.Column<bool>(type: "INTEGER", nullable: false),
-                    Slug = table.Column<string>(type: "TEXT", maxLength: 80, nullable: false),
-                    Title = table.Column<string>(type: "TEXT", maxLength: 120, nullable: true),
-                    LogoUrl = table.Column<string>(type: "TEXT", maxLength: 500, nullable: true),
-                    PrimaryColor = table.Column<string>(type: "TEXT", maxLength: 7, nullable: true),
-                    ShowUptime = table.Column<bool>(type: "INTEGER", nullable: false),
-                    ShowIncidents = table.Column<bool>(type: "INTEGER", nullable: false),
-                    PublicDomain = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    IsDeleted = table.Column<bool>(type: "INTEGER", nullable: false),
-                    DeletedAtUtc = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    CreatedByUserId = table.Column<Guid>(type: "TEXT", nullable: true),
-                    UpdatedByUserId = table.Column<Guid>(type: "TEXT", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    IsEnabled = table.Column<bool>(type: "boolean", nullable: false),
+                    Slug = table.Column<string>(type: "character varying(80)", maxLength: 80, nullable: false),
+                    Title = table.Column<string>(type: "character varying(120)", maxLength: 120, nullable: true),
+                    LogoUrl = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    PrimaryColor = table.Column<string>(type: "character varying(7)", maxLength: 7, nullable: true),
+                    ShowUptime = table.Column<bool>(type: "boolean", nullable: false),
+                    ShowIncidents = table.Column<bool>(type: "boolean", nullable: false),
+                    PublicDomain = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    DeletedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedByUserId = table.Column<Guid>(type: "uuid", nullable: true),
+                    UpdatedByUserId = table.Column<Guid>(type: "uuid", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -463,17 +464,17 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 name: "AlertHistories",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    TenantId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    AlertRuleId = table.Column<Guid>(type: "TEXT", nullable: true),
-                    AlertType = table.Column<int>(type: "INTEGER", nullable: false),
-                    Channel = table.Column<int>(type: "INTEGER", nullable: false),
-                    Subject = table.Column<string>(type: "TEXT", maxLength: 500, nullable: false),
-                    Message = table.Column<string>(type: "TEXT", nullable: false),
-                    RecipientEmail = table.Column<string>(type: "TEXT", maxLength: 256, nullable: false),
-                    SentAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    IsSuccess = table.Column<bool>(type: "INTEGER", nullable: false),
-                    ErrorMessage = table.Column<string>(type: "TEXT", maxLength: 2000, nullable: true)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    AlertRuleId = table.Column<Guid>(type: "uuid", nullable: true),
+                    AlertType = table.Column<int>(type: "integer", nullable: false),
+                    Channel = table.Column<int>(type: "integer", nullable: false),
+                    Subject = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                    Message = table.Column<string>(type: "text", nullable: false),
+                    RecipientEmail = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
+                    SentAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    IsSuccess = table.Column<bool>(type: "boolean", nullable: false),
+                    ErrorMessage = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -496,11 +497,11 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 name: "AspNetUserClaims",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    UserId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    ClaimType = table.Column<string>(type: "TEXT", nullable: true),
-                    ClaimValue = table.Column<string>(type: "TEXT", nullable: true)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ClaimType = table.Column<string>(type: "text", nullable: true),
+                    ClaimValue = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -517,10 +518,10 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 name: "AspNetUserLogins",
                 columns: table => new
                 {
-                    LoginProvider = table.Column<string>(type: "TEXT", nullable: false),
-                    ProviderKey = table.Column<string>(type: "TEXT", nullable: false),
-                    ProviderDisplayName = table.Column<string>(type: "TEXT", nullable: true),
-                    UserId = table.Column<Guid>(type: "TEXT", nullable: false)
+                    LoginProvider = table.Column<string>(type: "text", nullable: false),
+                    ProviderKey = table.Column<string>(type: "text", nullable: false),
+                    ProviderDisplayName = table.Column<string>(type: "text", nullable: true),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -537,8 +538,8 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 name: "AspNetUserRoles",
                 columns: table => new
                 {
-                    UserId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    RoleId = table.Column<Guid>(type: "TEXT", nullable: false)
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    RoleId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -561,10 +562,10 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 name: "AspNetUserTokens",
                 columns: table => new
                 {
-                    UserId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    LoginProvider = table.Column<string>(type: "TEXT", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", nullable: false),
-                    Value = table.Column<string>(type: "TEXT", nullable: true)
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    LoginProvider = table.Column<string>(type: "text", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Value = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -581,13 +582,13 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 name: "RefreshTokens",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    UserId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    TokenHash = table.Column<string>(type: "TEXT", maxLength: 256, nullable: false),
-                    ExpiresAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    RevokedAt = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    ReplacedByTokenHash = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    TokenHash = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
+                    ExpiresAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    RevokedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    ReplacedByTokenHash = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -604,53 +605,53 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 name: "UserAlertPreferences",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    UserId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    TenantId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    EmailEnabled = table.Column<bool>(type: "INTEGER", nullable: false),
-                    MonitorDownAlerts = table.Column<bool>(type: "INTEGER", nullable: false),
-                    MonitorRecoveredAlerts = table.Column<bool>(type: "INTEGER", nullable: false),
-                    HighLatencyAlerts = table.Column<bool>(type: "INTEGER", nullable: false),
-                    CertificateExpiringAlerts = table.Column<bool>(type: "INTEGER", nullable: false),
-                    CertificateExpiredAlerts = table.Column<bool>(type: "INTEGER", nullable: false),
-                    CloudIncidentCriticalAlerts = table.Column<bool>(type: "INTEGER", nullable: false),
-                    CloudIncidentMajorAlerts = table.Column<bool>(type: "INTEGER", nullable: false),
-                    CloudIncidentMinorAlerts = table.Column<bool>(type: "INTEGER", nullable: false),
-                    ScheduledMaintenanceAlerts = table.Column<bool>(type: "INTEGER", nullable: false),
-                    IncidentResolvedAlerts = table.Column<bool>(type: "INTEGER", nullable: false),
-                    IntegrationErrorAlerts = table.Column<bool>(type: "INTEGER", nullable: false),
-                    CloudImportFailureAlerts = table.Column<bool>(type: "INTEGER", nullable: false),
-                    BackgroundJobFailureAlerts = table.Column<bool>(type: "INTEGER", nullable: false),
-                    MinimumSeverity = table.Column<int>(type: "INTEGER", nullable: false),
-                    SelectedCloudProviderIds = table.Column<string>(type: "TEXT", maxLength: 2000, nullable: false),
-                    MonitorSelectionMode = table.Column<string>(type: "TEXT", maxLength: 20, nullable: false),
-                    SelectedMonitorIds = table.Column<string>(type: "TEXT", maxLength: 2000, nullable: false),
-                    ExcludedMonitorIds = table.Column<string>(type: "TEXT", maxLength: 2000, nullable: false),
-                    SummaryEnabled = table.Column<bool>(type: "INTEGER", nullable: false),
-                    SummaryFrequency = table.Column<int>(type: "INTEGER", nullable: false),
-                    SummaryDay = table.Column<int>(type: "INTEGER", nullable: false),
-                    SummaryIncludeMonitors = table.Column<bool>(type: "INTEGER", nullable: false),
-                    SummaryIncludeCloud = table.Column<bool>(type: "INTEGER", nullable: false),
-                    QuietHoursEnabled = table.Column<bool>(type: "INTEGER", nullable: false),
-                    QuietHoursStart = table.Column<TimeSpan>(type: "TEXT", nullable: false),
-                    QuietHoursEnd = table.Column<TimeSpan>(type: "TEXT", nullable: false),
-                    QuietHoursTimezone = table.Column<string>(type: "TEXT", maxLength: 64, nullable: false),
-                    QuietHoursExcludeWeekends = table.Column<bool>(type: "INTEGER", nullable: false),
-                    DeduplicationMinutes = table.Column<int>(type: "INTEGER", nullable: false),
-                    GroupSimilarIncidents = table.Column<bool>(type: "INTEGER", nullable: false),
-                    CooldownMinutes = table.Column<int>(type: "INTEGER", nullable: false),
-                    AdditionalEmails = table.Column<string>(type: "TEXT", maxLength: 1000, nullable: false),
-                    EmailTemplate = table.Column<int>(type: "INTEGER", nullable: false),
-                    IncludeTimeline = table.Column<bool>(type: "INTEGER", nullable: false),
-                    IncludeMetrics = table.Column<bool>(type: "INTEGER", nullable: false),
-                    IncludeDirectLinks = table.Column<bool>(type: "INTEGER", nullable: false),
-                    IncludeCurrentStatus = table.Column<bool>(type: "INTEGER", nullable: false),
-                    Language = table.Column<int>(type: "INTEGER", nullable: false),
-                    CustomTenantName = table.Column<string>(type: "TEXT", maxLength: 120, nullable: true),
-                    CustomTenantLogoUrl = table.Column<string>(type: "TEXT", maxLength: 500, nullable: true),
-                    CustomTenantColor = table.Column<string>(type: "TEXT", maxLength: 7, nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    EmailEnabled = table.Column<bool>(type: "boolean", nullable: false),
+                    MonitorDownAlerts = table.Column<bool>(type: "boolean", nullable: false),
+                    MonitorRecoveredAlerts = table.Column<bool>(type: "boolean", nullable: false),
+                    HighLatencyAlerts = table.Column<bool>(type: "boolean", nullable: false),
+                    CertificateExpiringAlerts = table.Column<bool>(type: "boolean", nullable: false),
+                    CertificateExpiredAlerts = table.Column<bool>(type: "boolean", nullable: false),
+                    CloudIncidentCriticalAlerts = table.Column<bool>(type: "boolean", nullable: false),
+                    CloudIncidentMajorAlerts = table.Column<bool>(type: "boolean", nullable: false),
+                    CloudIncidentMinorAlerts = table.Column<bool>(type: "boolean", nullable: false),
+                    ScheduledMaintenanceAlerts = table.Column<bool>(type: "boolean", nullable: false),
+                    IncidentResolvedAlerts = table.Column<bool>(type: "boolean", nullable: false),
+                    IntegrationErrorAlerts = table.Column<bool>(type: "boolean", nullable: false),
+                    CloudImportFailureAlerts = table.Column<bool>(type: "boolean", nullable: false),
+                    BackgroundJobFailureAlerts = table.Column<bool>(type: "boolean", nullable: false),
+                    MinimumSeverity = table.Column<int>(type: "integer", nullable: false),
+                    SelectedCloudProviderIds = table.Column<string>(type: "text", nullable: false),
+                    MonitorSelectionMode = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                    SelectedMonitorIds = table.Column<string>(type: "text", nullable: false),
+                    ExcludedMonitorIds = table.Column<string>(type: "text", nullable: false),
+                    SummaryEnabled = table.Column<bool>(type: "boolean", nullable: false),
+                    SummaryFrequency = table.Column<int>(type: "integer", nullable: false),
+                    SummaryDay = table.Column<int>(type: "integer", nullable: false),
+                    SummaryIncludeMonitors = table.Column<bool>(type: "boolean", nullable: false),
+                    SummaryIncludeCloud = table.Column<bool>(type: "boolean", nullable: false),
+                    QuietHoursEnabled = table.Column<bool>(type: "boolean", nullable: false),
+                    QuietHoursStart = table.Column<TimeSpan>(type: "interval", nullable: false),
+                    QuietHoursEnd = table.Column<TimeSpan>(type: "interval", nullable: false),
+                    QuietHoursTimezone = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
+                    QuietHoursExcludeWeekends = table.Column<bool>(type: "boolean", nullable: false),
+                    DeduplicationMinutes = table.Column<int>(type: "integer", nullable: false),
+                    GroupSimilarIncidents = table.Column<bool>(type: "boolean", nullable: false),
+                    CooldownMinutes = table.Column<int>(type: "integer", nullable: false),
+                    AdditionalEmails = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: false),
+                    EmailTemplate = table.Column<int>(type: "integer", nullable: false),
+                    IncludeTimeline = table.Column<bool>(type: "boolean", nullable: false),
+                    IncludeMetrics = table.Column<bool>(type: "boolean", nullable: false),
+                    IncludeDirectLinks = table.Column<bool>(type: "boolean", nullable: false),
+                    IncludeCurrentStatus = table.Column<bool>(type: "boolean", nullable: false),
+                    Language = table.Column<int>(type: "integer", nullable: false),
+                    CustomTenantName = table.Column<string>(type: "character varying(120)", maxLength: 120, nullable: true),
+                    CustomTenantLogoUrl = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    CustomTenantColor = table.Column<string>(type: "character varying(7)", maxLength: 7, nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -670,19 +671,51 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "UserNotifications",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    NotificationType = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    ResourceId = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
+                    ResourceTitle = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    ResourceUrl = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
+                    IsRead = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ReadAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserNotifications", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserNotifications_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserNotifications_Tenants_TenantId",
+                        column: x => x.TenantId,
+                        principalTable: "Tenants",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "CloudAlertSubscriptionRegions",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    SubscriptionId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    RegionName = table.Column<string>(type: "TEXT", maxLength: 200, nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    SubscriptionId = table.Column<Guid>(type: "uuid", nullable: false),
+                    RegionName = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_CloudAlertSubscriptionRegions", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_CloudAlertSubscriptionRegions_CloudAlertSubscriptions_SubscriptionId",
+                        name: "FK_CloudAlertSubscriptionRegions_CloudAlertSubscriptions_Subsc~",
                         column: x => x.SubscriptionId,
                         principalTable: "CloudAlertSubscriptions",
                         principalColumn: "Id",
@@ -693,16 +726,16 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 name: "CloudAlertSubscriptionServices",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    SubscriptionId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    ServiceName = table.Column<string>(type: "TEXT", maxLength: 200, nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    SubscriptionId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ServiceName = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_CloudAlertSubscriptionServices", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_CloudAlertSubscriptionServices_CloudAlertSubscriptions_SubscriptionId",
+                        name: "FK_CloudAlertSubscriptionServices_CloudAlertSubscriptions_Subs~",
                         column: x => x.SubscriptionId,
                         principalTable: "CloudAlertSubscriptions",
                         principalColumn: "Id",
@@ -713,22 +746,22 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 name: "CloudAlertSubscriptionProviders",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    SubscriptionId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    CloudProviderId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    SubscriptionId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CloudProviderId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_CloudAlertSubscriptionProviders", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_CloudAlertSubscriptionProviders_CloudAlertSubscriptions_SubscriptionId",
+                        name: "FK_CloudAlertSubscriptionProviders_CloudAlertSubscriptions_Sub~",
                         column: x => x.SubscriptionId,
                         principalTable: "CloudAlertSubscriptions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_CloudAlertSubscriptionProviders_CloudProviders_CloudProviderId",
+                        name: "FK_CloudAlertSubscriptionProviders_CloudProviders_CloudProvide~",
                         column: x => x.CloudProviderId,
                         principalTable: "CloudProviders",
                         principalColumn: "Id",
@@ -739,23 +772,23 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 name: "CloudIncidents",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    CloudProviderId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    ExternalId = table.Column<string>(type: "TEXT", maxLength: 200, nullable: false),
-                    Title = table.Column<string>(type: "TEXT", maxLength: 500, nullable: false),
-                    Description = table.Column<string>(type: "TEXT", nullable: false),
-                    Severity = table.Column<int>(type: "INTEGER", nullable: false),
-                    Status = table.Column<int>(type: "INTEGER", nullable: false),
-                    Region = table.Column<string>(type: "TEXT", maxLength: 200, nullable: true),
-                    AffectedServicesJson = table.Column<string>(type: "TEXT", nullable: true),
-                    Source = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
-                    OfficialUrl = table.Column<string>(type: "TEXT", maxLength: 1000, nullable: false),
-                    IsActive = table.Column<bool>(type: "INTEGER", nullable: false),
-                    OccurredAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    LastUpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    ResolvedAt = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    CloudProviderId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ExternalId = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    Title = table.Column<string>(type: "text", nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: false),
+                    Severity = table.Column<int>(type: "integer", nullable: false),
+                    Status = table.Column<int>(type: "integer", nullable: false),
+                    Region = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
+                    AffectedServicesJson = table.Column<string>(type: "text", nullable: true),
+                    Source = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    OfficialUrl = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: false),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    OccurredAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    LastUpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ResolvedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -772,15 +805,15 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 name: "CloudProviderUptimeSnapshots",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    TenantId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    CloudProviderId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Date = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    UptimePercent = table.Column<decimal>(type: "TEXT", nullable: false),
-                    IncidentCount = table.Column<int>(type: "INTEGER", nullable: false),
-                    AvgMttrMinutes = table.Column<int>(type: "INTEGER", nullable: false),
-                    DowntimeMinutes = table.Column<int>(type: "INTEGER", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CloudProviderId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UptimePercent = table.Column<decimal>(type: "numeric", nullable: false),
+                    IncidentCount = table.Column<int>(type: "integer", nullable: false),
+                    AvgMttrMinutes = table.Column<int>(type: "integer", nullable: false),
+                    DowntimeMinutes = table.Column<int>(type: "integer", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -803,8 +836,8 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 name: "CustomerCloudProviders",
                 columns: table => new
                 {
-                    CustomerId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    CloudProviderId = table.Column<Guid>(type: "TEXT", nullable: false)
+                    CustomerId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CloudProviderId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -827,17 +860,17 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 name: "MonitorLogs",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    MonitorId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Status = table.Column<int>(type: "INTEGER", nullable: false),
-                    StatusCode = table.Column<int>(type: "INTEGER", nullable: true),
-                    ResponseTimeMs = table.Column<long>(type: "INTEGER", nullable: true),
-                    DnsTimeMs = table.Column<long>(type: "INTEGER", nullable: true),
-                    ConnectTimeMs = table.Column<long>(type: "INTEGER", nullable: true),
-                    TlsTimeMs = table.Column<long>(type: "INTEGER", nullable: true),
-                    TtfbTimeMs = table.Column<long>(type: "INTEGER", nullable: true),
-                    CheckedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    ErrorMessage = table.Column<string>(type: "TEXT", maxLength: 1000, nullable: true)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    MonitorId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Status = table.Column<int>(type: "integer", nullable: false),
+                    StatusCode = table.Column<int>(type: "integer", nullable: true),
+                    ResponseTimeMs = table.Column<long>(type: "bigint", nullable: true),
+                    DnsTimeMs = table.Column<long>(type: "bigint", nullable: true),
+                    ConnectTimeMs = table.Column<long>(type: "bigint", nullable: true),
+                    TlsTimeMs = table.Column<long>(type: "bigint", nullable: true),
+                    TtfbTimeMs = table.Column<long>(type: "bigint", nullable: true),
+                    CheckedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ErrorMessage = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -854,15 +887,15 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 name: "ServiceDependencies",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    TenantId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    SourceMonitorId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    TargetMonitorId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    DependencyType = table.Column<int>(type: "INTEGER", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "INTEGER", nullable: false),
-                    DeletedAtUtc = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    SourceMonitorId = table.Column<Guid>(type: "uuid", nullable: false),
+                    TargetMonitorId = table.Column<Guid>(type: "uuid", nullable: false),
+                    DependencyType = table.Column<int>(type: "integer", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    DeletedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -891,15 +924,15 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 name: "SlaReports",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    TenantId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    SlaDefinitionId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    PeriodStart = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    PeriodEnd = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    ActualUptimePercent = table.Column<decimal>(type: "TEXT", nullable: false),
-                    DowntimeMinutes = table.Column<int>(type: "INTEGER", nullable: false),
-                    BreachCount = table.Column<int>(type: "INTEGER", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    SlaDefinitionId = table.Column<Guid>(type: "uuid", nullable: false),
+                    PeriodStart = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    PeriodEnd = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ActualUptimePercent = table.Column<decimal>(type: "numeric", nullable: false),
+                    DowntimeMinutes = table.Column<int>(type: "integer", nullable: false),
+                    BreachCount = table.Column<int>(type: "integer", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -922,12 +955,12 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 name: "CloudIncidentCorrelations",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    GroupId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    CloudIncidentId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    CorrelationScore = table.Column<double>(type: "REAL", nullable: false),
-                    CorrelationReason = table.Column<string>(type: "TEXT", maxLength: 500, nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    GroupId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CloudIncidentId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CorrelationScore = table.Column<double>(type: "double precision", nullable: false),
+                    CorrelationReason = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -950,15 +983,15 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 name: "CloudIncidentEvents",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    CloudIncidentId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    PreviousStatus = table.Column<int>(type: "INTEGER", nullable: false),
-                    NewStatus = table.Column<int>(type: "INTEGER", nullable: false),
-                    PreviousSeverity = table.Column<int>(type: "INTEGER", nullable: true),
-                    NewSeverity = table.Column<int>(type: "INTEGER", nullable: true),
-                    EventDescription = table.Column<string>(type: "TEXT", maxLength: 1000, nullable: true),
-                    OccurredAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    CloudIncidentId = table.Column<Guid>(type: "uuid", nullable: false),
+                    PreviousStatus = table.Column<int>(type: "integer", nullable: false),
+                    NewStatus = table.Column<int>(type: "integer", nullable: false),
+                    PreviousSeverity = table.Column<int>(type: "integer", nullable: true),
+                    NewSeverity = table.Column<int>(type: "integer", nullable: true),
+                    EventDescription = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
+                    OccurredAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -975,16 +1008,16 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 name: "CloudIncidentImpacts",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    TenantId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    CloudIncidentId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    MonitorId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    ImpactLevel = table.Column<int>(type: "INTEGER", nullable: false),
-                    AffectedRegion = table.Column<string>(type: "TEXT", maxLength: 200, nullable: true),
-                    AffectedService = table.Column<string>(type: "TEXT", maxLength: 200, nullable: true),
-                    Reason = table.Column<string>(type: "TEXT", maxLength: 500, nullable: true),
-                    CalculatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CloudIncidentId = table.Column<Guid>(type: "uuid", nullable: false),
+                    MonitorId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ImpactLevel = table.Column<int>(type: "integer", nullable: false),
+                    AffectedRegion = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
+                    AffectedService = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
+                    Reason = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    CalculatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -1274,6 +1307,21 @@ namespace MonitoringPlatform.Infrastructure.Migrations
                 table: "UserAlertPreferences",
                 columns: new[] { "UserId", "TenantId" },
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserNotifications_TenantId",
+                table: "UserNotifications",
+                column: "TenantId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserNotifications_UserId_IsRead",
+                table: "UserNotifications",
+                columns: new[] { "UserId", "IsRead" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserNotifications_UserId_NotificationType_ResourceId",
+                table: "UserNotifications",
+                columns: new[] { "UserId", "NotificationType", "ResourceId" });
         }
 
         /// <inheritdoc />
@@ -1353,6 +1401,9 @@ namespace MonitoringPlatform.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "UserAlertPreferences");
+
+            migrationBuilder.DropTable(
+                name: "UserNotifications");
 
             migrationBuilder.DropTable(
                 name: "AlertRules");

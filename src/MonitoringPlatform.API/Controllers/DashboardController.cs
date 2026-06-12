@@ -46,7 +46,7 @@ namespace MonitoringPlatform.API.Controllers
             var activeCloudIncidents = await _dbContext.CloudIncidents
                 .AsNoTracking()
                 .Where(i => i.IsActive && (i.CloudProvider.TenantId == _currentUser.TenantId || (i.CloudProvider.TenantId == systemTenantId && i.CloudProvider.SourceType != MonitoringPlatform.Domain.Enums.CloudStatusSourceType.MicrosoftGraphServiceHealth)))
-                .Select(i => new { i.Id, i.Title, ProviderName = i.CloudProvider.Name, i.Severity })
+                .Select(i => new { i.Id, i.Title, ProviderName = i.CloudProvider.Name, i.Severity, i.OfficialUrl })
                 .ToListAsync();
 
             var slaBreaches = await _dbContext.SlaReports
@@ -56,10 +56,38 @@ namespace MonitoringPlatform.API.Controllers
 
             Console.WriteLine($"[AlertsSummary] offlineMonitors={offlineMonitors.Count}, activeCloudIncidents={activeCloudIncidents.Count}, slaBreaches={slaBreaches}");
 
+            // Create notifications for active alerts if they don't exist
+            var totalAlerts = offlineMonitors.Count + activeCloudIncidents.Count + slaBreaches;
+            if (totalAlerts > 0)
+            {
+                var existingNotificationCount = await _dbContext.UserNotifications
+                    .Where(n => n.UserId == _currentUser.UserId && !n.IsRead)
+                    .CountAsync();
+
+                if (existingNotificationCount == 0)
+                {
+                    // Create a single notification for all alerts
+                    var notification = new Domain.Entities.UserNotification
+                    {
+                        Id = Guid.NewGuid(),
+                        UserId = _currentUser.UserId,
+                        TenantId = _currentUser.TenantId,
+                        NotificationType = "alerts_summary",
+                        ResourceId = null,
+                        ResourceTitle = $"{totalAlerts} alerta(s) activa(s)",
+                        ResourceUrl = null,
+                        IsRead = false,
+                        CreatedAtUtc = DateTime.UtcNow,
+                    };
+                    _dbContext.UserNotifications.Add(notification);
+                    await _dbContext.SaveChangesAsync();
+                }
+            }
+
             return Ok(new
             {
                 offlineMonitors = offlineMonitors.Select(m => new { id = m.Id, name = m.Name }),
-                activeCloudIncidents = activeCloudIncidents.Select(i => new { id = i.Id, title = i.Title, providerName = i.ProviderName, severity = i.Severity }),
+                activeCloudIncidents = activeCloudIncidents.Select(i => new { id = i.Id, title = i.Title, providerName = i.ProviderName, severity = i.Severity, officialUrl = i.OfficialUrl }),
                 slaBreaches,
                 total = offlineMonitors.Count() + activeCloudIncidents.Count() + slaBreaches,
             });

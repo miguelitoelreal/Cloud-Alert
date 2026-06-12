@@ -132,6 +132,9 @@ export function AlertsPage() {
         getCloudProviderOptions(),
         getMonitors(),
       ]);
+      console.log("[AlertsPage] Loaded preferences:", prefs);
+      console.log("[AlertsPage] Loaded providers:", pro);
+      console.log("[AlertsPage] Loaded monitors:", mon);
       setP({ ...defs, ...prefs });
       // Determinar estado inicial basado en si está activado y tiene configuración
       if (prefs.emailEnabled) {
@@ -154,6 +157,7 @@ export function AlertsPage() {
       setProviders(pro.length > 0 ? pro : fallbackProviders);
       setMonitors(mon);
     } catch (e) {
+      console.error("[AlertsPage] Error loading:", e);
       setErr(e instanceof Error ? e.message : "Error al cargar.");
     } finally {
       setLoading(false);

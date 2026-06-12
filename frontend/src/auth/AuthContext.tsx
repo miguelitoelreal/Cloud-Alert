@@ -71,6 +71,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const logout = useCallback(async () => {
     await authService.logout();
     setSession(null);
+    // Limpiar estado de navegación y redirigir al login
+    window.location.href = "/login";
   }, [setSession]);
 
   const value = useMemo<AuthContextValue>(

@@ -44,7 +44,10 @@ namespace MonitoringPlatform.Infrastructure.CloudStatus
             CloudProviderIngestionTargetDto provider,
             CancellationToken cancellationToken)
         {
-            ValidateConfiguration(provider.TenantId);
+            if (!ValidateConfiguration(provider.TenantId))
+            {
+                return [];
+            }
 
             var accessToken = await GetAccessTokenAsync(cancellationToken);
             var issues = await GetIssuesAsync(accessToken, cancellationToken);
@@ -119,7 +122,7 @@ namespace MonitoringPlatform.Infrastructure.CloudStatus
             return incidents;
         }
 
-        private void ValidateConfiguration(Guid tenantId)
+        private bool ValidateConfiguration(Guid tenantId)
         {
             if (_options.Enabled
                 && !string.IsNullOrWhiteSpace(_options.TenantId)
@@ -129,7 +132,7 @@ namespace MonitoringPlatform.Infrastructure.CloudStatus
                 _effectiveTenantId = _options.TenantId;
                 _effectiveClientId = _options.ClientId;
                 _effectiveClientSecret = _options.ClientSecret;
-                return;
+                return true;
             }
 
             var integration = _context.MicrosoftIntegrations
@@ -144,11 +147,13 @@ namespace MonitoringPlatform.Infrastructure.CloudStatus
                 _effectiveTenantId = integration.MicrosoftTenantId;
                 _effectiveClientId = integration.ClientId;
                 _effectiveClientSecret = integration.ClientSecret;
-                return;
+                return true;
             }
 
-            throw new InvalidOperationException(
-                "Microsoft Graph Service Health está deshabilitado en configuración. Configure la integración global o agréguela desde el panel de Integraciones.");
+            _logger.LogInformation(
+                "Microsoft Graph Service Health no está configurado para tenant {TenantId}. Se omitirá la sincronización.",
+                tenantId);
+            return false;
         }
 
         private async Task<string> GetAccessTokenAsync(CancellationToken cancellationToken)

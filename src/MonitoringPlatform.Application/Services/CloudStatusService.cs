@@ -20,19 +20,31 @@ namespace MonitoringPlatform.Application.Services
         {
             query.Take = Math.Clamp(query.Take, 10, 200);
             var cacheKey = $"cs_overview_{query.Provider ?? "all"}_{query.Severity?.ToString() ?? "all"}_{query.ActiveOnly}_{query.Take}";
+            
+            // Try to get from cache
             var cached = await _cache.GetStringAsync(cacheKey);
             if (!string.IsNullOrWhiteSpace(cached))
             {
-                return JsonSerializer.Deserialize<CloudStatusOverviewDto>(cached)!;
+                try
+                {
+                    return JsonSerializer.Deserialize<CloudStatusOverviewDto>(cached)!;
+                }
+                catch
+                {
+                    // If deserialization fails, continue to fetch from DB
+                }
             }
 
+            // Fetch from database
             var result = await _repository.GetOverviewAsync(query);
+            
+            // Cache with shorter expiration to ensure freshness
             await _cache.SetStringAsync(
                 cacheKey,
                 JsonSerializer.Serialize(result),
                 new DistributedCacheEntryOptions
                 {
-                    AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(30),
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(15),
                 });
             return result;
         }

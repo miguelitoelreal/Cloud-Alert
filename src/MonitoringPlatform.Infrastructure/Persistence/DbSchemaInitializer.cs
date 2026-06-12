@@ -62,6 +62,15 @@ public static class DbSchemaInitializer
                     IF EXISTS (SELECT 1 FROM information_schema.columns WHERE lower(table_name) = 'aspnetusers' AND lower(column_name) = 'emailconfirmed' AND data_type = 'integer') THEN
                         ALTER TABLE "AspNetUsers" ALTER COLUMN "EmailConfirmed" TYPE boolean USING ("EmailConfirmed" = 1);
                     END IF;
+                    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE lower(table_name) = 'aspnetusers' AND lower(column_name) = 'lockoutenabled' AND data_type = 'integer') THEN
+                        ALTER TABLE "AspNetUsers" ALTER COLUMN "LockoutEnabled" TYPE boolean USING ("LockoutEnabled" = 1);
+                    END IF;
+                    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE lower(table_name) = 'aspnetusers' AND lower(column_name) = 'phonenumberconfirmed' AND data_type = 'integer') THEN
+                        ALTER TABLE "AspNetUsers" ALTER COLUMN "PhoneNumberConfirmed" TYPE boolean USING ("PhoneNumberConfirmed" = 1);
+                    END IF;
+                    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE lower(table_name) = 'aspnetusers' AND lower(column_name) = 'twofactorenabled' AND data_type = 'integer') THEN
+                        ALTER TABLE "AspNetUsers" ALTER COLUMN "TwoFactorEnabled" TYPE boolean USING ("TwoFactorEnabled" = 1);
+                    END IF;
                 END $$;
                 """);
         }

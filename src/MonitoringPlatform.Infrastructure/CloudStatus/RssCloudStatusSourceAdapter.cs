@@ -49,23 +49,16 @@ namespace MonitoringPlatform.Infrastructure.CloudStatus
                     Console.WriteLine($"[RSS-RAW] Provider={provider.Name} Title='{title.Substring(0, Math.Min(30, title.Length))}' pubDateRaw='{pubDate}'");
                     var occurredAt = CloudStatusParsingHelpers.ParseDateTime(pubDate, DateTime.UtcNow);
 
-                    var isAwsFeed = string.Equals(provider.Slug, "aws", StringComparison.OrdinalIgnoreCase);
-                    var affectedServices = isAwsFeed
-                        ? CloudStatusParsingHelpers.InferAwsServices(title, link)
-                        : new[] { provider.Name };
+                    var affectedServices = new[] { provider.Name };
                     var normalizedDescription = CloudStatusParsingHelpers.ComposeDescription(description, title);
-                    var incidentStatus = isAwsFeed
-                        ? CloudIncidentStatus.Resolved
-                        : CloudStatusParsingHelpers.MapGenericRssStatus(statusText, title, normalizedDescription);
+                    var incidentStatus = CloudStatusParsingHelpers.MapGenericRssStatus(statusText, title, normalizedDescription);
 
                     return new CloudIncidentIngestionDto
                     {
                         ExternalId = link ?? title,
                         Title = title,
                         Description = normalizedDescription,
-                        Severity = isAwsFeed
-                            ? CloudStatusParsingHelpers.MapAwsSeverity(title)
-                            : CloudStatusParsingHelpers.MapGenericRssSeverity(title, normalizedDescription, statusText),
+                        Severity = CloudStatusParsingHelpers.MapGenericRssSeverity(title, normalizedDescription, statusText),
                         Status = incidentStatus,
                         Region = CloudStatusParsingHelpers.InferRegion(title, normalizedDescription, affectedServices, link),
                         AffectedServices = affectedServices,

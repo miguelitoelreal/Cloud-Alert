@@ -10,6 +10,7 @@ export interface CloudIncidentAlert {
   title: string;
   providerName: string;
   severity: number;
+  officialUrl: string;
 }
 
 export interface AlertsSummary {
